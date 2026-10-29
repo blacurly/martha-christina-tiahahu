@@ -31,7 +31,22 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+# Secrets
+.env
+.env.*
+!.env.example
+.env.local
+backend/.env
+
+
+# Python
+backend/.venv/
+__pycache__/
+*.py[cod]
+
+
+# Local vector index
+backend/data/chroma/
 
 # vercel
 .vercel
