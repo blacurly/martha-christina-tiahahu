@@ -1,0 +1,54 @@
+name: RAG Pipeline Check
+
+on:
+  push:
+    paths:
+      - "pipeline/**"
+      - ".github/workflows/rag_pipeline.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pipeline/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Cek sintaks semua sel notebook
+        run: |
+          python - <<'EOF'
+          import ast, json
+          nb = json.load(open("sycle_rag_hybrid_bm25.ipynb"))
+          code_cells = [c for c in nb["cells"] if c["cell_type"] == "code"]
+          for i, cell in enumerate(code_cells, 1):
+              src = "".join(cell["source"])
+              src = "\n".join(l for l in src.splitlines() if not l.lstrip().startswith("!"))
+              ast.parse(src)
+          print(f"OK: {len(code_cells)} sel kode lolos cek sintaks")
+          EOF
+
+      - name: Cek tidak ada API key di notebook
+        run: |
+          if grep -Eq 'AIza[0-9A-Za-z_-]{30,}' sycle_rag_hybrid_bm25.ipynb; then
+            echo "API key terdeteksi di notebook. Hapus sebelum commit."; exit 1
+          fi
+          echo "OK: tidak ada API key"
