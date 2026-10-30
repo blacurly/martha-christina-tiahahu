@@ -49,7 +49,7 @@ export default function ChatWidget () {
     <div className='fixed bottom-5 right-5 z-[100] flex flex-col items-end gap-3'>
       {isOpen && (
         <section
-          className='flex h-[min(520px,70dvh)] w-[calc(100vw-2.5rem)] max-w-[360px] flex-col overflow-hidden rounded-[24px] border border-[#F0D4DF] bg-[#FFF8FB] shadow-[0_12px_45px_rgba(120,70,90,0.20)] sm:h-[500px]'
+          className='flex h-[min(700px,80dvh)] w-[calc(100vw-2rem)] max-w-[480px] flex-col overflow-hidden rounded-[24px] border border-[#F0D4DF] bg-[#FFF8FB] shadow-[0_12px_45px_rgba(120,70,90,0.20)] sm:h-[500px]'
           aria-label='Chat Tanya SYCLE'
         >
           {/* Header */}

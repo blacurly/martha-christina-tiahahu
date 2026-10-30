@@ -1,11 +1,12 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from rag.retrieval import retrieve_context
+from rag.hybrid_retriever import HybridRetriever
 from rag.generation import generate_answer
 
 
 app = FastAPI(title="Virtual Safe Space RAG API")
+retriever = HybridRetriever()
 
 
 # Jika hanya dipanggil melalui Next.js proxy, CORS browser langsung tidak wajib.
@@ -33,8 +34,8 @@ def chat(payload: ChatRequest):
     if not question:
         raise HTTPException(status_code=400, detail="Pertanyaan tidak boleh kosong")
     try:
-        contexts = retrieve_context(question)
-        print("Hasil dari BM25 :: ",contexts)
+        contexts = retriever.hybrid_retrieve(question,top_k=4)
+        print("Hasil Rank BM25: ",contexts)
         answer = generate_answer(question, contexts)
         return {
             "answer": answer,
