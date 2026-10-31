@@ -12,6 +12,7 @@ import {
   conditions,
   symptoms,
   coreQuestions,
+  visibleQuestions,
 } from "@/data/sycle";
 
 const initialProfile = {
@@ -75,7 +76,7 @@ export function AssessmentProvider({ children }) {
       return "Pilih kondisi kesehatan terlebih dahulu.";
     }
 
-    const questions = coreQuestions[condition] ?? [];
+    const questions = visibleQuestions(condition, answers);
 
     const incomplete = questions.some(([question]) => {
       const value = answers[question];

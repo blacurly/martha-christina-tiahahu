@@ -27,75 +27,70 @@ export const symptoms = {
   ],
 };
 
+// Pertanyaan Health Tracker mengikuti Master Draft Tahap 3 (kode HT/HM/HS di komentar).
+// Format: [pertanyaan, opsi, { showIf }] — showIf membuat pertanyaan muncul hanya bila
+// jawaban pertanyaan lain sesuai (percabangan Master Draft).
+export const Q_COMFORT = "Secara umum, bagaimana kenyamanan tubuhmu hari ini?";
+export const Q_OUTDOOR = "Berapa lama kamu berada di luar ruangan hari ini?";
+export const Q_MENSTRUATING = "Apakah kamu sedang menstruasi hari ini?";
+export const Q_MENSTRUATION_DAY = "Hari keberapa menstruasimu saat ini?";
+export const Q_FLOW = "Bagaimana kamu menggambarkan jumlah darah menstruasimu hari ini?";
+export const Q_PAIN = "Apakah kamu mengalami nyeri atau ketidaknyamanan terkait menstruasi yang ingin dicatat?";
+export const Q_PAIN_DISRUPTION = "Seberapa jauh nyeri tersebut mengganggu aktivitasmu?";
+export const Q_BREASTFEEDING = "Apakah kamu menyusui atau memompa ASI hari ini?";
+export const Q_BF_DISCOMFORT = "Apakah kamu mengalami ketidaknyamanan saat menyusui atau memompa ASI?";
+export const Q_BF_DISRUPTION = "Seberapa jauh ketidaknyamanan ini mengganggu aktivitasmu?";
+
+const COMFORT_OPTIONS = ["Sangat nyaman", "Nyaman", "Biasa saja", "Kurang nyaman", "Sangat tidak nyaman", "Tidak ingin menjawab"];
+const OUTDOOR_OPTIONS = ["Tidak", "Kurang dari 30 menit", "30–60 menit", "1–2 jam", "Lebih dari 2 jam", "Tidak yakin"];
+const YES_NO = ["Ya", "Tidak", "Tidak ingin menjawab"];
+
+// Skala gangguan aktivitas 0–4 (HM-05, HS-03). Bukan tingkat keparahan penyakit.
+export const DISRUPTION_SCALE = [
+  "Tidak mengganggu",
+  "Sedikit mengganggu",
+  "Cukup mengganggu",
+  "Sangat mengganggu",
+  "Amat sangat mengganggu",
+];
+
 export const coreQuestions = {
   Menstruasi: [
-    [
-      "Hari keberapa menstruasimu saat ini?",
-      [],
-    ],
-    [
-      "Bagaimana aliran menstruasimu hari ini?",
-      [
-        "Ringan",
-        "Sedang",
-        "Banyak",
-        "Lebih banyak dari biasanya",
-        "Tidak yakin",
-      ],
-    ],
-    [
-      "Dibandingkan menstruasimu biasanya, bagaimana kondisi hari ini?",
-      [
-        "Lebih ringan",
-        "Kurang lebih sama",
-        "Lebih berat",
-        "Terasa berbeda dari biasanya",
-        "Tidak yakin",
-      ],
-    ],
-    [
-      "Kira-kira berapa lama kamu berada di luar ruangan hari ini?",
-      [
-        "Tidak berada di luar",
-        "<1 jam",
-        "1–3 jam",
-        "3–6 jam",
-        ">6 jam",
-      ],
-    ],
+    [Q_COMFORT, COMFORT_OPTIONS], // HT-01
+    [Q_MENSTRUATING, ["Ya", "Tidak", "Tidak yakin", "Tidak ingin menjawab"]], // HM-01
+    [Q_MENSTRUATION_DAY, [], { showIf: { question: Q_MENSTRUATING, equals: "Ya" } }], // HM-02
+    [Q_FLOW, ["Sedikit", "Sedang", "Banyak", "Tidak ingin menjawab"], { showIf: { question: Q_MENSTRUATING, equals: "Ya" } }], // HM-03
+    [Q_PAIN, YES_NO], // HM-04
+    [Q_PAIN_DISRUPTION, DISRUPTION_SCALE, { showIf: { question: Q_PAIN, equals: "Ya" } }], // HM-05
+    [Q_OUTDOOR, OUTDOOR_OPTIONS], // HT-04
   ],
 
   Hamil: [
+    [Q_COMFORT, COMFORT_OPTIONS], // HT-01
     ["Berapa usia kehamilanmu saat ini?", ["Trimester 1", "Trimester 2", "Trimester 3", "Tidak yakin"]],
-    ["Kira-kira berapa lama kamu berada di luar ruangan hari ini?", ["Tidak berada di luar", "<1 jam", "1–3 jam", "3–6 jam", ">6 jam"]],
+    [Q_OUTDOOR, OUTDOOR_OPTIONS], // HT-04
     ["Apa yang mudah kamu akses saat lingkungan terasa panas?", ["Air minum", "Tempat teduh", "Tempat lebih sejuk", "Waktu beristirahat", "Tidak ada dari pilihan di atas"]],
   ],
-  
+
   Menyusui: [
-    [
-      "Apakah kamu sedang menyusui saat ini?",
-      ["Ya", "Tidak", "Tidak ingin menjawab"],
-    ],
-    [
-      "Apakah kamu mengalami ketidaknyamanan saat menyusui?",
-      ["Ya", "Tidak", "Tidak ingin menjawab"],
-    ],
-    [
-      "Apakah ketidaknyamanan tersebut mengganggu aktivitasmu?",
-      ["Tidak mengganggu", "Sedikit", "Sedang", "Berat", "Sangat berat"],
-    ],
-    [
-      "Kira-kira berapa lama kamu berada di luar ruangan hari ini?",
-      [
-        "Tidak berada di luar",
-        "<1 jam",
-        "1–3 jam",
-        "3–6 jam",
-        ">6 jam",
-      ],
-    ],
+    [Q_COMFORT, COMFORT_OPTIONS], // HT-01
+    [Q_BREASTFEEDING, YES_NO], // HS-01
+    [Q_BF_DISCOMFORT, YES_NO, { showIf: { question: Q_BREASTFEEDING, equals: "Ya" } }], // HS-02
+    [Q_BF_DISRUPTION, DISRUPTION_SCALE, { showIf: { question: Q_BF_DISCOMFORT, equals: "Ya" } }], // HS-03
+    [Q_OUTDOOR, OUTDOOR_OPTIONS], // HT-04
   ],
 };
+
+// Pertanyaan tampil bila tidak punya syarat, atau syaratnya terpenuhi.
+export function isQuestionVisible(entry, answers = {}) {
+  const rule = entry?.[2]?.showIf;
+  if (!rule) return true;
+  return answers[rule.question] === rule.equals;
+}
+
+export function visibleQuestions(condition, answers = {}) {
+  return (coreQuestions[condition] ?? []).filter((entry) => isQuestionVisible(entry, answers));
+}
 
 export const evidence = {
   Hamil: {

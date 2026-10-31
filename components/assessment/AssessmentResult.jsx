@@ -1,7 +1,7 @@
 "use client";
 
 import { useAssessment } from "@/context/AssessmentContext";
-import { evidence, guidance, coreQuestions, symptoms } from "@/data/sycle";
+import { evidence, guidance, symptoms, visibleQuestions } from "@/data/sycle";
 
 function formatAnswer(value) {
   if (Array.isArray(value)) {
@@ -27,7 +27,7 @@ export default function AssessmentResult() {
     notice,
   } = useAssessment();
 
-  const questions = coreQuestions[condition] ?? [];
+  const questions = visibleQuestions(condition, answers);
   const conditionSymptoms = symptoms[condition] ?? [];
   const education = evidence[condition];
 

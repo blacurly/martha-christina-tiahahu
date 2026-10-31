@@ -2,19 +2,18 @@
 "use client";
 
 import { useAssessment } from "@/context/AssessmentContext";
+import { Q_MENSTRUATION_DAY, visibleQuestions } from "@/data/sycle";
 
-const MENSTRUATION_DAY_QUESTION =
-  "Hari keberapa menstruasimu saat ini?";
+const MENSTRUATION_DAY_QUESTION = Q_MENSTRUATION_DAY;
 
 export default function CoreQuestions() {
   const {
     condition,
     answers,
     updateAnswer,
-    coreQuestions,
   } = useAssessment();
 
-  const questions = coreQuestions[condition] ?? [];
+  const questions = visibleQuestions(condition, answers);
 
   if (questions.length === 0) {
     return (
