@@ -22,6 +22,7 @@ import {
   Wind,
   House,
   Footprints,
+  Navigation,
 } from "lucide-react";
 
 const INDICATORS = [
@@ -101,6 +102,35 @@ const QUICK_TOPICS = [
   { id: "panas", label: "Cuaca gerah", icon: Sun },
   { id: "matahari", label: "Paparan matahari", icon: ShieldCheck },
   { id: "udara", label: "Kualitas udara", icon: Wind },
+];
+
+const ACTIVITY_OPTIONS = [
+  {
+    id: "indoor",
+    label: "Dalam Ruangan",
+    description: "Bekerja, belajar, memasak, atau beraktivitas di rumah.",
+    icon: House,
+  },
+  {
+    id: "outdoor",
+    label: "Luar Ruangan",
+    description: "Berjalan kaki, berbelanja, berjualan, atau bekerja di luar.",
+    icon: Sun,
+  },
+  {
+    id: "moving",
+    label: "Berpindah-pindah",
+    description:
+      "Sering berpindah tempat di dalam dan luar ruangan, tanpa menetap lama.",
+    icon: Footprints,
+  },
+  {
+    id: "travel",
+    label: "Perjalanan",
+    description:
+      "Bepergian dengan motor, kendaraan umum, atau berjalan kaki.",
+    icon: Navigation,
+  },
 ];
 
 function getStatus(item) {
@@ -197,39 +227,89 @@ function getAdvice(item) {
   return "Pertahankan kebiasaan yang nyaman dan sesuaikan aktivitas dengan kebutuhan tubuh.";
 }
 
-function getQuickTips(topic, mode) {
-  const outdoors = mode === "outdoor";
-
+function getQuickTips(topic, activity) {
   const tips = {
-    panas: [
-      outdoors
-        ? "Cari area teduh dan ambil jeda saat cuaca terasa panas."
-        : "Pastikan ruangan memiliki sirkulasi udara yang nyaman.",
-      "Minum air secara berkala, jangan tunggu sampai sangat haus.",
-      "Jika merasa pusing, lemas, atau mual karena panas, hentikan aktivitas dan cari tempat sejuk.",
-    ],
-    matahari: [
-      "Gunakan tabir surya sesuai petunjuk pemakaian.",
-      "Topi, kacamata pelindung, dan pakaian yang sesuai dapat membantu mengurangi paparan.",
-      outdoors
-        ? "Jika memungkinkan, kurangi paparan matahari langsung ketika indeks UV tinggi."
-        : "Jika duduk dekat jendela, ingat bahwa paparan UV dapat berbeda menurut jenis kaca.",
-    ],
-    udara: [
-      "Periksa kategori kualitas udara yang ditampilkan dan sumber datanya.",
-      outdoors
-        ? "Saat kualitas udara memburuk, pertimbangkan aktivitas indoor atau kurangi aktivitas berat."
-        : "Jaga sirkulasi udara sesuai kondisi luar dan kualitas udara di dalam ruangan.",
-      "Jika muncul sesak napas atau gejala berat, cari bantuan medis.",
-    ],
+    panas: {
+      indoor: [
+        "Pastikan ruangan memiliki sirkulasi udara yang nyaman.",
+        "Minum air secara berkala, terutama saat ruangan terasa gerah.",
+        "Berikan jeda istirahat jika suhu ruangan terasa panas.",
+      ],
+      outdoor: [
+        "Cari area teduh dan ambil jeda saat cuaca terasa panas.",
+        "Minum air secara berkala, jangan tunggu sampai sangat haus.",
+        "Kurangi aktivitas berat ketika suhu dan rasa panas meningkat.",
+      ],
+      moving: [
+        "Sesuaikan pakaian dengan perubahan kondisi lingkungan.",
+        "Manfaatkan tempat teduh atau ruangan sejuk saat berpindah lokasi.",
+        "Sediakan waktu istirahat dan minum air di sela aktivitas.",
+      ],
+      travel: [
+        "Perhatikan suhu dan kenyamanan selama perjalanan.",
+        "Pastikan kebutuhan air minum tersedia.",
+        "Jika perjalanan terasa panas dan melelahkan, ambil waktu untuk beristirahat.",
+      ],
+    },
+
+    matahari: {
+      indoor: [
+        "Jika duduk dekat jendela, ingat bahwa paparan UV dapat berbeda menurut jenis kaca.",
+        "Gunakan perlindungan kulit jika berada dekat paparan matahari langsung.",
+        "Perhatikan perubahan intensitas cahaya matahari sepanjang hari.",
+      ],
+      outdoor: [
+        "Gunakan tabir surya sesuai petunjuk pemakaian.",
+        "Topi, kacamata pelindung, dan pakaian yang sesuai dapat membantu mengurangi paparan.",
+        "Kurangi paparan matahari langsung ketika indeks UV tinggi.",
+      ],
+      moving: [
+        "Gunakan perlindungan matahari yang praktis dan mudah dibawa.",
+        "Perhatikan paparan UV saat berpindah dari dalam ke luar ruangan.",
+        "Manfaatkan tempat teduh ketika berada di luar ruangan.",
+      ],
+      travel: [
+        "Gunakan tabir surya sesuai petunjuk, terutama saat perjalanan panjang.",
+        "Gunakan perlindungan tambahan seperti topi dan kacamata.",
+        "Perhatikan paparan matahari melalui jendela kendaraan.",
+      ],
+    },
+
+    udara: {
+      indoor: [
+        "Perhatikan kualitas udara luar sebelum membuka ventilasi.",
+        "Jaga sirkulasi udara sesuai kondisi lingkungan sekitar.",
+        "Kurangi sumber polusi di dalam ruangan jika memungkinkan.",
+      ],
+      outdoor: [
+        "Periksa kategori kualitas udara sebelum beraktivitas.",
+        "Saat kualitas udara memburuk, pertimbangkan mengurangi aktivitas berat di luar.",
+        "Jika sensitif terhadap polusi, sesuaikan aktivitas dengan kondisi udara.",
+      ],
+      moving: [
+        "Perhatikan perubahan kualitas udara di setiap lokasi aktivitas.",
+        "Jika melewati area berpolusi, pertimbangkan mengurangi paparan.",
+        "Manfaatkan tempat dengan kualitas udara lebih baik untuk beristirahat.",
+      ],
+      travel: [
+        "Periksa kualitas udara di area tujuan perjalanan.",
+        "Hindari terlalu lama berada dekat sumber asap kendaraan.",
+        "Sesuaikan ventilasi kendaraan dengan kondisi kualitas udara sekitar.",
+      ],
+    },
   };
 
-  return tips[topic] || tips.panas;
+  return tips[topic]?.[activity] || tips.panas.indoor;
 }
 
 export default function GeneralGuidancePage() {
-  const { location, environmentLocation, condition, activity } =
-    useAssessment();
+  const {
+    location,
+    environmentLocation,
+    condition,
+    activity,
+    setActivity,
+  } = useAssessment();
 
   const [environment, setEnvironment] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -237,9 +317,6 @@ export default function GeneralGuidancePage() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [selectedIndicator, setSelectedIndicator] = useState(null);
   const [topic, setTopic] = useState("panas");
-  const [activityMode, setActivityMode] = useState(
-    /luar|outdoor/i.test(activity || "") ? "outdoor" : "indoor"
-  );
 
   const adm4 = environmentLocation?.adm4;
   const coordinates = environmentLocation?.coordinates;
@@ -340,7 +417,7 @@ export default function GeneralGuidancePage() {
     ? indicators?.[selectedItem.key]
     : null;
 
-  const tips = getQuickTips(topic, activityMode);
+  const tips = getQuickTips(topic, activity);
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
@@ -548,36 +625,48 @@ export default function GeneralGuidancePage() {
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setActivityMode("indoor")}
-            aria-pressed={activityMode === "indoor"}
-            className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition ${
-              activityMode === "indoor"
-                ? "border-[#66836B] bg-white text-[#332A35] shadow-sm"
-                : "border-[#D7E6D9] bg-transparent text-[#526A56] hover:bg-white/70"
-            }`}
-          >
-            <House size={18} />
-            Dalam ruangan
-            {activityMode === "indoor" && <Check size={16} />}
-          </button>
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {ACTIVITY_OPTIONS.map((item) => {
+            const Icon = item.icon;
+            const isSelected = activity === item.id;
 
-          <button
-            type="button"
-            onClick={() => setActivityMode("outdoor")}
-            aria-pressed={activityMode === "outdoor"}
-            className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition ${
-              activityMode === "outdoor"
-                ? "border-[#66836B] bg-white text-[#332A35] shadow-sm"
-                : "border-[#D7E6D9] bg-transparent text-[#526A56] hover:bg-white/70"
-            }`}
-          >
-            <Footprints size={18} />
-            Luar ruangan
-            {activityMode === "outdoor" && <Check size={16} />}
-          </button>
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActivity(item.id)}
+                aria-pressed={isSelected}
+                className={`flex items-start gap-3 rounded-xl border p-4 text-left transition ${
+                  isSelected
+                    ? "border-[#66836B] bg-white shadow-sm"
+                    : "border-[#D7E6D9] bg-transparent hover:bg-white/70"
+                }`}
+              >
+                <span className="rounded-xl bg-white p-2 text-[#66836B]">
+                  <Icon size={20} />
+                </span>
+
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-bold text-[#332A35]">
+                      {item.label}
+                    </span>
+
+                    {isSelected && (
+                      <CheckCircle2
+                        size={18}
+                        className="shrink-0 text-[#66836B]"
+                      />
+                    )}
+                  </span>
+
+                  <span className="mt-1 block text-xs leading-5 text-[#6B606B]">
+                    {item.description}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         <div className="mt-6">

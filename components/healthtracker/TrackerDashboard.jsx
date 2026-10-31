@@ -37,7 +37,7 @@ export default function TrackerDashboard({ entries = [], loadError = "" }) {
           </p>
 
           <Link
-            href="/assessment"
+            href="/healthtracker/assessment"
             className="mt-5 inline-flex items-center justify-center rounded-full bg-[#B84E73] px-6 py-3 font-extrabold text-white transition hover:bg-[#8E3E5E]"
           >
             Mulai Daily Check-In →
