@@ -1,13 +1,32 @@
-"use client";
-
 import Link from "next/link";
-import { useAssessment } from "@/context/AssessmentContext";
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { connection } from "next/server";
+import { getCurrentUser } from "@/lib/auth/session";
+import { getMyTrackerEntries } from "@/lib/tracker/records";
+
+export const metadata = { title: "Riwayat Check-In" };
 
 export default function HealthTrackerHistoryPage() {
-  const { entries } = useAssessment();
+  return (
+    <Suspense
+      fallback={
+        <main className="mx-auto w-full max-w-6xl px-6 py-10">Memuat riwayat...</main>
+      }
+    >
+      <Content />
+    </Suspense>
+  );
+}
 
-  // Tampilkan catatan terbaru di bagian paling atas.
-  const history = [...entries].reverse();
+async function Content() {
+  await connection();
+  const user = await getCurrentUser();
+  if (!user) redirect("/login?next=/healthtracker/history");
+
+  // Catatan dari Supabase, terbaru di bagian paling atas.
+  const { entries, error } = await getMyTrackerEntries();
+  const history = entries;
 
   return (
     <section className="mx-auto w-full max-w-6xl px-6 py-10">
@@ -42,6 +61,12 @@ export default function HealthTrackerHistoryPage() {
           {entries.length}
         </p>
       </div>
+
+      {error && (
+        <p role="alert" className="mb-4 rounded-xl bg-[#FFF4E5] p-3 text-sm text-[#7A4B00]">
+          {error}
+        </p>
+      )}
 
       {history.length === 0 ? (
         <div className="rounded-[22px] border border-dashed border-[#E5CCD7] bg-white px-6 py-12 text-center">
@@ -98,10 +123,10 @@ export default function HealthTrackerHistoryPage() {
 
                 <div className="rounded-xl bg-[#FFF8FB] p-3">
                   <p className="text-xs font-bold text-[#8A7D89]">
-                    LOKASI
+                    KENYAMANAN TUBUH
                   </p>
                   <p className="mt-1 font-bold text-[#332A35]">
-                    {entry.location || "Belum dicatat"}
+                    {entry.comfort || "Belum dicatat"}
                   </p>
                 </div>
               </div>

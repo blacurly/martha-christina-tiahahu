@@ -1,14 +1,32 @@
-"use client";
-
 import Link from "next/link";
-import { useAssessment } from "@/context/AssessmentContext";
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { connection } from "next/server";
+import { getCurrentUser } from "@/lib/auth/session";
+import { getMyTrackerEntries } from "@/lib/tracker/records";
+
+export const metadata = { title: "Ringkasan Health Tracker" };
 
 export default function HealthTrackerSummaryPage() {
-  const { entries } = useAssessment();
+  return (
+    <Suspense
+      fallback={
+        <main className="mx-auto w-full max-w-6xl px-6 py-10">Memuat ringkasan...</main>
+      }
+    >
+      <Content />
+    </Suspense>
+  );
+}
 
-  const latestEntry = entries.length
-    ? entries[entries.length - 1]
-    : null;
+async function Content() {
+  await connection();
+  const user = await getCurrentUser();
+  if (!user) redirect("/login?next=/healthtracker/summary");
+
+  const { entries } = await getMyTrackerEntries();
+
+  const latestEntry = entries[0] ?? null;
 
   const conditionCounts = entries.reduce((counts, entry) => {
     if (entry.condition) {
@@ -173,7 +191,7 @@ export default function HealthTrackerSummaryPage() {
           </p>
 
           <p className="mt-2 text-sm text-[#6F6570]">
-            Lokasi: {latestEntry.location || "Belum dicatat"}
+            Kenyamanan tubuh: {latestEntry.comfort || "Belum dicatat"}
           </p>
 
           {latestEntry.story && (

@@ -61,6 +61,7 @@ export default function AssessmentResultPage() {
       description="Lihat kembali catatan tubuh, aktivitas, dan informasi edukatif yang relevan."
       onBack={() => router.back()}
       onSubmit={handleSave}
+      submitLabel={saving ? "Menyimpan..." : "Simpan Catatan"}
     >
       <AssessmentResult />
       {errorMessage && <p role="alert">{errorMessage}</p>}

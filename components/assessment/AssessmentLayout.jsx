@@ -25,6 +25,7 @@ export default function AssessmentLayout({
   description,
   error: externalError = "",
   showNavigation = true,
+  submitLabel,
 }) {
   const [internalStep, setInternalStep] = useState(0);
   const [internalError, setInternalError] = useState("");
@@ -174,6 +175,7 @@ export default function AssessmentLayout({
                 onBack={handleBack}
                 onNext={handleNext}
                 onSubmit={handleSubmit}
+                {...(submitLabel ? { submitLabel } : {})}
               />
             )}
           </div>

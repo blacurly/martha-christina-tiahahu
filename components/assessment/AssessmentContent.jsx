@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAssessment } from "@/context/AssessmentContext";
 
 import SymptomScale from "@/components/assessment/SymptomScale";
@@ -10,6 +10,8 @@ import ConditionSelector from "@/components/assessment/ConditionSelector";
 import PersonalInfoForm from "@/components/assessment/PersonalInfoForm";
 import CoreQuestions from "@/components/assessment/CoreQuestions";
 import StoryForm from "@/components/assessment/StoryForm";
+import AssessmentResult from "@/components/assessment/AssessmentResult";
+import { saveAssessmentAction } from "@/app/assessment/result/actions";
 
 const steps = [
   {
@@ -72,6 +74,7 @@ export default function AssessmentContent() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const activityParam = searchParams.get("activity");
@@ -130,9 +133,32 @@ export default function AssessmentContent() {
     );
   }
 
-  function handleSubmit() {
-    saveEntry();
+  async function handleSubmit() {
+    if (saving) return;
     setError("");
+    setSaving(true);
+
+    try {
+      const result = await saveAssessmentAction({
+        condition,
+        answers,
+        activity,
+        story,
+      });
+
+      if (!result.success) {
+        setError(result.message);
+        return;
+      }
+
+      saveEntry();
+      router.push("/healthtracker");
+      router.refresh();
+    } catch {
+      setError("Terjadi kesalahan saat menyimpan catatan.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -143,6 +169,7 @@ export default function AssessmentContent() {
       onNext={handleNext}
       onBack={handleBack}
       onSubmit={handleSubmit}
+      submitLabel={saving ? "Menyimpan..." : "Simpan Catatan"}
       error={error}
     >
       {currentStep === 0 && (
@@ -172,16 +199,7 @@ export default function AssessmentContent() {
         </section>
       )}
 
-      {currentStep === 6 && (
-        <section className="space-y-3">
-          <h2 className="text-xl font-extrabold text-[#332A35]">
-            Check-in selesai
-          </h2>
-          <p className="text-sm text-[#766976]">
-            Catatan demo tersimpan pada sesi aplikasi ini.
-          </p>
-        </section>
-      )}
+      {currentStep === 6 && <AssessmentResult />}
     </AssessmentLayout>
   );
 }

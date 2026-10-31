@@ -1,14 +1,8 @@
-"use client";
-
 import Link from "next/link";
-import { useAssessment } from "@/context/AssessmentContext";
 
-export default function TrackerDashboard() {
-  const { entries } = useAssessment();
-
-  const latestEntry = entries.length
-    ? entries[entries.length - 1]
-    : null;
+// entries: catatan dari Supabase, terbaru di urutan pertama.
+export default function TrackerDashboard({ entries = [], loadError = "" }) {
+  const latestEntry = entries[0] ?? null;
 
   return (
     <section className="mx-auto w-full max-w-6xl px-6 py-10">
@@ -51,6 +45,12 @@ export default function TrackerDashboard() {
         </div>
       </div>
 
+      {loadError && (
+        <p role="alert" className="mb-4 rounded-xl bg-[#FFF4E5] p-3 text-sm text-[#7A4B00]">
+          {loadError}
+        </p>
+      )}
+
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <div className="rounded-[22px] border border-[#F0E2E9] bg-white p-6 shadow-sm">
           <div className="flex items-start justify-between gap-3">
@@ -77,13 +77,17 @@ export default function TrackerDashboard() {
                 {latestEntry.date}
               </p>
 
-              <p className="mt-2 text-sm text-[#6F6570]">
-                Aktivitas: {latestEntry.activity}
-              </p>
+              {latestEntry.comfort && (
+                <p className="mt-2 text-sm text-[#6F6570]">
+                  Kenyamanan tubuh: {latestEntry.comfort}
+                </p>
+              )}
 
-              <p className="mt-1 text-sm text-[#6F6570]">
-                Lokasi: {latestEntry.location}
-              </p>
+              {latestEntry.activity && (
+                <p className="mt-1 text-sm text-[#6F6570]">
+                  Aktivitas: {latestEntry.activity}
+                </p>
+              )}
             </>
           ) : (
             <p className="mt-3 text-sm leading-6 text-[#6F6570]">

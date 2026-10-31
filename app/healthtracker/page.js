@@ -5,6 +5,7 @@ import { connection } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { Suspense } from "react";
 import TrackerDashboard from "@/components/healthtracker/TrackerDashboard";
+import { getMyTrackerEntries } from "@/lib/tracker/records";
 
 export const metadata = {
   title: "Health Tracker",
@@ -93,5 +94,7 @@ async function HealthTrackerContent() {
     );
   }
 
-  return <TrackerDashboard />;
+  const { entries, error } = await getMyTrackerEntries();
+
+  return <TrackerDashboard entries={entries} loadError={error} />;
 }
