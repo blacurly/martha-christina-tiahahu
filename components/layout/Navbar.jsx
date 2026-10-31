@@ -29,8 +29,6 @@ export default function Navbar() {
       ? pathname === "/"
       : pathname === href || pathname.startsWith(`${href}/`);
 
-  const isAuthPage = ["/login", "/signup"].includes(pathname);
-
   const displayName =
     user?.user_metadata?.full_name ||
     user?.user_metadata?.name ||
@@ -106,14 +104,26 @@ export default function Navbar() {
               <span>{displayName}</span>
             </Link>
           ) : (
-            <Link
-              href="/login"
-              className={`nav-button ${
-                isAuthPage ? "nav-button-active" : ""
-              }`}
-            >
-              Masuk
-            </Link>
+            <>
+              <Link
+                href="/login"
+                className={`nav-button nav-button-outline ${
+                  pathname === "/login" ? "nav-button-active" : ""
+                }`}
+                aria-current={pathname === "/login" ? "page" : undefined}
+              >
+                Masuk
+              </Link>
+              <Link
+                href="/signup"
+                className={`nav-button ${
+                  pathname === "/signup" ? "nav-button-active" : ""
+                }`}
+                aria-current={pathname === "/signup" ? "page" : undefined}
+              >
+                Daftar
+              </Link>
+            </>
           ))}
       </div>
     </header>

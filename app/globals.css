@@ -254,6 +254,20 @@ select:focus-visible {
   background: var(--primary-pressed);
 }
 
+/* Tombol masuk: garis tepi, supaya Daftar lebih menonjol */
+
+.nav-button.nav-button-outline {
+  background: var(--white);
+  color: var(--primary);
+}
+
+.nav-button.nav-button-outline:hover,
+.nav-button.nav-button-outline.nav-button-active {
+  border-color: var(--primary-pressed);
+  background: var(--blush);
+  color: var(--primary-pressed);
+}
+
 .nav-account {
   display: inline-flex;
   align-items: center;
