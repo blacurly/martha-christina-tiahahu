@@ -6,6 +6,7 @@ import AssessmentLayout from "@/components/assessment/AssessmentLayout";
 import AssessmentResult from "@/components/assessment/AssessmentResult";
 import { useAssessment } from "@/context/AssessmentContext";
 import { saveAssessmentAction } from "./actions";
+import AccountPrompt from "@/components/assessment/AccountPrompt";
 
 export default function AssessmentResultPage() {
   const router = useRouter();
@@ -21,10 +22,11 @@ export default function AssessmentResultPage() {
 
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [needsAccount, setNeedsAccount] = useState(false);
 
   async function handleSave() {
     if (mode === "guest") {
-      router.push("/signup");
+      setNeedsAccount(true);
       return;
     }
 
@@ -40,7 +42,11 @@ export default function AssessmentResultPage() {
       });
 
       if (!result.success) {
-        setErrorMessage(result.message);
+        if (result.needsAccount) {
+          setNeedsAccount(true);
+        } else {
+          setErrorMessage(result.message);
+        }
         return;
       }
 
@@ -64,6 +70,7 @@ export default function AssessmentResultPage() {
       submitLabel={saving ? "Menyimpan..." : "Simpan Catatan"}
     >
       <AssessmentResult />
+      {needsAccount && <AccountPrompt />}
       {errorMessage && <p role="alert">{errorMessage}</p>}
     </AssessmentLayout>
   );

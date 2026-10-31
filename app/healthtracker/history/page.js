@@ -106,9 +106,17 @@ async function Content() {
                   </h2>
                 </div>
 
-                <span className="w-fit rounded-full bg-[#E9F2EA] px-3 py-1 text-sm font-bold text-[#426B4A]">
-                  Tersimpan
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="w-fit rounded-full bg-[#E9F2EA] px-3 py-1 text-sm font-bold text-[#426B4A]">
+                    Tersimpan
+                  </span>
+                  <a
+                    href={`/api/tracker/records/${entry.id}/pdf`}
+                    className="w-fit rounded-full border border-[#B84E73] px-3 py-1 text-sm font-bold text-[#8E3E5E] hover:bg-[#F8E8EF]"
+                  >
+                    Unduh PDF
+                  </a>
+                </div>
               </div>
 
               <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">

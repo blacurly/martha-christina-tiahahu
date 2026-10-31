@@ -21,7 +21,8 @@ export async function saveAssessmentAction({
     if (authError || !user) {
       return {
         success: false,
-        message: "Silakan login terlebih dahulu.",
+        needsAccount: true,
+        message: "Masuk atau buat akun untuk menyimpan catatan ini.",
       };
     }
 
@@ -44,7 +45,7 @@ export async function saveAssessmentAction({
       .single();
 
     if (error) {
-      console.error("Gagal menyimpan assessment:", error);
+      console.error("Gagal menyimpan assessment:", error.code, error.message);
 
       return {
         success: false,

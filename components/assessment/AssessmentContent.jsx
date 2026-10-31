@@ -11,6 +11,7 @@ import PersonalInfoForm from "@/components/assessment/PersonalInfoForm";
 import CoreQuestions from "@/components/assessment/CoreQuestions";
 import StoryForm from "@/components/assessment/StoryForm";
 import AssessmentResult from "@/components/assessment/AssessmentResult";
+import AccountPrompt from "@/components/assessment/AccountPrompt";
 import { saveAssessmentAction } from "@/app/assessment/result/actions";
 
 const steps = [
@@ -75,6 +76,7 @@ export default function AssessmentContent() {
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [needsAccount, setNeedsAccount] = useState(false);
 
   useEffect(() => {
     const activityParam = searchParams.get("activity");
@@ -136,6 +138,7 @@ export default function AssessmentContent() {
   async function handleSubmit() {
     if (saving) return;
     setError("");
+    setNeedsAccount(false);
     setSaving(true);
 
     try {
@@ -147,7 +150,11 @@ export default function AssessmentContent() {
       });
 
       if (!result.success) {
-        setError(result.message);
+        if (result.needsAccount) {
+          setNeedsAccount(true);
+        } else {
+          setError(result.message);
+        }
         return;
       }
 
@@ -199,7 +206,12 @@ export default function AssessmentContent() {
         </section>
       )}
 
-      {currentStep === 6 && <AssessmentResult />}
+      {currentStep === 6 && (
+        <>
+          <AssessmentResult />
+          {needsAccount && <AccountPrompt />}
+        </>
+      )}
     </AssessmentLayout>
   );
 }
