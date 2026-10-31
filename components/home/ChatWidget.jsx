@@ -100,11 +100,15 @@ export default function ChatWidget () {
                     : 'self-start rounded-tl-sm bg-white text-[#493D49] shadow-sm'
                 }`}
               >
-                <FormattedText text={item.content} />
+                {item.role === 'user' ? (
+                  <p className='whitespace-pre-wrap font-semibold text-white'>{item.content}</p>
+                ) : (
+                  <FormattedText text={item.content} />
+                )}
               </div>
             ))}
             {loading && (
-              <p style={{ color: '#D1D5DB', fontSize: 13 }}>
+              <p style={{ color: '#766976', fontSize: 13 }}>
                 Sedang mencari informasi…
               </p>
             )}
