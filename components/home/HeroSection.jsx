@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import "./HeroSection.css";
 import { Button } from "@/components/ui/button";
@@ -38,17 +39,15 @@ export default function HeroSection({ onStartCheckin }) {
       </div>
 
       <div className="hero-art">
-        <div className="orb orb-one" />
-        <div className="orb orb-two" />
-
-        <div className="hero-circle">
-          SYCLE
-          <span>
-            SEE YOUR ENVIRONMENT
-            <br />
-            KNOW YOURSELF
-          </span>
-        </div>
+        <Image
+          src="/brand/hero-women.webp"
+          alt="Ilustrasi empat perempuan duduk berangkulan sambil tersenyum"
+          width={1200}
+          height={699}
+          priority
+          sizes="(max-width: 700px) 100vw, 45vw"
+          className="hero-illustration"
+        />
 
         <div className="float-card float-top">
           ☀️ Lingkungan hari ini
