@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ChatWidget from "@/components/home/ChatWidget";
+import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 
 export const metadata = {
   title: "SYCLE — Lingkungan, tubuh, dan cerita harianmu",
@@ -26,6 +27,8 @@ export default function RootLayout({ children }) {
           <Footer />
 
           <ChatWidget />
+
+          <ServiceWorkerRegister />
         </AssessmentProvider>
       </body>
     </html>

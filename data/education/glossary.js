@@ -74,7 +74,7 @@ export const GLOSSARY = [
     basis: "Master Draft 6.3.1–6.3.3",
     related: ["us-aqi"],
   },
-  // ---- E-1: istilah tambahan untuk topik Info & Edukasi — DRAF DEMONSTRASI (Claude), perlu ditinjau tim.
+  // ---- E-1: istilah tambahan untuk topik Info & Edukasi — DRAF DEMONSTRASI, perlu ditinjau tim.
   {
     id: "pm25",
     term: "PM2.5",
