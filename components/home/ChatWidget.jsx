@@ -108,7 +108,7 @@ export default function ChatWidget () {
               </div>
             ))}
             {loading && (
-              <p style={{ color: '#766976', fontSize: 13 }}>
+              <p style={{ color: '#D1D5DB', fontSize: 13 }}>
                 Sedang mencari informasi…
               </p>
             )}
