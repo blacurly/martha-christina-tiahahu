@@ -19,6 +19,7 @@ export async function saveAssessmentAction({
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
+      console.warn("[tracker] simpan ditolak: belum login", authError?.message ?? "");
       return {
         success: false,
         needsAccount: true,
@@ -53,6 +54,7 @@ export async function saveAssessmentAction({
       };
     }
 
+    console.info("[tracker] catatan tersimpan:", data.id, record.context);
     return {
       success: true,
       message: "Catatan berhasil disimpan.",

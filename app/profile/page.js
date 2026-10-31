@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { Button } from "@/components/ui/button";
 import { logout } from "./actions";
@@ -95,6 +96,7 @@ function MenuCard({ item }) {
 }
 
 async function ProfileContent({ searchParams }) {
+  await connection();
   const user = await getCurrentUser();
   const params = await searchParams;
 
