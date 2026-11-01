@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { Heart, MessageCircle, Send, Sparkles, X } from 'lucide-react'
 import FormattedText from './FormattedText'
@@ -17,6 +19,12 @@ export default function ChatWidget () {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const inputRef = useRef(null)
+  const pathname = usePathname()
+  // Sisa pertanyaan Guest hari ini (null = Member atau belum diketahui).
+  const [guestRemaining, setGuestRemaining] = useState(null)
+  // true jika batas Guest habis; pengguna diarahkan ke Masuk/Daftar.
+  const [needsAccount, setNeedsAccount] = useState(false)
+  const nextPath = encodeURIComponent(pathname || '/')
 
   function fillSuggestion (question) {
     setInput(question)
@@ -26,7 +34,7 @@ export default function ChatWidget () {
   async function sendMessage (event) {
     event?.preventDefault()
     const message = input.trim()
-    if (!message || loading) return
+    if (!message || loading || needsAccount) return
 
     setMessages(prev => [...prev, { role: 'user', content: message }])
     setInput('')
@@ -38,6 +46,18 @@ export default function ChatWidget () {
         body: JSON.stringify({ message })
       })
       const data = await response.json()
+      if (data.needsAccount) {
+        setNeedsAccount(true)
+        setGuestRemaining(0)
+        setMessages(prev => [
+          ...prev,
+          { role: 'assistant', content: data.error, needsAccount: true }
+        ])
+        return
+      }
+      if (typeof data.guestRemaining === 'number') {
+        setGuestRemaining(data.guestRemaining)
+      }
       if (!response.ok) {
         throw new Error(data.error || data.detail || 'Permintaan gagal')
       }
@@ -137,7 +157,25 @@ export default function ChatWidget () {
                 {item.role === 'user' ? (
                   <p className='whitespace-pre-wrap font-semibold text-white'>{item.content}</p>
                 ) : (
-                  <FormattedText text={item.content} />
+                  <>
+                    <FormattedText text={item.content} />
+                    {item.needsAccount && (
+                      <div className='mt-3 flex flex-wrap gap-2'>
+                        <Link
+                          href={`/login?next=${nextPath}`}
+                          className='rounded-xl border border-[#B84E73] px-4 py-2 text-xs font-bold text-[#8E3E5E] hover:bg-[#F8E8EF]'
+                        >
+                          Masuk
+                        </Link>
+                        <Link
+                          href={`/signup?next=${nextPath}`}
+                          className='rounded-xl bg-[#B84E73] px-4 py-2 text-xs font-bold text-white hover:bg-[#8E3E5E]'
+                        >
+                          Daftar
+                        </Link>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             ))}
@@ -160,20 +198,31 @@ export default function ChatWidget () {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 type='text'
-                placeholder='Tulis pertanyaanmu...'
+                disabled={needsAccount}
+                placeholder={needsAccount ? 'Masuk untuk lanjut bertanya' : 'Tulis pertanyaanmu...'}
                 aria-label='Tulis pesan'
                 className='min-w-0 flex-1 bg-transparent px-2 py-2 text-sm text-[#332A35] outline-none placeholder:text-[#A3949E]'
               />
 
               <button
                 type='submit'
-                disabled={loading || !input.trim()}
+                disabled={loading || needsAccount || !input.trim()}
                 aria-label='Kirim pesan'
                 className='flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#B84E73] text-white transition hover:bg-[#8E3E5E] disabled:cursor-not-allowed disabled:opacity-40'
               >
                 <Send size={17} />
               </button>
             </div>
+
+            {guestRemaining !== null && !needsAccount && (
+              <p className='mt-2 text-center text-[11px] font-semibold text-[#8E3E5E]'>
+                Sisa {guestRemaining} pertanyaan gratis hari ini.{' '}
+                <Link href={`/login?next=${nextPath}`} className='underline'>
+                  Masuk
+                </Link>{' '}
+                untuk bertanya tanpa batas.
+              </p>
+            )}
 
             <p className='mt-2 text-center text-[10px] leading-relaxed text-[#8A7A85]'>
               Hindari memasukkan data pribadi atau informasi kesehatan yang
