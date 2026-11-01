@@ -11,7 +11,7 @@ export default function AccountPrompt({ next = "/assessment/result" }) {
       className="mt-6 rounded-2xl border border-[#E8C4D2] bg-[#F8E8EF] p-5"
     >
       <h3 className="text-lg font-extrabold text-[#332A35]">
-        Simpan catatan dengan akun SYCLE
+        Simpan catatan dengan akun Sycle
       </h3>
       <p className="mt-2 text-sm leading-6 text-[#6F6570]">
         Catatan Health Tracker hanya bisa disimpan oleh Member agar riwayatnya tetap

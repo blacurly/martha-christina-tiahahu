@@ -112,7 +112,7 @@ function SignupForm() {
           </p>
 
           <h1 className="mt-2 text-3xl font-extrabold text-[#332A35]">
-            Daftar SYCLE
+            Daftar Sycle
           </h1>
 
           <p className="mt-3 text-sm leading-6 text-[#6F6570]">
@@ -225,7 +225,7 @@ function SignupForm() {
                   rel="noreferrer"
                   className="font-extrabold text-[#B84E73] underline underline-offset-2"
                 >
-                  Kebijakan Privasi SYCLE
+                  Kebijakan Privasi Sycle
                 </Link>
                 .
               </span>

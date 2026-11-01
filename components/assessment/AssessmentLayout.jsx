@@ -99,7 +99,7 @@ export default function AssessmentLayout({
           <h2>Kenali tubuhmu, sedikit demi sedikit.</h2>
 
           <div className="assessment-flow__logo">
-            SYCLE
+            Sycle
           </div>
 
           <p>

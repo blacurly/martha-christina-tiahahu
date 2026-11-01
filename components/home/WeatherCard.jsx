@@ -557,7 +557,7 @@ export default function WeatherCard({
       status: heatIndexStatus,
       source: getSourceName(heatIndexIndicator),
       description: heatIndexIndicator?.method
-        ? `Perhitungan SYCLE · ${heatIndexIndicator.method}`
+        ? `Perhitungan Sycle · ${heatIndexIndicator.method}`
         : "Indeks panas berdasarkan suhu dan kelembapan",
       type: "heatIndex",
     },
@@ -616,12 +616,11 @@ export default function WeatherCard({
               <span className="temperature-unit">°C</span>
             )}
           </div>
-
-          <StatusBadge status={temperatureStatus} />
-
           <span className="weather-condition">
             {forecast?.condition || "Kondisi cuaca"}
           </span>
+
+          <StatusBadge status={temperatureStatus} />
 
           <span className="temperature-source">
             Sumber: {temperatureSource}

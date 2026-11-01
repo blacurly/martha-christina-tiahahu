@@ -1085,7 +1085,7 @@ export default function GeneralAssessmentContent() {
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#EBCBD7] bg-white/70 px-3 py-1.5">
               <Sparkles size={14} className="text-[#B84E73]" />
               <span className="text-[10px] font-bold tracking-[0.14em] text-[#A34C6B]">
-                SYCLE · ASSESSMENT UMUM
+                Sycle · ASSESSMENT UMUM
               </span>
             </div>
 
@@ -1272,7 +1272,7 @@ export default function GeneralAssessmentContent() {
         </div>
 
         <p className="pb-4 text-center text-xs leading-relaxed text-[#8A808A]">
-          Informasi SYCLE bersifat edukatif dan bukan pengganti
+          Informasi Sycle bersifat edukatif dan bukan pengganti
           konsultasi tenaga kesehatan.
         </p>
       </section>

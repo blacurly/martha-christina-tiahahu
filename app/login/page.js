@@ -78,7 +78,7 @@ function LoginForm() {
           </p>
 
           <h1 className="mt-2 text-3xl font-extrabold text-[#332A35]">
-            Login ke SYCLE
+            Login ke Sycle
           </h1>
 
           <p className="mt-3 text-sm leading-6 text-[#6F6570]">

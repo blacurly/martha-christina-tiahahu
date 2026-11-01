@@ -1,14 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Heart, MessageCircle, Send, Sparkles, X } from 'lucide-react'
 import FormattedText from './FormattedText'
+
+const SUGGESTED_QUESTIONS = [
+  'Apa hubungan cuaca panas dengan kehamilan?',
+  'Apa yang perlu disiapkan saat kualitas udara buruk?',
+  'Bagaimana melindungi diri dari sinar UV?',
+  'Apa itu Heat Index dan kenapa perlu diperhatikan?'
+]
 
 export default function ChatWidget () {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const inputRef = useRef(null)
+
+  function fillSuggestion (question) {
+    setInput(question)
+    inputRef.current?.focus()
+  }
 
   async function sendMessage (event) {
     event?.preventDefault()
@@ -50,7 +63,7 @@ export default function ChatWidget () {
       {isOpen && (
         <section
           className='flex h-[min(700px,80dvh)] w-[calc(100vw-2rem)] max-w-[480px] flex-col overflow-hidden rounded-[24px] border border-[#F0D4DF] bg-[#FFF8FB] shadow-[0_12px_45px_rgba(120,70,90,0.20)] sm:h-[500px]'
-          aria-label='Chat Tanya SYCLE'
+          aria-label='Chat Tanya Sycle'
         >
           {/* Header */}
           <header className='flex items-center gap-3 bg-[#F8E8EF] p-4'>
@@ -59,7 +72,7 @@ export default function ChatWidget () {
             </div>
 
             <div className='min-w-0 flex-1'>
-              <h2 className='font-bold text-[#332A35]'>Tanya SYCLE</h2>
+              <h2 className='font-bold text-[#332A35]'>Tanya Sycle</h2>
               <p className='text-xs text-[#765866]'>
                 Teman memahami lingkungan dan kesehatan perempuan
               </p>
@@ -83,13 +96,34 @@ export default function ChatWidget () {
               </div>
 
               <div className='max-w-[85%] rounded-2xl rounded-tl-sm bg-white p-3 text-sm leading-relaxed text-[#493D49] shadow-sm'>
-                Hai! 💗 Aku Tanya SYCLE.
+                Hai! 💗 Aku Tanya Sycle.
                 <p className='mt-2'>
                   Aku akan membantumu memahami hubungan lingkungan dengan
                   kesehatan perempuan. Apa yang ingin kamu ketahui hari ini?
                 </p>
               </div>
             </div>
+
+            {/* Rekomendasi pertanyaan: di bawah sapaan, hilang setelah pengguna bertanya */}
+            {messages.length === 0 && (
+              <div className='pl-10'>
+                <p className='mb-2 text-xs font-semibold text-[#765866]'>
+                  Coba tanyakan:
+                </p>
+                <div className='flex flex-wrap gap-2'>
+                  {SUGGESTED_QUESTIONS.map(question => (
+                    <button
+                      key={question}
+                      type='button'
+                      onClick={() => fillSuggestion(question)}
+                      className='rounded-full border border-[#F0D4DF] bg-white px-3 py-1.5 text-left text-xs font-semibold leading-snug text-[#8E3E5E] transition hover:border-[#B84E73] hover:bg-[#F8E8EF]'
+                    >
+                      {question}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {messages.map((item, index) => (
               <div
@@ -107,6 +141,7 @@ export default function ChatWidget () {
                 )}
               </div>
             ))}
+
             {loading && (
               <p style={{ color: '#D1D5DB', fontSize: 13 }}>
                 Sedang mencari informasi…
@@ -121,6 +156,7 @@ export default function ChatWidget () {
           >
             <div className='flex items-center gap-2 rounded-2xl border border-[#EADCE3] bg-[#FFF8FB] p-1.5 focus-within:border-[#B84E73]'>
               <input
+                ref={inputRef}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 type='text'
@@ -151,7 +187,7 @@ export default function ChatWidget () {
       <button
         type='button'
         onClick={() => setIsOpen(previous => !previous)}
-        aria-label={isOpen ? 'Tutup Tanya SYCLE' : 'Buka Tanya SYCLE'}
+        aria-label={isOpen ? 'Tutup Tanya Sycle' : 'Buka Tanya Sycle'}
         aria-expanded={isOpen}
         className='group flex items-center gap-2 rounded-full border border-white/80 bg-[#B84E73] py-3 pl-4 pr-5 text-white shadow-[0_6px_24px_rgba(184,78,115,0.32)] transition duration-200 hover:-translate-y-1 hover:bg-[#8E3E5E] hover:shadow-[0_10px_28px_rgba(184,78,115,0.35)] active:translate-y-0'
       >
@@ -169,7 +205,7 @@ export default function ChatWidget () {
         )}
 
         <span className='text-sm font-bold'>
-          {isOpen ? 'Tutup Chat' : 'Tanya SYCLE'}
+          {isOpen ? 'Tutup Chat' : 'Tanya Sycle'}
         </span>
       </button>
     </div>

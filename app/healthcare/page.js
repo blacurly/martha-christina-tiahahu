@@ -63,7 +63,7 @@ export default function HealthcarePage() {
         <section className="space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-sm font-semibold text-[#8E3E5E]">
             <Stethoscope size={16} />
-            Healthcare SYCLE
+            Healthcare Sycle
           </div>
 
           <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">

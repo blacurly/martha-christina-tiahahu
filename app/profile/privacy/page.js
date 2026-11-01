@@ -27,7 +27,7 @@ export default function PrivacyPage() {
           </h2>
           <p className="mt-1 text-sm leading-6 text-[#6B606B]">
             Informasi profil, jawaban assessment, dan data lingkungan
-            dapat digunakan untuk menyediakan fitur SYCLE sesuai
+            dapat digunakan untuk menyediakan fitur Sycle sesuai
             kebutuhan aplikasi.
           </p>
         </div>
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
       <p className="mt-5 text-xs leading-5 text-[#6B606B]">
         Informasi ini merupakan penjelasan awal dan perlu disesuaikan
         dengan implementasi penyimpanan, pemrosesan, serta kebijakan
-        privasi SYCLE yang sebenarnya.
+        privasi Sycle yang sebenarnya.
       </p>
     </main>
   );

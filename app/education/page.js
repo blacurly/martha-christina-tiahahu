@@ -202,7 +202,7 @@ export default function EducationPage() {
             <div className="max-w-[680px]">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB]/90 px-3.5 py-2 text-sm font-bold text-[#984568]">
                 <Sparkles className="size-4" />
-                Ruang belajar SYCLE
+                Ruang belajar Sycle
               </div>
 
               <h1 className="max-w-[650px] text-3xl font-extrabold leading-tight tracking-[-0.035em] text-[#332A35] sm:text-4xl lg:text-[46px]">
@@ -435,7 +435,7 @@ export default function EducationPage() {
 
                         <p className="mt-3 line-clamp-4 text-sm leading-6 text-[#827382]">
                           {article.summary ||
-                            "Pelajari informasi terkait kesehatan perempuan dan lingkungan melalui materi edukasi SYCLE."}
+                            "Pelajari informasi terkait kesehatan perempuan dan lingkungan melalui materi edukasi Sycle."}
                         </p>
                       </div>
 
@@ -607,7 +607,7 @@ export default function EducationPage() {
                 </h2>
 
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-[#617465]">
-                  Materi SYCLE membantu kamu memahami hubungan
+                  Materi Sycle membantu kamu memahami hubungan
                   antara kesehatan perempuan dan faktor lingkungan.
                   Informasi ini bukan pengganti pemeriksaan atau
                   saran dari tenaga kesehatan.

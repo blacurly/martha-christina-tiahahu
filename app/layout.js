@@ -9,7 +9,7 @@ import ChatWidget from "@/components/home/ChatWidget";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 
 export const metadata = {
-  title: "SYCLE — Lingkungan, tubuh, dan cerita harianmu",
+  title: "Sycle — Lingkungan, tubuh, dan cerita harianmu",
   description: "Catatan kesehatan perempuan dan konteks lingkungan.",
 };
 

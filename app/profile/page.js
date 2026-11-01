@@ -17,7 +17,7 @@ import { logout } from "./actions";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Profil | SYCLE",
+  title: "Profil | Sycle",
 };
 
 const profileMenus = [
@@ -116,7 +116,7 @@ async function ProfileContent({ searchParams }) {
         </h1>
 
         <p className="mt-3 max-w-2xl leading-7 text-[#6F6570]">
-          Kelola akun, privasi, dan catatan kesehatanmu di SYCLE.
+          Kelola akun, privasi, dan catatan kesehatanmu di Sycle.
         </p>
       </header>
 

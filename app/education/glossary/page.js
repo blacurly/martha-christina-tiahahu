@@ -238,7 +238,7 @@ export default function GlossaryPage() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-3.5 py-2 text-sm font-extrabold text-[#984568]">
                 <BookOpen className="size-4" />
-                Glosarium SYCLE
+                Glosarium Sycle
               </div>
 
               <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.17em] text-[#B84E73]">

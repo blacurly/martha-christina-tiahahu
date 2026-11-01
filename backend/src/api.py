@@ -5,7 +5,7 @@ from rag.hybrid_retriever import HybridRetriever
 from rag.generation import generate_answer
 
 
-app = FastAPI(title="Virtual Safe Space RAG API")
+app = FastAPI(title="Climate Change RAG API")
 retriever = HybridRetriever()
 
 
@@ -35,7 +35,6 @@ def chat(payload: ChatRequest):
         raise HTTPException(status_code=400, detail="Pertanyaan tidak boleh kosong")
     try:
         contexts = retriever.hybrid_retrieve(question,top_k=4)
-        print("Hasil Rank BM25: ",contexts)
         answer = generate_answer(question, contexts)
         return {
             "answer": answer,

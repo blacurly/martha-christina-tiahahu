@@ -38,7 +38,7 @@ function getReferenceSummary(source) {
   const topics = source.topics?.filter(Boolean) ?? [];
 
   if (topics.length > 0) {
-    return `Referensi tentang ${topics.join(", ").toLowerCase()} yang dapat ditinjau untuk mendukung materi edukasi SYCLE.`;
+    return `Referensi tentang ${topics.join(", ").toLowerCase()} yang dapat ditinjau untuk mendukung materi edukasi Sycle.`;
   }
 
   return `Sumber dari ${source.publisher || "penerbit terkait"} yang dapat ditinjau relevansinya untuk edukasi kesehatan reproduksi dan lingkungan.`;
@@ -148,7 +148,7 @@ export default function EducationReferencesPage() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-3.5 py-2 text-sm font-extrabold text-[#984568]">
                 <BookOpen className="size-4" />
-                Referensi SYCLE
+                Referensi Sycle
               </div>
 
               <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.17em] text-[#B84E73]">
@@ -164,7 +164,7 @@ export default function EducationReferencesPage() {
 
               <p className="mt-5 max-w-[620px] text-base leading-7 text-[#756774] sm:text-lg sm:leading-8">
                 Jelajahi berbagai sumber yang menjadi kandidat rujukan
-                untuk konten edukasi SYCLE tentang kesehatan reproduksi
+                untuk konten edukasi Sycle tentang kesehatan reproduksi
                 dan faktor lingkungan.
               </p>
 
@@ -341,7 +341,7 @@ export default function EducationReferencesPage() {
                   </h2>
                   <p className="mt-1 max-w-2xl text-sm leading-6 text-[#786B77]">
                     Setiap kartu memuat ringkasan singkat mengenai
-                    sumber dan relevansinya untuk edukasi SYCLE.
+                    sumber dan relevansinya untuk edukasi Sycle.
                   </p>
                 </div>
 
@@ -481,7 +481,7 @@ export default function EducationReferencesPage() {
         </section>
 
         <footer className="mt-10 border-t border-[#EEDFE7] py-6 text-center text-sm leading-6 text-[#8A7A85]">
-          Referensi ditampilkan untuk peninjauan konten SYCLE.
+          Referensi ditampilkan untuk peninjauan konten Sycle.
         </footer>
       </div>
     </main>

@@ -136,7 +136,7 @@ export default function ActivitySelector({
         <Sparkles size={18} />
 
         <p>
-          Pilihanmu membantu SYCLE menyesuaikan informasi
+          Pilihanmu membantu Sycle menyesuaikan informasi
           lingkungan yang relevan untukmu.
         </p>
       </div>

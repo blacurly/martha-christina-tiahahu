@@ -15,7 +15,7 @@ export default function MenyusuiPage() {
   return (
     <>
       <section className="hero">
-        <div className="eyebrow">SYCLE · HEALTH CHECK-IN</div>
+        <div className="eyebrow">Sycle · HEALTH CHECK-IN</div>
         <h1>Assessment Menyusui</h1>
         <p>
           Catat kondisi tubuh, kenyamanan saat menyusui,

@@ -14,7 +14,7 @@ export default function AssessmentProcessPage() {
 
       <p className="mt-3 max-w-xl leading-7 text-[#6B606B]">
         Jawabanmu sedang dipersiapkan untuk membantu menyusun informasi
-        dan saran awal yang relevan. SYCLE bukan alat diagnosis medis.
+        dan saran awal yang relevan. Sycle bukan alat diagnosis medis.
       </p>
 
       <div className="mt-7 flex flex-wrap justify-center gap-3">

@@ -5,7 +5,7 @@ export default function Footer() {
       <div className="footer-main">
         {/* IDENTITAS SYCLE */}
         <div className="footer-brand">
-          <span className="footer-logo">SYCLE</span>
+          <span className="footer-logo">Sycle</span>
           <p>
             Lingkungan, tubuh, dan cerita harianmu.
           </p>
@@ -22,7 +22,7 @@ export default function Footer() {
 
       {/* COPYRIGHT */}
       <div className="footer-bottom">
-        <span>© 2026 SYCLE</span>
+        <span>© 2026 Sycle</span>
         <span>
           Edukasi kesehatan reproduksi perempuan
         </span>

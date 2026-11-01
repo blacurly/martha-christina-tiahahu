@@ -100,7 +100,7 @@ export default function EducationGuidancePage() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-3.5 py-2 text-sm font-extrabold text-[#984568]">
               <BookOpen className="size-4" />
-              Panduan SYCLE
+              Panduan Sycle
             </div>
 
             <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.17em] text-[#B84E73]">
@@ -176,7 +176,7 @@ export default function EducationGuidancePage() {
               Jelajahi kategori panduan
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#786B77]">
-              Tiga kategori yang direncanakan untuk pengembangan panduan SYCLE.
+              Tiga kategori yang direncanakan untuk pengembangan panduan Sycle.
             </p>
           </div>
 
@@ -226,7 +226,7 @@ export default function EducationGuidancePage() {
         </section>
 
         <footer className="mt-10 border-t border-[#EEDFE7] py-6 text-center text-sm leading-6 text-[#8A7A85]">
-          Panduan SYCLE bersifat edukatif dan tidak menggantikan pemeriksaan
+          Panduan Sycle bersifat edukatif dan tidak menggantikan pemeriksaan
           atau saran dari tenaga kesehatan.
         </footer>
       </div>
