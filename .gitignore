@@ -54,3 +54,6 @@ backend/data/chroma/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Log lokal backend
+backend/backend.log
