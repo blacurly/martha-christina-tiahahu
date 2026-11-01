@@ -15,7 +15,7 @@ export default function PrivacyPage() {
       </h1>
 
       <p className="mt-3 leading-7 text-[#6B606B]">
-        SYCLE membantu pengguna memahami konteks lingkungan dan
+        Sycle membantu pengguna memahami konteks lingkungan dan
         kesehatan reproduksi. Kami berupaya menjaga informasi pengguna
         dan menjelaskan penggunaan data secara transparan.
       </p>
