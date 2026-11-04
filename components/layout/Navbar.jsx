@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import LogoutButton from "@/components/profile/LogoutButton";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MapPin, UserRound } from "lucide-react";
@@ -91,18 +92,59 @@ export default function Navbar() {
           </Link>
         ))}
       </nav>
-
       <div className="nav-actions">
         {!isCheckingAuth &&
           (user ? (
-            <Link
-              href="/profile"
-              className="nav-account"
-              aria-label={`Buka profil ${displayName}`}
-            >
-              <UserRound size={19} aria-hidden="true" />
-              <span>{displayName}</span>
-            </Link>
+            <div className="relative group">
+              <button
+                type="button"
+                className="nav-account"
+                aria-label={`Menu profil ${displayName}`}
+                aria-haspopup="true"
+              >
+                <UserRound size={19} aria-hidden="true" />
+                <span>{displayName}</span>
+              </button>
+
+              {/* Dropdown Profile */}
+              <div className="absolute right-0 top-full z-50 hidden w-64 pt-2 group-hover:block group-focus-within:block">
+                <div className="overflow-hidden rounded-2xl border border-[#F0E5EB] bg-white shadow-lg">
+
+                  {/* Informasi pengguna */}
+                  <div className="border-b border-[#F0E5EB] px-4 py-4">
+                    <p className="text-xs font-semibold text-[#8A7D89]">
+                      Masuk sebagai
+                    </p>
+
+                    <p className="mt-1 truncate font-extrabold text-[#332A35]">
+                      {displayName}
+                    </p>
+
+                    <p className="mt-1 truncate text-xs text-[#8A7D89]">
+                      {user.email}
+                    </p>
+                  </div>
+
+                  {/* Lihat Profile */}
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-[#332A35] transition-colors hover:bg-[#F8E8EF]"
+                  >
+                    <UserRound
+                      size={18}
+                      className="text-[#B84E73]"
+                    />
+                    Lihat Profile
+                  </Link>
+
+                  {/* Logout */}
+                  <div className="border-t border-[#F0E5EB] p-2">
+                    <LogoutButton compact />
+                  </div>
+
+                </div>
+              </div>
+            </div>
           ) : (
             <>
               <Link
@@ -114,6 +156,7 @@ export default function Navbar() {
               >
                 Masuk
               </Link>
+
               <Link
                 href="/signup"
                 className={`nav-button ${

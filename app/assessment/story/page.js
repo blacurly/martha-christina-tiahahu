@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import AssessmentLayout from "@/components/assessment/AssessmentLayout";
-import StoryForm from "@/components/assessment/StoryForm";
+import StoryForm from "@/components/healthtracker/StoryForm";
 import { Button } from "@/components/ui/button";
 
 export default function AssessmentStoryPage() {

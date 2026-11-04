@@ -1,10 +1,10 @@
 import Link from "next/link";
 import {
   UserRound,
+  UserRoundPen,
   Settings,
   ShieldCheck,
   ClipboardList,
-  LogOut,
   UserRoundX,
   ChevronRight,
   KeyRound,
@@ -12,10 +12,13 @@ import {
 
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { getCurrentUser } from "@/lib/auth/session";
-import { Button } from "@/components/ui/button";
-import { logout } from "./actions";
 import { redirect } from "next/navigation";
+
+import { getCurrentUser } from "@/lib/auth/session";
+import { createClient } from "@/lib/supabase/server";
+import { getProfile } from "@/lib/repositories/profileRepository";
+
+import LogoutButton from "@/components/profile/LogoutButton";
 
 export const metadata = {
   title: "Profil | Sycle",
@@ -61,12 +64,19 @@ function MenuCard({ item }) {
         <h2 className="font-extrabold text-[#332A35]">
           {item.title}
         </h2>
+
         <p className="mt-1 text-sm leading-6 text-[#6F6570]">
           {item.description}
         </p>
 
         {item.status && (
-          <p className="mt-2 text-xs font-bold text-[#8A7D89]">
+          <p
+            className={`mt-2 text-xs font-bold ${
+              item.complete
+                ? "text-[#52765A]"
+                : "text-[#8A7D89]"
+            }`}
+          >
             {item.status}
           </p>
         )}
@@ -102,17 +112,60 @@ function MenuCard({ item }) {
   );
 }
 
-async function ProfileContent({ searchParams }) {
+async function ProfileContent() {
   await connection();
+
   const user = await getCurrentUser();
-  const params = await searchParams;
 
   if (!user) {
     redirect("/login");
   }
 
+  const supabase = await createClient();
+
+  const profileResult = await getProfile(
+    supabase,
+    user.id
+  );
+
+  const profile = profileResult.profile ?? {};
+
+  const displayName =
+    profile.display_name || user.displayName;
+
+  const joinedDate = profile.created_at
+    ? new Intl.DateTimeFormat("id-ID", {
+        dateStyle: "long",
+      }).format(new Date(profile.created_at))
+    : null;
+
+  const completedFields = [
+    profile.full_name,
+    profile.birth_date,
+    profile.domicile,
+    profile.occupation,
+  ].filter((value) => Boolean(value?.trim?.() || value)).length;
+
+  const isProfileComplete = completedFields === 4;
+
+  const accountMenus = [
+    {
+      title: "Lengkapi Profil",
+      description:
+        "Lengkapi informasi pribadi untuk pengalaman SYCLE yang lebih personal.",
+      icon: UserRoundPen,
+      href: "/profile/complete",
+      status: isProfileComplete
+        ? "Profil lengkap"
+        : `${completedFields} dari 4 informasi telah dilengkapi`,
+      complete: isProfileComplete,
+    },
+    ...profileMenus,
+  ];
+
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6">
+      {/* Header */}
       <header className="mb-8">
         <p className="text-sm font-extrabold uppercase tracking-wider text-[#B84E73]">
           Akun Saya
@@ -127,6 +180,7 @@ async function ProfileContent({ searchParams }) {
         </p>
       </header>
 
+      {/* Informasi Akun */}
       <section className="mb-8 rounded-[22px] bg-[#F8E8EF] p-6 sm:p-8">
         <div className="flex items-center gap-4">
           <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-white text-[#B84E73]">
@@ -137,26 +191,49 @@ async function ProfileContent({ searchParams }) {
             <h2 className="text-xl font-extrabold text-[#332A35]">
               Akun Pengguna
             </h2>
+
             <p className="mt-1 break-words text-sm text-[#6F6570]">
-              {user.displayName}
+              {displayName}
             </p>
+
             <p className="mt-1 break-words text-sm text-[#6F6570]">
               {user.email}
             </p>
+
+            {joinedDate && (
+              <p className="mt-1 text-xs text-[#8A7D89]">
+                Bergabung {joinedDate}
+              </p>
+            )}
           </div>
         </div>
       </section>
 
+      {/* Pesan jika tabel profil belum tersedia */}
+      {profileResult.missingTable && (
+        <div className="mb-6 rounded-xl border border-[#E8C8D5] bg-[#FFF8FB] p-4">
+          <p className="text-sm text-[#8E3E5E]">
+            Data profil belum tersedia. Silakan periksa konfigurasi
+            database Supabase.
+          </p>
+        </div>
+      )}
+
+      {/* Menu Pengaturan */}
       <section>
         <h2 className="mb-4 text-lg font-extrabold text-[#332A35]">
           Pengaturan dan Pengelolaan Akun
         </h2>
 
         <div className="grid gap-3">
-          {profileMenus.map((item) => (
-            <MenuCard key={item.title} item={item} />
+          {accountMenus.map((item) => (
+            <MenuCard
+              key={item.title}
+              item={item}
+            />
           ))}
 
+          {/* Penghapusan Data */}
           <div className="rounded-[22px] border border-[#F0E5EB] bg-white p-5">
             <div className="flex items-center gap-4">
               <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#F8E8EF] text-[#B84E73]">
@@ -167,9 +244,11 @@ async function ProfileContent({ searchParams }) {
                 <h2 className="font-extrabold text-[#332A35]">
                   Penghapusan Data atau Akun
                 </h2>
+
                 <p className="mt-1 text-sm leading-6 text-[#6F6570]">
                   Kelola permintaan penghapusan data pribadi atau akunmu.
                 </p>
+
                 <p className="mt-2 text-xs font-bold text-[#8A7D89]">
                   Pengaturan penghapusan akan disiapkan berikutnya.
                 </p>
@@ -179,41 +258,27 @@ async function ProfileContent({ searchParams }) {
         </div>
       </section>
 
+      {/* Logout */}
       <section className="mt-8 rounded-[22px] border border-[#F0E5EB] bg-white p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-extrabold text-[#332A35]">
               Keluar dari Akun
             </h2>
+
             <p className="mt-1 text-sm leading-6 text-[#6F6570]">
               Akhiri sesi masukmu di perangkat ini.
             </p>
           </div>
 
-          <form action={logout}>
-            <Button
-              type="submit"
-              variant="outline"
-              size="lg"
-              className="w-full border-[#B84E73] text-[#8E3E5E] hover:bg-[#F8E8EF] sm:w-auto"
-            >
-              <LogOut size={18} />
-              Keluar dari Akun
-            </Button>
-          </form>
+          <LogoutButton />
         </div>
-
-        {params?.error === "logout" && (
-          <p className="mt-4 text-sm text-red-700">
-            Logout belum berhasil. Silakan coba kembali.
-          </p>
-        )}
       </section>
     </main>
   );
 }
 
-export default function ProfilePage({ searchParams }) {
+export default function ProfilePage() {
   return (
     <Suspense
       fallback={
@@ -224,7 +289,7 @@ export default function ProfilePage({ searchParams }) {
         </main>
       }
     >
-      <ProfileContent searchParams={searchParams} />
+      <ProfileContent />
     </Suspense>
   );
 }

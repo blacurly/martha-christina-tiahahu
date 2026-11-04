@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAssessment } from "@/context/AssessmentContext";
 import AssessmentLayout from "@/components/assessment/AssessmentLayout";
-import CoreQuestions from "@/components/assessment/CoreQuestions";
+import CoreQuestions from "@/components/healthtracker/CoreQuestions";
 
 function PregnancyForm() {
   const router = useRouter();
