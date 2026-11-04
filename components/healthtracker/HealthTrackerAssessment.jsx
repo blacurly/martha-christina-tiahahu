@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAssessment } from "@/context/AssessmentContext";
-import ProgressSteps from "@/components/healthtracker/ProgressSteps";
+import StoryScreen from "@/components/healthtracker/assessment/StoryScreen";
 
 import {
   HEALTH_TRACKER_SCALE,
@@ -14,6 +14,25 @@ import {
   isHealthTrackerQuestionVisible,
   setHealthTrackerAnswer,
 } from "@/data/healthTrackerQuestions";
+
+import {
+  Heart,
+  Activity,
+  Moon,
+  Sun,
+  Droplets,
+  Utensils,
+  Smile,
+  Frown,
+  Baby,
+  CalendarDays,
+  Thermometer,
+  Coffee,
+  Footprints,
+  CircleCheck,
+  CircleHelp,
+  Sparkles,
+} from "lucide-react";
 
 import { buildEnvironmentSnapshot } from "@/lib/healthtracker/buildEnvironmentSnapshot";
 import { saveHealthTrackerAssessment } from "@/app/healthtracker/assessment/actions";
@@ -66,6 +85,25 @@ function getQuestionSteps(condition, answers) {
   );
 }
 
+function getGeneralQuestions(answers) {
+  return resolveQuestions(HEALTH_TRACKER_BASE_STEPS).filter(
+    (question) =>
+      question.code !== "HT-04" &&
+      question.type !== "per_option_scale" &&
+      isHealthTrackerQuestionVisible(question, answers)
+  );
+}
+
+function getConditionQuestions(condition, answers) {
+  return resolveQuestions(
+    HEALTH_TRACKER_BRANCH_STEPS[condition] ?? []
+  ).filter(
+    (question) =>
+      question.type !== "per_option_scale" &&
+      isHealthTrackerQuestionVisible(question, answers)
+  );
+}
+
 function getInlineScaleQuestion(question, condition) {
   if (!question) return null;
 
@@ -93,13 +131,8 @@ function isAnswered(question, answers) {
   return value !== undefined && value !== null && value !== "";
 }
 
-function validateQuestion(question, answers) {
-  if (!question?.required) return "";
-
-  if (!isAnswered(question, answers)) {
-    return "Pertanyaan ini perlu dijawab terlebih dahulu.";
-  }
-
+function validateQuestion() {
+  // Semua pertanyaan umum dan lanjutan boleh dilewati.
   return "";
 }
 
@@ -140,6 +173,7 @@ export default function HealthTrackerAssessment() {
   const [condition, setCondition] = useState("");
   const [answers, setAnswers] = useState({});
   const [scores, setScores] = useState({});
+  const [story, setStory] = useState("");
 
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -148,32 +182,45 @@ export default function HealthTrackerAssessment() {
   const [environmentError, setEnvironmentError] = useState("");
 
   const [error, setError] = useState("");
+  const [aiNotice, setAiNotice] = useState("");
   const [saving, setSaving] = useState(false);
 
   const activityQuestion = getHealthTrackerQuestion("HT-04");
 
-  const questionSteps = useMemo(
-    () => getQuestionSteps(condition, answers),
+  const generalQuestions = useMemo(
+    () => getGeneralQuestions(answers),
+    [answers]
+  );
+
+  const conditionQuestions = useMemo(
+    () => getConditionQuestions(condition, answers),
     [condition, answers]
+  );
+
+  const questionSteps = useMemo(
+    () => [...generalQuestions, ...conditionQuestions],
+    [generalQuestions, conditionQuestions]
   );
 
   const steps = useMemo(
     () => [
       { code: "activity", title: "Aktivitas" },
       { code: "condition", title: "Kondisi" },
-      ...questionSteps.map((question) => ({
-        code: question.code,
-        title: question.code,
-      })),
+      { code: "general", title: "Pertanyaan Umum" },
+      { code: "followup", title: "Pertanyaan Lanjutan" },
+      { code: "story", title: "Cerita" },
+      { code: "review", title: "Review" },
       { code: "summary", title: "Ringkasan" },
     ],
-    [questionSteps]
+    []
   );
 
   const summaryStep = steps.length - 1;
+  const reviewStep = summaryStep - 1;
+  const storyStep = reviewStep - 1;
 
   const activeQuestion =
-    currentStep >= 2 && currentStep < summaryStep
+    currentStep >= 2 && currentStep < storyStep
       ? questionSteps[currentStep - 2]
       : null;
 
@@ -181,41 +228,6 @@ export default function HealthTrackerAssessment() {
     activeQuestion,
     condition
   );
-
-  function changeCondition(value) {
-    setCondition(value);
-
-    const oldBranchQuestions = resolveQuestions(
-      HEALTH_TRACKER_BRANCH_STEPS[condition] ?? []
-    );
-
-    setAnswers((previous) => {
-      const next = { ...previous };
-
-      oldBranchQuestions.forEach((question) => {
-        delete next[question.code];
-
-        if (question.otherText?.key) {
-          delete next[question.otherText.key];
-        }
-      });
-
-      return next;
-    });
-
-    const selectedGeneralOptions = answers["HT-02"] ?? [];
-
-    setScores((previous) =>
-      Object.fromEntries(
-        Object.entries(previous).filter(([key]) =>
-          selectedGeneralOptions.includes(key)
-        )
-      )
-    );
-
-    setCurrentStep(1);
-    setError("");
-  }
 
   // Mengambil data lingkungan berdasarkan lokasi yang dipilih pengguna.
   useEffect(() => {
@@ -389,6 +401,19 @@ export default function HealthTrackerAssessment() {
   function handleNext() {
     if (!validateCurrentStep()) return;
 
+    if (currentStep === storyStep) {
+      const hasQuestionAnswer = questionSteps.some((question) =>
+        isAnswered(question, answers)
+      );
+
+      const hasStory = story.trim().length > 0;
+
+      if (!hasQuestionAnswer && !hasStory) {
+        router.push("/healthtracker");
+        return;
+      }
+    }
+
     setError("");
 
     setCurrentStep((previous) =>
@@ -402,6 +427,31 @@ export default function HealthTrackerAssessment() {
     setCurrentStep((previous) =>
       Math.max(previous - 1, 0)
     );
+  }
+
+  function handleContinueWithoutAI() {
+    setError("");
+    setAiNotice("");
+    setCurrentStep(summaryStep);
+  }
+
+  function handleContinueWithAI() {
+    setAiNotice(
+      "AI Health Tracker berbasis Hybrid RAG sedang dalam tahap pengembangan. Untuk saat ini, kamu dapat melanjutkan tanpa AI."
+    );
+  }
+
+  function handleSkipQuestions() {
+    setError("");
+
+    if (currentStep === 2) {
+      setCurrentStep(3);
+      return;
+    }
+
+    if (currentStep === 3) {
+      setCurrentStep(storyStep);
+    }
   }
 
   async function handleSubmit() {
@@ -421,6 +471,7 @@ export default function HealthTrackerAssessment() {
         condition,
         answers,
         scores,
+        story,
         snapshot,
       });
 
@@ -438,6 +489,27 @@ export default function HealthTrackerAssessment() {
     } finally {
       setSaving(false);
     }
+  }
+
+  function getOptionIcon(label = "") {
+    const text = String(label).toLowerCase();
+
+    let Icon = Sparkles;
+
+    if (/haid|menstruasi|siklus/.test(text)) Icon = CalendarDays;
+    else if (/hamil|kehamilan/.test(text)) Icon = Baby;
+    else if (/menyusui|asi/.test(text)) Icon = Heart;
+    else if (/nyeri|sakit|kram/.test(text)) Icon = Activity;
+    else if (/lelah|capek|letih|tidur/.test(text)) Icon = Moon;
+    else if (/panas|demam|suhu/.test(text)) Icon = Thermometer;
+    else if (/darah|flek/.test(text)) Icon = Droplets;
+    else if (/makan|minum/.test(text)) Icon = Utensils;
+    else if (/jalan|bergerak|aktivitas/.test(text)) Icon = Footprints;
+    else if (/matahari|luar ruangan/.test(text)) Icon = Sun;
+    else if (/nyaman|baik|normal/.test(text)) Icon = Smile;
+    else if (/cemas|sedih|stres/.test(text)) Icon = Frown;
+
+    return <Icon size={24} strokeWidth={1.8} color="#B84E73" />;
   }
 
   function renderPerOptionScale(scaleQuestion) {
@@ -460,31 +532,51 @@ export default function HealthTrackerAssessment() {
     if (optionsToRate.length === 0) return null;
 
     return (
-      <div className="mt-5 space-y-4 rounded-2xl bg-[#FFF8FB] p-4">
-        <p className="text-sm font-semibold text-[#332A35]">
-          {scaleQuestion.question}
-        </p>
+      <div className="mt-5 space-y-4 rounded-2xl border border-[#F0DFE6] bg-[#FFF8FB] p-4 sm:p-5">
+        <div>
+          <h4 className="text-sm font-bold text-[#332A35]">
+            {scaleQuestion.question}
+          </h4>
 
-        {optionsToRate.map((optionCode) => {
-          const selectedOption = sourceQuestion?.options?.find(
-            (option) => getValue(option) === optionCode
-          );
+          <p className="mt-1 text-xs text-[#8A7D89]">
+            Pilih tingkat gangguan untuk setiap kondisi berikut.
+          </p>
+        </div>
 
-          return (
-            <div key={optionCode} className="space-y-2">
-              <p className="text-sm font-medium text-[#5F5360]">
-                {getLabel(selectedOption) || optionCode}
-              </p>
+        <div className="space-y-3">
+          {optionsToRate.map((optionCode) => {
+            const selectedOption = sourceQuestion?.options?.find(
+              (option) => getValue(option) === optionCode
+            );
 
-              <ScaleOptions
-                value={scores[optionCode]}
-                onChange={(value) =>
-                  updateScore(optionCode, value)
-                }
-              />
-            </div>
-          );
-        })}
+            const optionLabel =
+              getLabel(selectedOption) || "Pilihan lainnya";
+
+            return (
+              <div
+                key={optionCode}
+                className="rounded-2xl border border-[#EADDE3] bg-white p-4 transition-all duration-200 hover:border-[#D99AAF]"
+              >
+                <div className="mb-4 flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F8E8EF] text-xl">
+                    {getOptionIcon(optionLabel)}
+                  </span>
+
+                  <p className="text-sm font-semibold text-[#5F5360]">
+                    {optionLabel}
+                  </p>
+                </div>
+
+                <ScaleOptions
+                  value={scores[optionCode]}
+                  onChange={(value) =>
+                    updateScore(optionCode, value)
+                  }
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }
@@ -494,9 +586,10 @@ export default function HealthTrackerAssessment() {
 
     if (question.type === "single") {
       return (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {question.options?.map((option) => {
             const optionValue = getValue(option);
+            const label = getLabel(option);
             const selected = value === optionValue;
 
             return (
@@ -507,13 +600,42 @@ export default function HealthTrackerAssessment() {
                   updateAnswer(question.code, optionValue)
                 }
                 aria-pressed={selected}
-                className={`w-full rounded-xl border p-4 text-left text-sm transition ${
+                className={`group flex min-h-[88px] items-center gap-4 rounded-2xl border p-4 text-left transition-all duration-200 hover:-translate-y-1 hover:shadow-md active:scale-[0.98] ${
                   selected
-                    ? "border-[#B84E73] bg-[#F8E8EF] text-[#8E3E5E]"
-                    : "border-[#EADDE3] bg-white text-[#5F5360] hover:border-[#B84E73]"
+                    ? "border-[#B84E73] bg-[#F8E8EF] shadow-sm ring-2 ring-[#B84E73]/15"
+                    : "border-[#EADDE3] bg-white hover:border-[#D99AAF]"
                 }`}
               >
-                {getLabel(option)}
+                <span
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl transition ${
+                    selected
+                      ? "bg-white"
+                      : "bg-[#FFF8FB] group-hover:bg-[#F8E8EF]"
+                  }`}
+                  aria-hidden="true"
+                >
+                  {getOptionIcon(label)}
+                </span>
+
+                <span
+                  className={`flex-1 text-sm font-semibold ${
+                    selected
+                      ? "text-[#8E3E5E]"
+                      : "text-[#5F5360]"
+                  }`}
+                >
+                  {label}
+                </span>
+
+                <span
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs transition ${
+                    selected
+                      ? "border-[#B84E73] bg-[#B84E73] text-white"
+                      : "border-[#EADDE3] text-transparent"
+                  }`}
+                >
+                  ✓
+                </span>
               </button>
             );
           })}
@@ -525,20 +647,36 @@ export default function HealthTrackerAssessment() {
       const selectedValues = Array.isArray(value) ? value : [];
 
       return (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {question.options?.map((option) => {
             const optionValue = getValue(option);
+            const label = getLabel(option);
             const selected = selectedValues.includes(optionValue);
 
             return (
               <label
                 key={optionValue}
-                className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 text-sm transition ${
+                className={`group flex min-h-[88px] cursor-pointer items-center gap-4 rounded-2xl border p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-md active:scale-[0.98] ${
                   selected
-                    ? "border-[#B84E73] bg-[#F8E8EF]"
-                    : "border-[#EADDE3] bg-white hover:border-[#B84E73]"
+                    ? "border-[#B84E73] bg-[#F8E8EF] shadow-sm ring-2 ring-[#B84E73]/15"
+                    : "border-[#EADDE3] bg-white hover:border-[#D99AAF]"
                 }`}
               >
+                <span
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl transition ${
+                    selected
+                      ? "bg-white"
+                      : "bg-[#FFF8FB] group-hover:bg-[#F8E8EF]"
+                  }`}
+                  aria-hidden="true"
+                >
+                  {getOptionIcon(label)}
+                </span>
+
+                <span className="flex-1 text-sm font-semibold text-[#5F5360]">
+                  {label}
+                </span>
+
                 <input
                   type="checkbox"
                   checked={selected}
@@ -551,12 +689,8 @@ export default function HealthTrackerAssessment() {
 
                     updateAnswer(question.code, nextValues);
                   }}
-                  className="h-4 w-4 accent-[#B84E73]"
+                  className="h-5 w-5 shrink-0 cursor-pointer accent-[#B84E73]"
                 />
-
-                <span className="text-[#5F5360]">
-                  {getLabel(option)}
-                </span>
               </label>
             );
           })}
@@ -566,18 +700,20 @@ export default function HealthTrackerAssessment() {
 
     if (question.type === "scale") {
       return (
-        <ScaleOptions
-          value={value}
-          onChange={(nextValue) =>
-            updateAnswer(question.code, nextValue)
-          }
-        />
+        <div className="rounded-2xl bg-[#FFF8FB] p-4">
+          <ScaleOptions
+            value={value}
+            onChange={(nextValue) =>
+              updateAnswer(question.code, nextValue)
+            }
+          />
+        </div>
       );
     }
 
     return (
       <p className="text-sm text-[#8A7D89]">
-        Tipe pertanyaan {question.type} belum didukung.
+        Tipe pertanyaan belum didukung.
       </p>
     );
   }
@@ -781,48 +917,119 @@ export default function HealthTrackerAssessment() {
             </>
           )}
 
-          {/* Step 3 and 4: Questions */}
-          {activeQuestion && (
-            <>
-              <p className="mb-2 text-xs font-semibold tracking-wide text-[#B84E73]">
-                {activeQuestion.code}
-              </p>
+          {/* Step 3: Pertanyaan Umum */}
+          {currentStep === 2 && (
+            <section>
+              {generalQuestions.map((question) => (
+                <div key={question.code} className="mb-6">
+                  <h2 className="text-lg font-bold text-[#332A35]">
+                    {question.question}
+                  </h2>
 
+                  <div className="mt-5">
+                    {renderQuestion(question)}
+                  </div>
+                </div>
+              ))}
+            </section>
+          )}
+
+          {/* Step 4: Pertanyaan Lanjutan */}
+          {currentStep === 3 && (
+            <section>
+              {conditionQuestions.length > 0 ? (
+                conditionQuestions.map((question) => (
+                  <div key={question.code} className="mb-6">
+                    <h2 className="text-lg font-bold text-[#332A35]">
+                      {question.question}
+                    </h2>
+
+                    <div className="mt-5">
+                      {renderQuestion(question)}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-[#5F5360]">
+                  Tidak ada pertanyaan lanjutan untuk kondisi yang dipilih.
+                </p>
+              )}
+            </section>
+          )}
+
+          {/* Story */}
+          {currentStep === storyStep && (
+            <>
               <h2 className="text-lg font-bold text-[#332A35]">
-                {activeQuestion.question}
+                Ceritakan Pengalamanmu
               </h2>
 
-              <div className="mt-5">
-                {renderQuestion(activeQuestion)}
+              <p className="mb-5 mt-2 text-sm leading-6 text-[#746875]">
+                Ada hal yang ingin kamu ceritakan tentang kondisi tubuh,
+                aktivitas, atau pengalamanmu hari ini? Kamu bebas menuliskannya
+                dengan bahasamu sendiri.
+              </p>
+
+              <textarea
+                value={story}
+                onChange={(event) => {
+                  setStory(event.target.value);
+                  setError("");
+                }}
+                maxLength={2000}
+                rows={7}
+                placeholder="Ceritakan apa yang kamu rasakan hari ini..."
+                className="w-full resize-y rounded-2xl border border-[#EADDE3] bg-white p-4 text-sm leading-7 text-[#332A35] outline-none transition placeholder:text-[#A99DA7] focus:border-[#B84E73] focus:ring-2 focus:ring-[#B84E73]/10"
+              />
+
+              <div className="mt-2 flex justify-between text-xs text-[#8A7D89]">
+                <span>Bagikan hanya hal yang nyaman untuk kamu ceritakan.</span>
+                <span>{story.length}/2000</span>
               </div>
+            </>
+          )}
 
-              {inlineScaleQuestion &&
-                renderPerOptionScale(inlineScaleQuestion)}
+          {/* Review Jawaban */}
+          {currentStep === reviewStep && (
+            <>
+              <h2 className="text-lg font-bold text-[#332A35]">
+                Periksa Kembali Catatanmu
+              </h2>
 
-              {showOtherText && (
-                <div className="mt-5">
-                  <label
-                    htmlFor="health-tracker-other"
-                    className="mb-2 block text-sm font-medium text-[#5F5360]"
-                  >
-                    Ceritakan pilihan lainnya
-                  </label>
+              <p className="mb-5 mt-2 text-sm leading-6 text-[#746875]">
+                Berikut rangkuman informasi yang sudah kamu bagikan.
+                Kamu bisa kembali untuk mengubah jawaban sebelum melanjutkan.
+              </p>
 
-                  <input
-                    id="health-tracker-other"
-                    type="text"
-                    maxLength={200}
-                    value={answers[otherTextKey] ?? ""}
-                    onChange={(event) =>
-                      setAnswers((previous) => ({
-                        ...previous,
-                        [otherTextKey]: event.target.value,
-                      }))
-                    }
-                    className="w-full rounded-xl border border-[#EADDE3] px-4 py-3 text-sm outline-none focus:border-[#B84E73]"
-                  />
+              <div className="space-y-3">
+                <div className="rounded-xl border border-[#F0E3E9] bg-[#FFF8FB] p-4">
+                  <p className="text-xs font-semibold text-[#B84E73]">
+                    KONDISI
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-[#332A35]">
+                    {CONDITION_OPTIONS.find(
+                      (item) => item.value === condition
+                    )?.label}
+                  </p>
                 </div>
-              )}
+
+                {summaryQuestions.map(renderSummaryItem)}
+
+                {story.trim() ? (
+                  <div className="rounded-xl border border-[#F0E3E9] bg-white p-4">
+                    <p className="text-xs font-semibold text-[#B84E73]">
+                      CERITA HARI INI
+                    </p>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-[#5F5360]">
+                      {story}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="rounded-xl bg-[#FFF8FB] p-4 text-sm text-[#8A7D89]">
+                    Kamu tidak menambahkan cerita hari ini.
+                  </p>
+                )}
+              </div>
             </>
           )}
 
@@ -854,6 +1061,18 @@ export default function HealthTrackerAssessment() {
                 </div>
 
                 {summaryQuestions.map(renderSummaryItem)}
+
+                {story.trim() && (
+                  <div className="rounded-xl border border-[#F0E3E9] bg-white p-4">
+                    <p className="text-xs font-semibold text-[#B84E73]">
+                      CERITA HARI INI
+                    </p>
+
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-[#5F5360]">
+                      {story}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <p className="mt-5 rounded-xl bg-[#E9F2EA] p-4 text-xs leading-5 text-[#426B4A]">
@@ -874,6 +1093,15 @@ export default function HealthTrackerAssessment() {
           </p>
         )}
 
+        {aiNotice && currentStep === reviewStep && (
+          <p
+            role="status"
+            className="mt-4 rounded-xl border border-[#EADDE3] bg-[#FFF8FB] p-4 text-sm leading-6 text-[#746875]"
+          >
+            {aiNotice}
+          </p>
+        )}
+
         {/* Navigation */}
         <div className="mt-8 flex flex-col-reverse gap-3 border-t border-[#F0E3E9] pt-5 sm:flex-row sm:items-center sm:justify-between">
           <button
@@ -885,20 +1113,67 @@ export default function HealthTrackerAssessment() {
             Kembali
           </button>
 
-          {currentStep === summaryStep ? (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={saving || environmentLoading || !snapshot}
-              className="rounded-xl bg-[#B84E73] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {saving ? "Menyimpan..." : "Simpan Check-In"}
-            </button>
+          {currentStep === reviewStep ? (
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={handleContinueWithoutAI}
+                className="rounded-xl border border-[#B84E73] px-5 py-3 text-sm font-semibold text-[#8E3E5E] transition hover:bg-[#FFF8FB]"
+              >
+                Lanjut Tanpa AI
+              </button>
+
+              <button
+                type="button"
+                onClick={handleContinueWithAI}
+                className="rounded-xl bg-[#B84E73] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E]"
+              >
+                Lanjut dengan AI
+              </button>
+            </div>
+          ) : currentStep === summaryStep ? (
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => router.push("/healthtracker")}
+                disabled={saving}
+                className="rounded-xl border border-[#B84E73] px-5 py-3 text-sm font-semibold text-[#8E3E5E] transition hover:bg-[#FFF8FB] disabled:opacity-50"
+              >
+                Jangan Simpan
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={saving || environmentLoading || !snapshot}
+                className="rounded-xl bg-[#B84E73] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {saving ? "Menyimpan..." : "Simpan Check-In"}
+              </button>
+            </div>
+          ) : currentStep === 2 || currentStep === 3 ? (
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(currentStep === 2 ? 3 : storyStep)}
+                className="rounded-xl border border-[#B84E73] px-5 py-3 text-sm font-semibold text-[#8E3E5E] transition hover:bg-[#FFF8FB]"
+              >
+                Lewati
+              </button>
+
+              <button
+                type="button"
+                onClick={handleNext}
+                className="rounded-xl bg-[#B84E73] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E]"
+              >
+                Lanjutkan
+              </button>
+            </div>
           ) : (
             <button
               type="button"
               onClick={handleNext}
-              className="rounded-xl bg-[#B84E73] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E]"
+              className="rounded-xl bg-[#B84E73] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E]"
             >
               Lanjutkan
             </button>

@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAssessment } from "@/context/AssessmentContext";
 
-import SymptomScale from "@/components/healthtracker/SymptomScale";
+import SymptomScale from "@/components/assessment/SymptomScale";
 import AssessmentLayout from "@/components/assessment/AssessmentLayout";
-import ConditionSelector from "@/components/healthtracker/ConditionSelector";
+import ConditionSelector from "@/components/assessment/ConditionSelector";
 import PersonalInfoForm from "@/components/assessment/PersonalInfoForm";
-import CoreQuestions from "@/components/healthtracker/CoreQuestions";
-import StoryForm from "@/components/healthtracker/StoryForm";
+import CoreQuestions from "@/components/assessment/CoreQuestions";
+import StoryForm from "@/components/healthtracker/assessment/StoryScreen";
 import AssessmentResult from "@/components/assessment/AssessmentResult";
 import AccountPrompt from "@/components/assessment/AccountPrompt";
 import { saveAssessmentAction } from "@/app/assessment/result/actions";

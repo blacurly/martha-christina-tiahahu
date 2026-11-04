@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAssessment } from "@/context/AssessmentContext";
-import ProgressSteps from "../healthtracker/ProgressSteps";
+import ProgressSteps from "./ProgressSteps";
 import FormNavigation from "./FormNavigation";
 
 const steps = [

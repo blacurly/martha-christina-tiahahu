@@ -1,12 +1,8 @@
 "use client";
 
-import { useAssessment } from "@/context/AssessmentContext";
-
 const MAX_LENGTH = 2000;
 
-export default function StoryForm() {
-  const { story, setStory } = useAssessment();
-
+export default function StoryScreen({ story = "", setStory }) {
   return (
     <div className="space-y-5">
       <div>

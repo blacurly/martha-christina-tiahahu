@@ -10,6 +10,7 @@ export async function saveHealthTrackerAssessment({
   condition,
   answers,
   scores,
+  story = "",
   snapshot = null,
 }) {
   const user = await getCurrentUser();
@@ -26,7 +27,7 @@ export async function saveHealthTrackerAssessment({
       condition,
       answers,
       scores,
-      story: "",
+      story,
       snapshot,
     });
 
