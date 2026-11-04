@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import PasswordInput from "@/components/auth/PasswordInput";
 
 function getSafeNextPath(path) {
   if (
@@ -116,16 +117,22 @@ function LoginForm() {
               Password
             </label>
 
-            <input
+            <PasswordInput
               id="password"
-              type="password"
               autoComplete="current-password"
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Masukkan password"
-              className="w-full rounded-xl border border-[#E5CCD7] bg-white px-4 py-3 text-sm text-[#332A35] outline-none transition focus:border-[#B84E73] focus:ring-2 focus:ring-[#F8E8EF]"
             />
+            <div className="mt-2 text-right">
+              <Link
+                href="/forgot-password"
+                className="text-xs font-extrabold text-[#B84E73] hover:underline"
+              >
+                Lupa password?
+              </Link>
+            </div>
           </div>
 
           {errorMessage && (

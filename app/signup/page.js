@@ -6,6 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import PasswordInput from "@/components/auth/PasswordInput";
+import PasswordChecklist from "@/components/auth/PasswordChecklist";
+import { isStrongPassword } from "@/lib/auth/passwordRules";
 
 function getSafeNextPath(path) {
   if (
@@ -52,8 +55,10 @@ function SignupForm() {
       return;
     }
 
-    if (password.length < 8) {
-      setError("Password harus terdiri dari minimal 8 karakter.");
+    if (!isStrongPassword(password)) {
+      setError(
+        "Password belum cukup kuat. Gunakan minimal 8 karakter dengan huruf besar, huruf kecil, angka, dan simbol."
+      );
       return;
     }
 
@@ -167,17 +172,16 @@ function SignupForm() {
             >
               Password
             </label>
-            <input
+            <PasswordInput
               id="password"
-              type="password"
               autoComplete="new-password"
               minLength={8}
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              placeholder="Minimal 8 karakter"
-              className="w-full rounded-xl border border-[#E5CCD7] px-4 py-3 text-sm outline-none focus:border-[#B84E73] focus:ring-2 focus:ring-[#F8E8EF]"
+              placeholder="Buat password yang kuat"
             />
+            <PasswordChecklist value={password} />
           </div>
 
           <div>
@@ -187,9 +191,8 @@ function SignupForm() {
             >
               Konfirmasi Password
             </label>
-            <input
+            <PasswordInput
               id="confirmPassword"
-              type="password"
               autoComplete="new-password"
               required
               value={confirmPassword}
@@ -197,8 +200,12 @@ function SignupForm() {
                 setConfirmPassword(event.target.value)
               }
               placeholder="Ulangi password"
-              className="w-full rounded-xl border border-[#E5CCD7] px-4 py-3 text-sm outline-none focus:border-[#B84E73] focus:ring-2 focus:ring-[#F8E8EF]"
             />
+            {confirmPassword && confirmPassword !== password && (
+              <p className="mt-2 text-xs font-semibold text-[#9B344D]">
+                Konfirmasi password belum cocok.
+              </p>
+            )}
           </div>
 
           <div className="rounded-xl border border-[#F0E2E9] bg-[#FFFBFD] p-4">

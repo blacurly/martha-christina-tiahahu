@@ -7,6 +7,7 @@ import {
   LogOut,
   UserRoundX,
   ChevronRight,
+  KeyRound,
 } from "lucide-react";
 
 import { Suspense } from "react";
@@ -26,6 +27,12 @@ const profileMenus = [
     description: "Pengaturan akun dan preferensi penggunaan.",
     icon: Settings,
     status: "Segera tersedia",
+  },
+  {
+    title: "Ubah Password",
+    description: "Ganti password akunmu dengan password baru yang kuat.",
+    icon: KeyRound,
+    href: "/reset-password",
   },
   {
     title: "Privasi",
