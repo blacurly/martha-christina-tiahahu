@@ -1,147 +1,147 @@
-
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  ArrowUpRight,
+  ArrowRight,
   BookOpen,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
-  ExternalLink,
   FileText,
+  Layers,
   Leaf,
   Search,
   Sparkles,
   Sun,
+  Target,
+  Trophy,
   Wind,
   X,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { GLOSSARY } from "@/data/education/glossary";
+import { GLOSSARY, GLOSSARY_CATEGORIES } from "@/data/education/glossary";
+import { educationArticles } from "@/data/education";
+import GlossaryFlashcards from "@/components/education/GlossaryFlashcards";
+import GlossaryQuiz from "@/components/education/GlossaryQuiz";
 
-function getTermIcon(term = "") {
-  const value = term.toLowerCase();
+const PAGE_SIZE = 8;
 
-  if (
-    value.includes("uv") ||
-    value.includes("panas") ||
-    value.includes("heat") ||
-    value.includes("suhu")
-  ) {
-    return Sun;
-  }
+// Ikon dan warna mengikuti kategori istilah.
+const CATEGORY_STYLE = {
+  data: {
+    icon: FileText,
+    tile: "bg-[#F2EEFF] text-[#7355AD]",
+    badge: "bg-[#F2EEFF] text-[#6A4FA0]",
+  },
+  "panas-uv": {
+    icon: Sun,
+    tile: "bg-[#FFF1E2] text-[#B0631F]",
+    badge: "bg-[#FFF1E2] text-[#9A5A1F]",
+  },
+  udara: {
+    icon: Wind,
+    tile: "bg-[#E8F3FB] text-[#2F78A8]",
+    badge: "bg-[#E8F3FB] text-[#2D6A93]",
+  },
+  perempuan: {
+    icon: Leaf,
+    tile: "bg-[#FDEBF2] text-[#B84E73]",
+    badge: "bg-[#FDEBF2] text-[#A6406B]",
+  },
+  penelitian: {
+    icon: BookOpen,
+    tile: "bg-[#EAF5EC] text-[#427D55]",
+    badge: "bg-[#EAF5EC] text-[#3E6E4B]",
+  },
+};
 
-  if (
-    value.includes("udara") ||
-    value.includes("pm2.5") ||
-    value.includes("aqi") ||
-    value.includes("polusi")
-  ) {
-    return Wind;
-  }
-
-  if (
-    value.includes("perempuan") ||
-    value.includes("menstruasi") ||
-    value.includes("menopause") ||
-    value.includes("hamil")
-  ) {
-    return Leaf;
-  }
-
-  return BookOpen;
+function getStyle(category) {
+  return CATEGORY_STYLE[category] ?? CATEGORY_STYLE.data;
 }
 
-function getTermStyle(term = "") {
-  const value = term.toLowerCase();
+// Ikon kategori: video animasi bila tersedia, selain itu ikon lucide di kotak berwarna.
+function CategoryIcon({ category, className = "", iconClassName = "" }) {
+  const style = getStyle(category);
 
-  if (
-    value.includes("uv") ||
-    value.includes("panas") ||
-    value.includes("heat") ||
-    value.includes("suhu")
-  ) {
-    return {
-      icon: "bg-[#FFF0E4] text-[#98562B]",
-      badge: "bg-[#FFF0E4] text-[#98562B]",
-    };
+  if (style.media) {
+    return (
+      <video
+        src={style.media}
+        poster={style.poster}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-hidden="true"
+        className={`shrink-0 object-cover ${className}`}
+      />
+    );
   }
 
-  if (
-    value.includes("udara") ||
-    value.includes("pm2.5") ||
-    value.includes("aqi") ||
-    value.includes("polusi")
-  ) {
-    return {
-      icon: "bg-[#E8F1F7] text-[#41677E]",
-      badge: "bg-[#E8F1F7] text-[#41677E]",
-    };
-  }
-
-  if (
-    value.includes("perempuan") ||
-    value.includes("menstruasi") ||
-    value.includes("menopause") ||
-    value.includes("hamil")
-  ) {
-    return {
-      icon: "bg-[#F8E8EF] text-[#984568]",
-      badge: "bg-[#F8E8EF] text-[#984568]",
-    };
-  }
-
-  return {
-    icon: "bg-[#EEEAF8] text-[#76629A]",
-    badge: "bg-[#EEEAF8] text-[#76629A]",
-  };
+  const Icon = style.icon;
+  return (
+    <div className={`flex shrink-0 items-center justify-center ${style.tile} ${className}`}>
+      <Icon className={iconClassName} strokeWidth={1.6} />
+    </div>
+  );
 }
 
-function getSummary(definition = "", maxLength = 125) {
-  const text = String(definition).trim();
+function getCategoryLabel(category) {
+  return (
+    GLOSSARY_CATEGORIES.find((item) => item.value === category)?.label ??
+    "Istilah"
+  );
+}
 
-  if (text.length <= maxLength) return text;
+// Artikel Info & Edukasi yang memakai istilah ini.
+function getArticlesUsingTerm(termId) {
+  return educationArticles.filter((article) =>
+    (article.terms ?? []).includes(termId)
+  );
+}
 
-  return `${text.slice(0, maxLength).trimEnd()}…`;
+// Istilah pilihan hari ini: berganti setiap hari, sama untuk semua pengguna.
+function getTermOfTheDay(date) {
+  const dayNumber = Math.floor(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000
+  );
+  const sorted = [...GLOSSARY].sort((a, b) => a.term.localeCompare(b.term, "id"));
+  return sorted[dayNumber % sorted.length];
 }
 
 export default function GlossaryPage() {
   const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState("semua");
+  const [sortOrder, setSortOrder] = useState("az");
+  const [limit, setLimit] = useState(PAGE_SIZE);
+  // "jelajahi" = daftar istilah, "kartu" = Kartu Belajar, "kuis" = Kuis.
+  const [mode, setMode] = useState("jelajahi");
   const [selectedTerm, setSelectedTerm] = useState(null);
+  const [termOfTheDay, setTermOfTheDay] = useState(null);
+  // Istilah yang ditandai "sudah paham". Sengaja tidak disimpan: kembali ke 0 saat halaman dimuat ulang.
+  const [understood, setUnderstood] = useState(() => new Set());
 
   const closeButtonRef = useRef(null);
+  const modeSectionRef = useRef(null);
 
-  const visibleTerms = useMemo(() => {
-    const keyword = search.trim().toLowerCase();
+  // Istilah pilihan hari ini dihitung di browser agar tanggalnya sesuai zona waktu pengguna.
+  // Membuka istilah langsung bila datang dari link artikel, misalnya /education/glossary?istilah=pm25
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setTermOfTheDay(getTermOfTheDay(new Date()));
 
-    return GLOSSARY.filter((item) => {
-      if (!keyword) return true;
-
-      const relatedNames = (item.related || [])
-        .map((relatedId) =>
-          GLOSSARY.find((term) => term.id === relatedId)?.term
-        )
-        .filter(Boolean)
-        .join(" ");
-
-      const searchableText = [
-        item.term,
-        item.definition,
-        item.note,
-        item.basis,
-        relatedNames,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return searchableText.includes(keyword);
+      const termId = new URLSearchParams(window.location.search).get("istilah");
+      const term = GLOSSARY.find((item) => item.id === termId);
+      if (term) setSelectedTerm(term);
     });
-  }, [search]);
 
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  // Popup: kunci scroll halaman, tutup dengan Escape, fokus ke tombol tutup.
   useEffect(() => {
     if (!selectedTerm) return;
 
@@ -149,16 +149,11 @@ export default function GlossaryPage() {
     document.body.style.overflow = "hidden";
 
     function handleKeyDown(event) {
-      if (event.key === "Escape") {
-        setSelectedTerm(null);
-      }
+      if (event.key === "Escape") setSelectedTerm(null);
     }
 
     document.addEventListener("keydown", handleKeyDown);
-
-    const frame = requestAnimationFrame(() => {
-      closeButtonRef.current?.focus();
-    });
+    const frame = requestAnimationFrame(() => closeButtonRef.current?.focus());
 
     return () => {
       document.body.style.overflow = previousOverflow;
@@ -167,18 +162,76 @@ export default function GlossaryPage() {
     };
   }, [selectedTerm]);
 
-  function openTerm(term) {
-    setSelectedTerm(term);
+  const categoryCounts = useMemo(() => {
+    const counts = { semua: GLOSSARY.length };
+    for (const item of GLOSSARY) {
+      counts[item.category] = (counts[item.category] ?? 0) + 1;
+    }
+    return counts;
+  }, []);
+
+  // Istilah pada topik terpilih (tanpa pencarian), dipakai Kartu Belajar dan Kuis.
+  const categoryTerms = useMemo(
+    () =>
+      GLOSSARY.filter(
+        (item) => activeCategory === "semua" || item.category === activeCategory
+      ).sort((a, b) => a.term.localeCompare(b.term, "id")),
+    [activeCategory]
+  );
+
+  const visibleTerms = useMemo(() => {
+    const keyword = search.trim().toLowerCase();
+
+    const filtered = categoryTerms.filter((item) => {
+      if (!keyword) return true;
+
+      const relatedNames = (item.related ?? [])
+        .map((id) => GLOSSARY.find((term) => term.id === id)?.term)
+        .filter(Boolean)
+        .join(" ");
+
+      return [item.term, item.definition, item.note, relatedNames]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(keyword);
+    });
+
+    return sortOrder === "za" ? [...filtered].reverse() : filtered;
+  }, [categoryTerms, search, sortOrder]);
+
+  const shownTerms = visibleTerms.slice(0, limit);
+  const progress = Math.round((understood.size / GLOSSARY.length) * 100);
+
+  function changeCategory(value) {
+    setActiveCategory(value);
+    setLimit(PAGE_SIZE);
+  }
+
+  function changeSearch(value) {
+    setSearch(value);
+    setLimit(PAGE_SIZE);
+  }
+
+  function openMode(value) {
+    setMode(value);
+    requestAnimationFrame(() =>
+      modeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+    );
+  }
+
+  function toggleUnderstood(termId) {
+    setUnderstood((previous) => {
+      const next = new Set(previous);
+      if (next.has(termId)) next.delete(termId);
+      else next.add(termId);
+      return next;
+    });
   }
 
   function openRelatedTerm(relatedId) {
-    const relatedTerm = GLOSSARY.find(
-      (term) => term.id === relatedId
-    );
-
-    if (relatedTerm) {
-      setSelectedTerm(relatedTerm);
-    }
+    const term = GLOSSARY.find((item) => item.id === relatedId);
+    if (term) setSelectedTerm(term);
   }
 
   return (
@@ -187,457 +240,461 @@ export default function GlossaryPage() {
         {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"
-          className="mb-6 flex flex-wrap items-center gap-2 text-sm text-[#887986]"
+          className="mb-4 flex flex-wrap items-center gap-2 text-sm text-[#887986]"
         >
-          <Link
-            href="/"
-            className="transition-colors hover:text-[#B84E73]"
-          >
+          <Link href="/" className="transition-colors hover:text-[#B84E73]">
             Beranda
           </Link>
-
           <span aria-hidden="true">/</span>
-
-          <Link
-            href="/education"
-            className="transition-colors hover:text-[#B84E73]"
-          >
+          <Link href="/education" className="transition-colors hover:text-[#B84E73]">
             Info &amp; Edukasi
           </Link>
-
           <span aria-hidden="true">/</span>
-
-          <span className="font-bold text-[#B84E73]">
-            Glosarium
-          </span>
-
-          <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.17em] text-[#B84E73]">
-            </p>
+          <span className="font-bold text-[#B84E73]">Glosarium</span>
         </nav>
+
         <Link
           href="/education"
-          className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-[#8E3E5E] transition hover:text-[#B84E73]"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-[#514351] transition hover:text-[#B84E73]"
         >
-          <ArrowLeft size={18} />
-          Kembali ke Info & Edukasi
+          <ArrowLeft className="size-4" />
+          Kembali ke Info &amp; Edukasi
         </Link>
 
         {/* Hero */}
-        <section className="relative isolate overflow-hidden rounded-[28px] border border-[#F0DFE7] bg-white p-6 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] sm:p-9 lg:p-12">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-16 -top-20 -z-10 size-64 rounded-full bg-[#F8E8EF] opacity-80 blur-3xl"
-          />
-
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -bottom-24 right-36 -z-10 size-56 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
-          />
-
-          <div className="relative grid items-center gap-8 lg:grid-cols-[1fr_230px] lg:gap-12">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-3.5 py-2 text-sm font-extrabold text-[#984568]">
+        <section className="overflow-hidden rounded-[28px] border border-[#F3D5E1] bg-[#FDEFF4]">
+          <div className="grid items-center sm:grid-cols-[1fr_auto]">
+            <div className="p-6 sm:p-9 lg:p-11">
+              <p className="inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-[0.12em] text-[#B84E73]">
                 <BookOpen className="size-4" />
                 Glosarium Sycle
-              </div>
-
-              <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.17em] text-[#B84E73]">
-                INFO &amp; EDUKASI · GLOSARIUM
               </p>
-
-              <h1 className="mt-5 max-w-[680px] text-3xl font-extrabold leading-tight tracking-[-0.035em] sm:text-4xl lg:text-[46px]">
-                Kenali istilahnya,
-                <span className="block text-[#B84E73]">
-                  pahami maknanya.
-                </span>
+              <h1 className="mt-4 text-3xl font-extrabold leading-tight tracking-[-0.03em] sm:text-4xl lg:text-[44px]">
+                Satu istilah,
+                <span className="block text-[#B84E73]">satu pemahaman baru.</span>
               </h1>
-
-              <p className="mt-5 max-w-[620px] text-base leading-7 text-[#756774] sm:text-lg sm:leading-8">
-                Temukan penjelasan istilah seputar lingkungan,
-                cuaca, kualitas udara, dan kesehatan perempuan
-                dalam bahasa yang lebih mudah dipahami.
+              <p className="mt-4 max-w-[460px] text-base leading-7 text-[#6E5F6C]">
+                Jelajahi istilah kesehatan perempuan dan lingkungan dengan cara
+                yang lebih menyenangkan.
               </p>
             </div>
 
-            <div className="hidden justify-center lg:flex">
-              <div className="relative flex size-[210px] items-center justify-center rounded-[34px] border border-white bg-white/70 shadow-[0_12px_40px_rgb(120_70_90_/_8%)] backdrop-blur-sm">
-                <div className="absolute inset-4 rounded-[27px] border border-[#D7E6D9] bg-[#F2F7F0]" />
-
-                <div className="relative flex size-28 items-center justify-center rounded-full bg-[#E0EDDF] text-[#52775B]">
-                  <BookOpen
-                    className="size-14"
-                    strokeWidth={1.5}
-                  />
-                </div>
-
-                <div className="absolute right-3 top-5 flex size-11 items-center justify-center rounded-2xl bg-[#F8E8EF] text-[#B84E73] shadow-sm">
-                  <Sparkles className="size-5" />
-                </div>
-
-                <div className="absolute bottom-5 left-3 flex size-11 items-center justify-center rounded-2xl bg-[#EEEAF8] text-[#76629A] shadow-sm">
-                  <Leaf className="size-5" />
-                </div>
-
-                <div className="absolute bottom-5 right-5 flex size-8 items-center justify-center rounded-full border-4 border-white bg-[#D7E6D9] text-[#52775B]">
-                  <CheckCircle2 className="size-4" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Search */}
-        <section className="mt-10 sm:mt-12">
-          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-            <div>
-              <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-[#B84E73]">
-                Kamus istilah
-              </p>
-
-              <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">
-                Istilah yang perlu kamu kenali
-              </h2>
-
-              <p className="mt-2 text-sm leading-6 text-[#827382] sm:text-base">
-                Pilih kartu untuk membaca penjelasan lengkapnya.
-              </p>
-            </div>
-
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#D7E6D9] bg-[#E9F2EA] px-3.5 py-2 text-sm font-bold text-[#52775B]">
-              <BookOpen className="size-4" />
-              {visibleTerms.length} istilah
-            </div>
-          </div>
-
-          <div className="mt-5 rounded-[22px] border border-[#F0DFE7] bg-white p-4 shadow-[0_5px_24px_rgb(120_70_90_/_4%)] sm:p-5">
-            <label
-              htmlFor="glossary-search"
-              className="mb-2 block text-sm font-bold text-[#514351]"
-            >
-              Cari istilah
-            </label>
-
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-[#A08D9C]" />
-
-              <input
-                id="glossary-search"
-                type="search"
-                value={search}
-                onChange={(event) =>
-                  setSearch(event.target.value)
-                }
-                placeholder="Misalnya Heat Index, PM2.5, UV, menstruasi..."
-                aria-label="Cari istilah glosarium"
-                className="h-12 w-full rounded-xl border border-[#E9DCE3] bg-[#FFFCFD] pl-12 pr-4 text-sm text-[#332A35] outline-none transition placeholder:text-[#B2A2AE] focus:border-[#B84E73] focus:ring-4 focus:ring-[#B84E73]/10"
+            <div className="hidden h-full sm:block">
+              <video
+                src="/brand/glossary-hero.mp4"
+                poster="/brand/glossary-hero-poster.webp"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-hidden="true"
+                className="block h-full max-h-[300px] w-[260px] object-cover lg:w-[320px]"
               />
             </div>
-
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm text-[#827382]" aria-live="polite">
-                Menampilkan{" "}
-                <span className="font-extrabold text-[#514351]">
-                  {visibleTerms.length}
-                </span>{" "}
-                dari{" "}
-                <span className="font-extrabold text-[#514351]">
-                  {GLOSSARY.length}
-                </span>{" "}
-                istilah
-              </p>
-
-              {search && (
-                <button
-                  type="button"
-                  onClick={() => setSearch("")}
-                  className="text-sm font-bold text-[#B84E73] underline-offset-4 hover:underline"
-                >
-                  Hapus pencarian
-                </button>
-              )}
-            </div>
           </div>
         </section>
 
+        {/* Istilah pilihan hari ini + progres belajar */}
+        <section className="mt-6 grid gap-5 lg:grid-cols-[1.15fr_1fr]">
+          <div className="relative overflow-hidden rounded-[24px] border border-[#F6DEC8] bg-[#FFF7EE] p-6 sm:p-7">
+            <p className="inline-flex items-center gap-1.5 text-sm font-extrabold text-[#B84E73]">
+              Istilah Pilihan Hari Ini
+              <Sparkles className="size-4 text-[#E2A63B]" />
+            </p>
 
-        {/* Interactive cards */}
-        <section className="mt-7" aria-label="Daftar istilah glosarium">
-          {visibleTerms.length > 0 ? (
-            <div className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-4 lg:gap-6">
-              {visibleTerms.map((item, index) => {
-                const Icon = getTermIcon(item.term);
-                const style = getTermStyle(item.term);
+            {termOfTheDay ? (
+              <div className="mt-3 flex items-start justify-between gap-5">
+                <div className="min-w-0">
+                  <h2 className="text-2xl font-extrabold leading-tight sm:text-3xl">
+                    {termOfTheDay.term}
+                  </h2>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#6E5F6C]">
+                    {termOfTheDay.definition}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTerm(termOfTheDay)}
+                    className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#B84E73] px-5 py-2.5 text-sm font-extrabold text-white transition hover:bg-[#8E3E5E]"
+                  >
+                    Pelajari Sekarang
+                    <ArrowRight className="size-4" />
+                  </button>
+                </div>
 
-                const cardColors = [
-                  {
-                    bg: "bg-[#FFF0F5]",
-                    border: "border-[#F3D5E1]",
-                    icon: "bg-[#F9D9E6] text-[#A6406B]",
-                    accent: "bg-[#EFB8CD]",
-                  },
-                  {
-                    bg: "bg-[#EDF6EE]",
-                    border: "border-[#D6E8D8]",
-                    icon: "bg-[#D8EBDD] text-[#427D55]",
-                    accent: "bg-[#B7D9BE]",
-                  },
-                  {
-                    bg: "bg-[#F2EEFF]",
-                    border: "border-[#E1D9F8]",
-                    icon: "bg-[#E0D8FA] text-[#7355AD]",
-                    accent: "bg-[#C9B9F0]",
-                  },
-                  {
-                    bg: "bg-[#EBF5FC]",
-                    border: "border-[#D3E7F5]",
-                    icon: "bg-[#D5EAF8] text-[#397BA5]",
-                    accent: "bg-[#B5D9EF]",
-                  },
-                ];
+                <CategoryIcon
+                  category={termOfTheDay.category}
+                  className="hidden size-24 rounded-[28px] sm:flex"
+                  iconClassName="size-12"
+                />
+              </div>
+            ) : (
+              <div className="mt-3 h-[124px] animate-pulse rounded-2xl bg-white/60" />
+            )}
+          </div>
 
-                const color = cardColors[index % cardColors.length];
+          <div className="rounded-[24px] border border-[#E6DDF6] bg-[#F7F3FD] p-6 sm:p-7">
+            <p className="inline-flex items-center gap-2 font-extrabold">
+              <Target className="size-5 text-[#B84E73]" />
+              Progres Belajar
+            </p>
+            <p className="mt-3 text-sm text-[#6E5F6C]">
+              <span className="text-lg font-extrabold text-[#B84E73]">
+                {understood.size}
+              </span>{" "}
+              dari <span className="font-extrabold">{GLOSSARY.length}</span>{" "}
+              istilah dipahami
+            </p>
+
+            <div className="mt-3 flex items-center gap-3">
+              <div
+                className="h-2.5 flex-1 overflow-hidden rounded-full bg-white"
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={progress}
+                aria-label="Progres belajar"
+              >
+                <div
+                  className="h-full rounded-full bg-[#B84E73] transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <span className="text-sm font-extrabold">{progress}%</span>
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => openMode("kartu")}
+                className="flex items-center gap-2 rounded-2xl border border-[#E1D9F8] bg-white p-3 text-left text-sm font-extrabold text-[#5E4A86] transition hover:border-[#C9B9F0]"
+              >
+                <Layers className="size-5 shrink-0" />
+                Kartu Belajar
+              </button>
+              <button
+                type="button"
+                onClick={() => openMode("kuis")}
+                className="flex items-center gap-2 rounded-2xl border border-[#E1D9F8] bg-white p-3 text-left text-sm font-extrabold text-[#5E4A86] transition hover:border-[#C9B9F0]"
+              >
+                <Trophy className="size-5 shrink-0" />
+                Kuis
+              </button>
+            </div>
+
+            <p className="mt-3 text-xs text-[#8A7A85]">
+              Progres tidak disimpan dan kembali ke 0 saat halaman dimuat ulang.
+            </p>
+          </div>
+        </section>
+
+        {/* Jelajahi / Kartu Belajar / Kuis */}
+        <section ref={modeSectionRef} className="mt-10 scroll-mt-24">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-2xl font-extrabold tracking-tight">
+              {mode === "kartu"
+                ? "Kartu Belajar"
+                : mode === "kuis"
+                  ? "Kuis Istilah"
+                  : "Jelajahi semua istilah"}
+            </h2>
+
+            {mode !== "jelajahi" && (
+              <button
+                type="button"
+                onClick={() => setMode("jelajahi")}
+                className="inline-flex items-center gap-1.5 text-sm font-bold text-[#B84E73] hover:text-[#8E3E5E]"
+              >
+                <ArrowLeft className="size-4" />
+                Kembali ke daftar istilah
+              </button>
+            )}
+          </div>
+
+          {mode === "jelajahi" && (
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-[#A08D9C]" />
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(event) => changeSearch(event.target.value)}
+                  placeholder="Cari istilah, misalnya “ISPU”, “menopause”, atau “UV”"
+                  aria-label="Cari istilah glosarium"
+                  className="h-12 w-full rounded-full border border-[#E9DCE3] bg-white pl-12 pr-4 text-sm outline-none transition placeholder:text-[#B2A2AE] focus:border-[#B84E73] focus:ring-4 focus:ring-[#B84E73]/10"
+                />
+              </div>
+
+              <label className="relative">
+                <span className="sr-only">Urutkan istilah</span>
+                <select
+                  value={sortOrder}
+                  onChange={(event) => setSortOrder(event.target.value)}
+                  className="h-12 w-full appearance-none rounded-full border border-[#E9DCE3] bg-white pl-5 pr-11 text-sm font-bold text-[#514351] outline-none focus:border-[#B84E73] sm:w-auto"
+                >
+                  <option value="az">Urutkan: A – Z</option>
+                  <option value="za">Urutkan: Z – A</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-[#8A7A85]" />
+              </label>
+            </div>
+          )}
+
+          {/* Filter topik — berlaku untuk daftar, Kartu Belajar, dan Kuis */}
+          <div
+            className="mt-4 flex flex-wrap gap-2"
+            role="group"
+            aria-label="Filter topik istilah"
+          >
+            {[{ value: "semua", label: "Semua" }, ...GLOSSARY_CATEGORIES].map(
+              (category) => {
+                const active = activeCategory === category.value;
 
                 return (
                   <button
-                    key={item.id}
+                    key={category.value}
                     type="button"
-                    onClick={() => openTerm(item)}
-                    aria-label={`Baca penjelasan ${item.term}`}
-                    className={`group relative flex h-full min-h-[230px] flex-col overflow-hidden rounded-[24px] border ${color.border} ${color.bg} p-5 text-left shadow-[0_5px_20px_rgb(80_60_80_/_4%)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_30px_rgb(80_60_80_/_10%)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#B84E73]/20 sm:p-6`}
+                    onClick={() => changeCategory(category.value)}
+                    aria-pressed={active}
+                    className={`rounded-full border px-4 py-2 text-sm font-bold transition ${
+                      active
+                        ? "border-[#B84E73] bg-[#B84E73] text-white"
+                        : "border-[#E9DCE3] bg-white text-[#514351] hover:border-[#D7A9BC] hover:text-[#984568]"
+                    }`}
                   >
-                    <div
-                      className={`absolute -right-8 -top-8 size-28 rounded-full ${color.accent} opacity-30 transition-transform duration-500 group-hover:scale-150`}
-                    />
-
-                    <div className="relative flex items-start justify-between gap-3">
-                      <div
-                        className={`flex size-14 items-center justify-center rounded-[20px] ${color.icon} shadow-sm transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110`}
-                      >
-                        <Icon className="size-7" strokeWidth={1.8} />
-                      </div>
-
-                      {item.draft && (
-                        <span className="rounded-full border border-[#F0D9A9] bg-[#FFF8E8] px-3 py-1.5 text-[11px] font-extrabold text-[#8A641E]">
-                          Draf
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="relative mt-5">
-                      <h3 className="text-lg font-extrabold leading-snug text-[#332A35] transition-colors group-hover:text-[#984568] sm:text-xl">
-                        {item.term}
-                      </h3>
-
-                      <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#625666]">
-                        {getSummary(item.definition)}
-                      </p>
-                    </div>
-
-                    <div className="relative mt-auto pt-6">
-                      <span
-                        className={`inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-extrabold shadow-sm transition-all group-hover:bg-white ${color.icon}`}
-                      >
-                        <BookOpen className="size-4" />
-                        Baca penjelasan
-                      </span>
-                    </div>
+                    {category.label} ({categoryCounts[category.value] ?? 0})
                   </button>
                 );
-              })}
-            </div>
-          ) : (
-            <div className="rounded-[24px] border border-dashed border-[#E4CBD7] bg-white px-6 py-14 text-center sm:py-16">
-              <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-[#F8E8EF] text-[#B84E73]">
-                <Search className="size-7" />
-              </div>
+              }
+            )}
+          </div>
 
-              <h2 className="mt-5 text-xl font-extrabold text-[#332A35]">
-                Istilah tidak ditemukan
-              </h2>
-
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#827382]">
-                Coba kata kunci lain untuk menemukan istilah yang kamu cari.
-              </p>
-
-              <Button
-                type="button"
-                onClick={() => setSearch("")}
-                className="mt-6 h-10 rounded-full bg-[#B84E73] px-5 text-sm font-extrabold text-white hover:bg-[#8E3E5E]"
-              >
-                Tampilkan semua istilah
-              </Button>
+          {mode === "kartu" && (
+            <div className="mt-6">
+              <GlossaryFlashcards
+                key={activeCategory}
+                terms={categoryTerms}
+                understood={understood}
+                onToggleUnderstood={toggleUnderstood}
+              />
             </div>
           )}
+
+          {mode === "kuis" && (
+            <div className="mt-6">
+              <GlossaryQuiz key={activeCategory} terms={categoryTerms} allTerms={GLOSSARY} />
+            </div>
+          )}
+
+          {mode === "jelajahi" &&
+            (visibleTerms.length > 0 ? (
+              <>
+                <div className="mt-6 grid gap-4 md:grid-cols-2">
+                  {shownTerms.map((item) => {
+                    const style = getStyle(item.category);
+                    const isUnderstood = understood.has(item.id);
+
+                    return (
+                      <article
+                        key={item.id}
+                        className="group relative flex gap-4 rounded-[22px] border border-[#F0E3E9] bg-white p-4 transition hover:-translate-y-0.5 hover:border-[#E3BFD0] hover:shadow-[0_10px_28px_rgb(120_70_90_/_8%)] sm:p-5"
+                      >
+                        <CategoryIcon
+                          category={item.category}
+                          className="size-16 rounded-[20px] sm:size-20"
+                          iconClassName="size-8 sm:size-9"
+                        />
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="text-lg font-extrabold leading-snug">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedTerm(item)}
+                                className="text-left after:absolute after:inset-0 after:rounded-[22px] group-hover:text-[#984568]"
+                              >
+                                {item.term}
+                              </button>
+                            </h3>
+
+                            <button
+                              type="button"
+                              onClick={() => toggleUnderstood(item.id)}
+                              aria-pressed={isUnderstood}
+                              aria-label={
+                                isUnderstood
+                                  ? `Batalkan tanda paham untuk ${item.term}`
+                                  : `Tandai ${item.term} sudah paham`
+                              }
+                              title={isUnderstood ? "Sudah paham" : "Tandai sudah paham"}
+                              className={`relative z-10 shrink-0 rounded-full p-1 transition ${
+                                isUnderstood
+                                  ? "text-[#52775B]"
+                                  : "text-[#C9B4C0] hover:text-[#52775B]"
+                              }`}
+                            >
+                              <CheckCircle2
+                                className="size-6"
+                                fill={isUnderstood ? "#E3F1E6" : "none"}
+                              />
+                            </button>
+                          </div>
+
+                          <span
+                            className={`mt-1 inline-flex rounded-full px-2.5 py-1 text-[11px] font-extrabold ${style.badge}`}
+                          >
+                            {getCategoryLabel(item.category)}
+                          </span>
+
+                          <p className="mt-2 line-clamp-3 text-sm leading-6 text-[#625666]">
+                            {item.definition}
+                          </p>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-6 flex flex-col items-center gap-2">
+                  <p className="text-sm text-[#827382]" aria-live="polite">
+                    Menampilkan {shownTerms.length} dari {visibleTerms.length} istilah
+                  </p>
+                  {shownTerms.length < visibleTerms.length && (
+                    <button
+                      type="button"
+                      onClick={() => setLimit((value) => value + PAGE_SIZE)}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-[#E3BFD0] bg-white px-6 py-2.5 text-sm font-extrabold text-[#984568] transition hover:bg-[#FFF4F8]"
+                    >
+                      Lihat lebih banyak
+                      <ChevronDown className="size-4" />
+                    </button>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="mt-6 rounded-[24px] border border-dashed border-[#E4CBD7] bg-white px-6 py-14 text-center">
+                <Search className="mx-auto size-8 text-[#B84E73]" />
+                <h3 className="mt-4 text-xl font-extrabold">Istilah tidak ditemukan</h3>
+                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#827382]">
+                  Coba kata kunci lain atau pilih topik “Semua”.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    changeSearch("");
+                    changeCategory("semua");
+                  }}
+                  className="mt-5 rounded-full bg-[#B84E73] px-5 py-2.5 text-sm font-extrabold text-white hover:bg-[#8E3E5E]"
+                >
+                  Tampilkan semua istilah
+                </button>
+              </div>
+            ))}
         </section>
 
-        {/* Disclaimer */}
-        <section className="mt-10 rounded-[22px] border border-[#D7E6D9] bg-[#E9F2EA] p-5 sm:mt-12 sm:p-7">
-          <div className="flex items-start gap-3">
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white/80 text-[#52775B]">
-              <CheckCircle2 className="size-5" />
-            </div>
-
-            <div>
-              <h2 className="text-base font-extrabold text-[#354A39] sm:text-lg">
-                Informasi untuk memahami, bukan mendiagnosis.
-              </h2>
-
-              <p className="mt-2 text-sm leading-6 text-[#617465]">
-                Istilah berlabel draf merupakan materi demonstrasi
-                yang masih perlu ditinjau tim. Informasi glosarium
-                bersifat edukatif dan bukan diagnosis atau penilaian
-                kesehatan pribadi.
-              </p>
-
-              <Link
-                href="/education/references"
-                className="mt-3 inline-flex items-center gap-1.5 text-sm font-extrabold text-[#48634D] underline-offset-4 hover:underline"
-              >
-                Jelajahi referensi
-                <ArrowUpRight className="size-4" />
-              </Link>
-            </div>
-          </div>
+        {/* Catatan */}
+        <section className="mt-12 flex gap-3 rounded-[22px] border border-[#D7E6D9] bg-[#E9F2EA] p-5 sm:p-6">
+          <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-[#52775B]" />
+          <p className="text-sm leading-6 text-[#4F6553]">
+            <span className="font-extrabold text-[#354A39]">
+              Informasi untuk memahami, bukan mendiagnosis.
+            </span>{" "}
+            Penjelasan glosarium bersifat edukatif dan disusun dari sumber di
+            halaman{" "}
+            <Link
+              href="/education/references"
+              className="font-extrabold underline-offset-4 hover:underline"
+            >
+              Referensi
+            </Link>
+            .
+          </p>
         </section>
       </div>
 
-      {/* Detail modal */}
+      {/* Popup detail istilah */}
       {selectedTerm && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-[#332A35]/45 p-0 backdrop-blur-[3px] sm:items-center sm:p-5"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-[#332A35]/45 backdrop-blur-[3px] sm:items-center sm:p-5"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setSelectedTerm(null);
-            }
+            if (event.target === event.currentTarget) setSelectedTerm(null);
           }}
         >
           <section
             role="dialog"
             aria-modal="true"
             aria-labelledby="glossary-modal-title"
-            className="relative max-h-[90dvh] w-full max-w-[680px] overflow-y-auto rounded-t-[28px] border border-[#F0DFE7] bg-[#FFFDFE] shadow-2xl sm:rounded-[28px]"
+            className="relative max-h-[90dvh] w-full max-w-[640px] overflow-y-auto rounded-t-[28px] bg-[#FFFDFE] shadow-2xl sm:rounded-[28px]"
           >
-            {/* Modal header */}
-            <div className="relative overflow-hidden border-b border-[#F0E3E9] bg-white p-5 sm:p-7">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-10 -top-16 size-44 rounded-full bg-[#F8E8EF] opacity-70 blur-3xl"
-              />
+            <button
+              ref={closeButtonRef}
+              type="button"
+              onClick={() => setSelectedTerm(null)}
+              aria-label="Tutup"
+              className="absolute right-4 top-4 rounded-full p-2 text-[#8A7A85] transition hover:bg-[#F8E8EF] hover:text-[#B84E73]"
+            >
+              <X className="size-5" />
+            </button>
 
-              <div className="relative flex items-start gap-4 pr-10">
-                {(() => {
-                  const Icon = getTermIcon(selectedTerm.term);
-                  const style = getTermStyle(selectedTerm.term);
-
-                  return (
-                    <div
-                      className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${style.icon}`}
-                    >
-                      <Icon className="size-6" />
+            <div className="border-b border-[#F0E3E9] p-6 pr-14 sm:p-7 sm:pr-16">
+              {(() => {
+                const style = getStyle(selectedTerm.category);
+                return (
+                  <div className="flex items-start gap-4">
+                    <CategoryIcon
+                      category={selectedTerm.category}
+                      className="size-14 rounded-2xl"
+                      iconClassName="size-6"
+                    />
+                    <div>
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-extrabold ${style.badge}`}
+                      >
+                        {getCategoryLabel(selectedTerm.category)}
+                      </span>
+                      <h2
+                        id="glossary-modal-title"
+                        className="mt-2 text-2xl font-extrabold leading-tight sm:text-3xl"
+                      >
+                        {selectedTerm.term}
+                      </h2>
                     </div>
-                  );
-                })()}
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-extrabold uppercase tracking-[0.13em] text-[#B84E73]">
-                    Detail istilah
-                  </p>
-
-                  <h2
-                    id="glossary-modal-title"
-                    className="mt-1 break-words text-2xl font-extrabold leading-tight text-[#332A35] sm:text-3xl"
-                  >
-                    {selectedTerm.term}
-                  </h2>
-
-                  {selectedTerm.draft && (
-                    <span className="mt-3 inline-flex rounded-full bg-[#FFF1D6] px-3 py-1.5 text-xs font-extrabold text-[#8A641E]">
-                      Draf · Perlu ditinjau
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <button
-                ref={closeButtonRef}
-                type="button"
-                onClick={() => setSelectedTerm(null)}
-                aria-label="Tutup detail istilah"
-                className="absolute right-4 top-4 flex size-10 items-center justify-center rounded-full border border-[#E9DCE3] bg-white text-[#796878] transition-colors hover:bg-[#FFF4F8] hover:text-[#B84E73] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#B84E73]/15 sm:right-5 sm:top-5"
-              >
-                <X className="size-5" />
-              </button>
+                  </div>
+                );
+              })()}
             </div>
 
-            {/* Modal content */}
-            <div className="space-y-6 p-5 sm:p-7">
-              <div>
-                <h3 className="text-sm font-extrabold uppercase tracking-wide text-[#984568]">
-                  Pengertian
-                </h3>
-
-                <p className="mt-3 whitespace-pre-line text-sm leading-7 text-[#514451] sm:text-base">
-                  {selectedTerm.definition}
-                </p>
-              </div>
+            <div className="space-y-5 p-6 sm:p-7">
+              <p className="text-base leading-7 text-[#3F3540]">
+                {selectedTerm.definition}
+              </p>
 
               {selectedTerm.note && (
-                <div className="rounded-2xl border border-[#D7E6D9] bg-[#F1F6EF] p-4 sm:p-5">
-                  <div className="flex items-center gap-2">
-                    <Leaf className="size-5 text-[#52775B]" />
-                    <h3 className="text-sm font-extrabold text-[#42634B]">
-                      Catatan
-                    </h3>
-                  </div>
-
-                  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-[#536657]">
+                <div className="rounded-2xl bg-[#FFF7EE] p-4">
+                  <p className="text-sm font-extrabold text-[#7A4A1F]">Perlu diingat</p>
+                  <p className="mt-1 text-sm leading-6 text-[#6E5236]">
                     {selectedTerm.note}
                   </p>
                 </div>
               )}
 
-              {selectedTerm.basis && (
-                <div className="rounded-2xl border border-[#F0E3E9] bg-white p-4 sm:p-5">
-                  <div className="flex items-center gap-2">
-                    <FileText className="size-5 text-[#B84E73]" />
-                    <h3 className="text-sm font-extrabold text-[#514351]">
-                      Dasar informasi
-                    </h3>
-                  </div>
-
-                  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-[#756774]">
-                    {selectedTerm.basis}
-                  </p>
-                </div>
-              )}
-
-              {selectedTerm.related?.some((relatedId) =>
-                GLOSSARY.some((term) => term.id === relatedId)
-              ) && (
+              {selectedTerm.related?.some((id) => GLOSSARY.some((term) => term.id === id)) && (
                 <div>
-                  <h3 className="mb-3 text-sm font-extrabold text-[#514351]">
+                  <h3 className="mb-2 text-sm font-extrabold text-[#514351]">
                     Istilah terkait
                   </h3>
-
                   <div className="flex flex-wrap gap-2">
-                    {selectedTerm.related.map((relatedId) => {
-                      const relatedTerm = GLOSSARY.find(
-                        (term) => term.id === relatedId
-                      );
-
-                      if (!relatedTerm) return null;
-
+                    {selectedTerm.related.map((id) => {
+                      const related = GLOSSARY.find((term) => term.id === id);
+                      if (!related) return null;
                       return (
                         <button
-                          key={relatedId}
+                          key={id}
                           type="button"
-                          onClick={() =>
-                            openRelatedTerm(relatedId)
-                          }
-                          className="inline-flex items-center gap-1.5 rounded-full border border-[#E7D5DE] bg-white px-3.5 py-2 text-sm font-bold text-[#984568] transition-colors hover:border-[#D7A9BC] hover:bg-[#FFF4F8] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#B84E73]/15"
+                          onClick={() => openRelatedTerm(id)}
+                          className="rounded-full border border-[#E7D5DE] bg-white px-3.5 py-1.5 text-sm font-bold text-[#984568] transition hover:bg-[#FFF4F8]"
                         >
-                          {relatedTerm.term}
-                          <ArrowUpRight className="size-3.5" />
+                          {related.term}
                         </button>
                       );
                     })}
@@ -645,26 +702,54 @@ export default function GlossaryPage() {
                 </div>
               )}
 
-              <div className="rounded-xl bg-[#F8E8EF]/60 p-4">
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-[#B84E73]" />
-
-                  <p className="text-xs leading-5 text-[#796878]">
-                    Penjelasan ini bersifat edukatif. Gunakan
-                    informasi sebagai bahan pemahaman, bukan sebagai
-                    diagnosis atau penilaian kesehatan pribadi.
-                  </p>
+              {getArticlesUsingTerm(selectedTerm.id).length > 0 && (
+                <div>
+                  <h3 className="mb-2 text-sm font-extrabold text-[#514351]">
+                    Dipakai di artikel
+                  </h3>
+                  <ul className="space-y-2">
+                    {getArticlesUsingTerm(selectedTerm.id).map((article) => (
+                      <li key={article.slug}>
+                        <Link
+                          href={`/education/${article.slug}`}
+                          className="flex items-center justify-between gap-3 rounded-xl border border-[#E7D5DE] bg-white px-3.5 py-2.5 text-sm font-bold text-[#984568] transition hover:bg-[#FFF4F8]"
+                        >
+                          {article.title}
+                          <ChevronRight className="size-4 shrink-0" />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </div>
+              )}
 
-              <div className="flex justify-end border-t border-[#F0E3E9] pt-5">
-                <Button
+              {selectedTerm.basis && (
+                <p className="text-xs leading-5 text-[#8A7A85]">
+                  Sumber: {selectedTerm.basis}
+                </p>
+              )}
+
+              <div className="flex flex-wrap justify-end gap-2 border-t border-[#F0E3E9] pt-5">
+                <button
+                  type="button"
+                  onClick={() => toggleUnderstood(selectedTerm.id)}
+                  aria-pressed={understood.has(selectedTerm.id)}
+                  className={`inline-flex h-10 items-center gap-1.5 rounded-full px-5 text-sm font-extrabold transition ${
+                    understood.has(selectedTerm.id)
+                      ? "bg-[#52775B] text-white"
+                      : "border border-[#B7D9BE] bg-white text-[#427D55] hover:bg-[#EDF6EE]"
+                  }`}
+                >
+                  <CheckCircle2 className="size-4" />
+                  {understood.has(selectedTerm.id) ? "Sudah paham" : "Tandai sudah paham"}
+                </button>
+                <button
                   type="button"
                   onClick={() => setSelectedTerm(null)}
-                  className="h-10 rounded-full bg-[#B84E73] px-5 text-sm font-extrabold text-white hover:bg-[#8E3E5E]"
+                  className="h-10 rounded-full bg-[#B84E73] px-5 text-sm font-extrabold text-white transition hover:bg-[#8E3E5E]"
                 >
                   Selesai membaca
-                </Button>
+                </button>
               </div>
             </div>
           </section>

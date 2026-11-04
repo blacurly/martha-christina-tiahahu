@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getCurrentUser } from "@/lib/auth/session";
+import { findArticlesForQuestion } from "@/data/education";
 
 // Batas Tanya Sycle untuk Guest (belum login), dihitung per perangkat per hari.
 // Member tidak dibatasi oleh aturan ini.
@@ -57,7 +58,11 @@ export async function POST(request) {
       cache: "no-store",
     });
 
-    const data = await upstream.json();
+    const answer = await upstream.json();
+    // Arahkan ke materi Info & Edukasi yang relevan (Master V2.1: fallback Tanya SYCLE → arah ke materi edukasi).
+    const data = upstream.ok
+      ? { ...answer, relatedArticles: findArticlesForQuestion(message) }
+      : answer;
 
     if (user || !upstream.ok) {
       return NextResponse.json(data, { status: upstream.status });

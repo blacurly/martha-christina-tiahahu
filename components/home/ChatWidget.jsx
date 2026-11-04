@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Heart, MessageCircle, Send, Sparkles, X } from 'lucide-react'
 import FormattedText from './FormattedText'
 
@@ -25,6 +25,18 @@ export default function ChatWidget () {
   // true jika batas Guest habis; pengguna diarahkan ke Masuk/Daftar.
   const [needsAccount, setNeedsAccount] = useState(false)
   const nextPath = encodeURIComponent(pathname || '/')
+
+  // Membuka chat dari halaman lain (misalnya tombol "Tanya Sycle" di artikel edukasi)
+  // dengan pertanyaan yang sudah terisi di kolom input. Pengguna tetap menekan Kirim sendiri.
+  useEffect(() => {
+    function handleOpen (event) {
+      setIsOpen(true)
+      if (event.detail?.question) setInput(event.detail.question)
+      requestAnimationFrame(() => inputRef.current?.focus())
+    }
+    window.addEventListener('sycle:tanya', handleOpen)
+    return () => window.removeEventListener('sycle:tanya', handleOpen)
+  }, [])
 
   function fillSuggestion (question) {
     setInput(question)
@@ -63,7 +75,11 @@ export default function ChatWidget () {
       }
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', content: data.answer || 'Belum ada jawaban.' }
+        {
+          role: 'assistant',
+          content: data.answer || 'Belum ada jawaban.',
+          relatedArticles: data.relatedArticles || []
+        }
       ])
     } catch (error) {
       setMessages(prev => [
@@ -159,6 +175,25 @@ export default function ChatWidget () {
                 ) : (
                   <>
                     <FormattedText text={item.content} />
+                    {item.relatedArticles?.length > 0 && (
+                      <div className='mt-3 border-t border-[#F0D4DF] pt-2'>
+                        <p className='text-xs font-semibold text-[#765866]'>
+                          Baca juga di Info & Edukasi:
+                        </p>
+                        <ul className='mt-1 space-y-1'>
+                          {item.relatedArticles.map(article => (
+                            <li key={article.slug}>
+                              <Link
+                                href={`/education/${article.slug}`}
+                                className='text-xs font-bold text-[#B84E73] underline-offset-2 hover:underline'
+                              >
+                                {article.title} →
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                     {item.needsAccount && (
                       <div className='mt-3 flex flex-wrap gap-2'>
                         <Link

@@ -76,6 +76,10 @@ function getSourceType(article) {
     return "Dokumen PDF";
   }
 
+  if (article.references?.length) {
+    return `${article.references.length} referensi`;
+  }
+
   return article.sourceType || "Sumber evidence";
 }
 
@@ -198,7 +202,7 @@ export default function EducationPage() {
             className="pointer-events-none absolute -bottom-28 right-24 -z-10 size-64 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
           />
 
-          <div className="relative grid items-center gap-9 lg:grid-cols-[1fr_270px] lg:gap-12">
+          <div className="relative grid items-center gap-9 lg:grid-cols-[1fr_300px] lg:gap-12">
             <div className="max-w-[680px]">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB]/90 px-3.5 py-2 text-sm font-bold text-[#984568]">
                 <Sparkles className="size-4" />
@@ -252,26 +256,20 @@ export default function EducationPage() {
               </div>
             </div>
 
-            {/* Hero visual */}
+            {/* Hero visual: ilustrasi animasi (video pendek tanpa suara, berulang) */}
             <div className="hidden lg:flex lg:justify-center">
-              <div className="relative flex size-[230px] items-center justify-center rounded-[36px] border border-white/80 bg-white/65 shadow-[0_12px_40px_rgb(120_70_90_/_8%)] backdrop-blur-sm">
-                <div className="absolute inset-5 rounded-[28px] border border-[#E9F2EA] bg-[#F5F8F2]" />
-
-                <div className="relative flex size-[116px] items-center justify-center rounded-full bg-[#E9F2EA] text-[#52775B]">
-                  <Leaf className="size-[58px]" strokeWidth={1.5} />
-                </div>
-
-                <div className="absolute right-3 top-7 flex size-11 items-center justify-center rounded-2xl bg-[#F8E8EF] text-[#B84E73] shadow-sm">
-                  <BookOpen className="size-5" />
-                </div>
-
-                <div className="absolute bottom-7 left-3 flex size-11 items-center justify-center rounded-2xl bg-[#EEEAF8] text-[#76629A] shadow-sm">
-                  <Sparkles className="size-5" />
-                </div>
-
-                <div className="absolute bottom-5 right-5 flex size-8 items-center justify-center rounded-full border-4 border-white bg-[#D7E6D9] text-[#52775B]">
-                  <CheckCircle2 className="size-4" />
-                </div>
+              <div className="overflow-hidden rounded-[32px] border border-white/80 shadow-[0_12px_40px_rgb(120_70_90_/_12%)]">
+                <video
+                  src="/brand/education-hero.mp4"
+                  poster="/brand/education-hero-poster.webp"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  aria-hidden="true"
+                  className="block size-[300px] object-cover"
+                />
               </div>
             </div>
           </div>
