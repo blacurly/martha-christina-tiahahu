@@ -167,7 +167,7 @@ export const GLOSSARY = [
     category: "panas-uv",
     term: "Sengatan panas (heat stroke)",
     definition: "Kondisi darurat ketika tubuh tidak lagi mampu mendinginkan diri. Tandanya antara lain bingung, bicara tidak jelas, pingsan, kejang, dan suhu tubuh sangat tinggi.",
-    note: "Perlu pertolongan medis segera. Hubungi layanan darurat (112).",
+    note: "Perlu pertolongan medis segera di IGD atau fasilitas kesehatan terdekat.",
     basis: "CDC — Heat-related Illnesses",
     related: ["kelelahan-panas", "dehidrasi"],
   },

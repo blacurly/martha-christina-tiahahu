@@ -321,6 +321,13 @@ export default function EducationGuidancePage() {
                 <div>
                   <p className="text-sm font-extrabold text-[#7A4A1F]">Kapan perlu bantuan</p>
                   <p className="mt-1 text-sm leading-6 text-[#6E5236]">{active.warning}</p>
+                  <Link
+                    href="/healthcare"
+                    className="mt-2 inline-flex items-center gap-1.5 text-sm font-extrabold text-[#7A4A1F] underline-offset-4 hover:underline"
+                  >
+                    Temukan fasilitas kesehatan terdekat
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </Link>
                 </div>
               </div>
 

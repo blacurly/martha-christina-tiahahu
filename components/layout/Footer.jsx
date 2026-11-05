@@ -1,5 +1,14 @@
+"use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+// Disclaimer tidak-diagnostik di bagian bawah semua tampilan (Master V2.1 FR-17, AC-27).
+// Di halaman Healthcare, tautan [Lihat Healthcare] tidak ditampilkan karena pengguna sudah di sana.
 export default function Footer() {
+  const pathname = usePathname();
+  const onHealthcare = pathname?.startsWith("/healthcare");
+
   return (
     <footer className="footer">
       <div className="footer-main">
@@ -14,8 +23,16 @@ export default function Footer() {
         {/* INFORMASI */}
         <div className="footer-info">
           <p className="footer-disclaimer">
-            Informasi edukatif berbasis evidence,
-            bukan diagnosis medis.
+            SYCLE tidak memberikan diagnosis. Informasi di sini bersifat
+            edukatif dan tidak menggantikan saran tenaga kesehatan.
+            {!onHealthcare && (
+              <>
+                {" "}
+                <Link href="/healthcare" className="footer-healthcare-link">
+                  Lihat Healthcare →
+                </Link>
+              </>
+            )}
           </p>
         </div>
       </div>

@@ -34,7 +34,7 @@ export const GUIDANCE_CATEGORIES = [
       },
     ],
     warning:
-      "Segera cari pertolongan bila muncul bingung, bicara tidak jelas, pingsan, atau kejang. Hubungi layanan darurat (112). Pusing, mual, lemas, dan sakit kepala juga tanda tubuh kepanasan.",
+      "Segera cari pertolongan bila muncul bingung, bicara tidak jelas, pingsan, atau kejang. Segera ke IGD atau fasilitas kesehatan terdekat. Pusing, mual, lemas, dan sakit kepala juga tanda tubuh kepanasan.",
     references: ["E16", "E17", "E41"],
     articles: ["panas-dan-tubuh", "tanda-bahaya-penyakit-akibat-panas"],
   },

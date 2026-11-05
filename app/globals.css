@@ -1439,6 +1439,18 @@ select:focus-visible {
   line-height: 1.7;
 }
 
+.footer-healthcare-link {
+  color: #b84e73;
+  font-weight: 800;
+  white-space: nowrap;
+  text-underline-offset: 3px;
+}
+
+.footer-healthcare-link:hover {
+  color: #8e3e5e;
+  text-decoration: underline;
+}
+
 .footer-bottom {
   display: flex;
   align-items: center;

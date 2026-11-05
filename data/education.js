@@ -3,6 +3,7 @@ import { GLOSSARY } from "@/data/education/glossary";
 
 // Artikel Info & Edukasi.
 // - `terms`: id istilah di data/education/glossary.js yang dipakai di artikel.
+// - `healthcareLink`: tampilkan tautan ke Healthcare untuk artikel berisi tanda bahaya (Master V2.1 K-09).
 // - `askQuestion`: pertanyaan yang otomatis terisi saat pengguna menekan tombol Tanya Sycle di artikel.
 // - `references`: kode E-xx yang menunjuk ke data/education/references.js (tidak ditampilkan di antarmuka).
 // - Setiap bagian (`sections`) boleh berisi `paragraphs` (teks) dan/atau `items` (daftar poin).
@@ -18,6 +19,17 @@ export const educationArticles = [
     references: ["E16", "E17"],
     terms: ["heat-index", "kelembapan-relatif", "dehidrasi", "gelombang-panas"],
     askQuestion: "Bagaimana cara menjaga tubuh tetap aman saat cuaca panas?",
+    // Kartu edukasi 5 bagian (Master V2.1 5.7): judul, ringkasan, yang bisa kamu lakukan, yang perlu diketahui (= limitations), sumber (= references).
+    card: {
+      summary:
+        "Tubuh mendinginkan diri dengan berkeringat dan mengalirkan lebih banyak darah ke kulit. Saat udara panas dan lembap, keringat sulit menguap sehingga tubuh lebih sulit mendingin. Karena itu Sycle menampilkan Heat Index, yaitu suhu yang terasa, bukan hanya suhu udara. Ibu hamil, bayi, lansia, pekerja luar ruangan, dan orang dengan penyakit kronis lebih rentan terhadap panas.",
+      actions: [
+        "Minum air secara teratur, jangan menunggu sampai haus.",
+        "Kurangi aktivitas berat di luar saat siang terik; pilih pagi atau sore hari.",
+        "Cari tempat teduh atau ruangan yang sejuk dan berventilasi baik.",
+        "Pakai pakaian longgar, ringan, berwarna terang, dan topi saat di luar.",
+      ],
+    },
     sections: [
       {
         heading: "Bagaimana tubuh mengatasi panas",
@@ -69,6 +81,17 @@ export const educationArticles = [
     references: ["E41", "E17", "E16"],
     terms: ["heat-stroke", "kelelahan-panas", "dehidrasi"],
     askQuestion: "Apa bedanya kelelahan panas dan sengatan panas?",
+    healthcareLink: true,
+    card: {
+      summary:
+        "Penyakit akibat panas terjadi ketika tubuh tidak mampu lagi mendinginkan dirinya. Sengatan panas (heat stroke) adalah keadaan darurat yang ditandai bingung, bicara tidak jelas, pingsan, kejang, dan suhu tubuh sangat tinggi. Kelelahan panas ditandai sakit kepala, mual, pusing, lemas, haus, dan berkeringat banyak. Keluhan lain akibat panas antara lain pingsan, kram panas, dan biang keringat.",
+      actions: [
+        "Bila muncul tanda sengatan panas, segera bawa ke IGD atau fasilitas kesehatan terdekat.",
+        "Pindahkan orang yang kepanasan ke tempat teduh atau sejuk.",
+        "Dinginkan tubuh dengan air dingin, kain basah, atau kompres dingin.",
+        "Minum air sedikit-sedikit tetapi sering bila masih sadar penuh.",
+      ],
+    },
     sections: [
       {
         heading: "Saat tubuh tidak bisa mendingin",
@@ -83,7 +106,7 @@ export const educationArticles = [
           "Yang dilakukan:"
         ],
         items: [
-          "Segera hubungi layanan darurat (112) atau bawa ke IGD terdekat. Jangan tinggalkan orang tersebut sendirian.",
+          "Segera bawa ke IGD atau fasilitas kesehatan terdekat. Jangan tinggalkan orang tersebut sendirian.",
           "Pindahkan ke tempat teduh atau sejuk dan lepaskan pakaian luarnya.",
           "Dinginkan tubuhnya dengan air dingin, kain basah, atau kompres dingin di kepala, leher, ketiak, dan lipatan paha.",
           "Kipasi udara di sekitarnya."
@@ -126,6 +149,15 @@ export const educationArticles = [
     references: ["E36", "E33", "E18"],
     terms: ["pm25", "ispu", "us-aqi", "pengamatan"],
     askQuestion: "Apa itu PM2.5 dan apa dampaknya bagi kesehatan?",
+    card: {
+      summary:
+        "PM2.5 adalah partikel sangat halus di udara yang bisa terhirup jauh ke dalam paru-paru. Menurut WHO, paparannya dikaitkan dengan penyakit jantung, penyakit pernapasan, dan kanker. Pedoman WHO (2021) untuk PM2.5 adalah rata-rata 5 µg/m³ per tahun dan 15 µg/m³ per 24 jam. Sycle menampilkan ISPU dengan kategori Baik sampai Berbahaya, yang lebih mudah dipakai sehari-hari daripada angka konsentrasi.",
+      actions: [
+        "Cek kategori kualitas udara di Beranda Sycle sebelum beraktivitas di luar.",
+        "Saat kategori Tidak Sehat atau lebih buruk, kurangi aktivitas berat di luar ruangan.",
+        "Baca panduan masker dan cara mengurangi paparan polusi.",
+      ],
+    },
     sections: [
       {
         heading: "Apa itu PM2.5?",
@@ -177,6 +209,17 @@ export const educationArticles = [
     references: ["E37", "E42", "E43"],
     terms: ["respirator", "pm25", "ispu"],
     askQuestion: "Masker apa yang bisa melindungi dari asap dan polusi?",
+    healthcareLink: true,
+    card: {
+      summary:
+        "Cara terbaik melindungi kesehatan dari polusi adalah mengurangi sumbernya lewat kebijakan, tetapi tindakan pribadi tetap bisa membantu. Saat udara buruk atau ada asap, tetap di ruangan yang udaranya lebih bersih dan hindari pembakaran di dalam rumah. Respirator seperti N95 menyaring partikel lebih baik daripada masker longgar, tetapi tidak menyaring gas. Ibu hamil, anak, dan orang dengan penyakit paru atau jantung perlu lebih berhati-hati.",
+      actions: [
+        "Tutup jendela saat ada asap dan jangan membakar apa pun di dalam rumah.",
+        "Atur waktu dan rute aktivitas di luar saat polusi tinggi.",
+        "Bila harus keluar saat ada asap, pakai respirator yang menempel rapat.",
+        "Bila punya penyakit jantung atau paru, tanyakan dulu ke tenaga kesehatan sebelum memakai respirator.",
+      ],
+    },
     sections: [
       {
         heading: "Udara bersih adalah tanggung jawab bersama",
@@ -229,6 +272,15 @@ export const educationArticles = [
     references: ["E34", "E38", "E01"],
     terms: ["indeks-uv", "melasma", "data-model"],
     askQuestion: "Bagaimana melindungi diri saat indeks UV tinggi?",
+    card: {
+      summary:
+        "Indeks UV mengukur kekuatan radiasi ultraviolet dari matahari; makin tinggi angkanya, makin besar risiko kerusakan kulit dan mata. Sinar UV paling kuat sekitar pukul 10.00–14.00. Indeks 0–2 umumnya aman, mulai 3 perlu perlindungan, dan 8 ke atas sebaiknya hindari berada di luar saat tengah hari.",
+      actions: [
+        "Cari tempat teduh saat tengah hari.",
+        "Pakai pakaian yang menutupi kulit, topi bertepi lebar, dan kacamata pelindung UV.",
+        "Oleskan tabir surya spektrum luas dan oleskan ulang setelah berkeringat.",
+      ],
+    },
     sections: [
       {
         heading: "Apa itu indeks UV?",
@@ -276,6 +328,15 @@ export const educationArticles = [
     references: ["E09", "E11", "E10", "E17"],
     terms: ["fase-luteal", "fase-folikular", "dismenore", "studi-populasi"],
     askQuestion: "Apakah siklus menstruasi memengaruhi rasa panas di tubuh?",
+    card: {
+      summary:
+        "Setelah ovulasi (fase luteal), suhu inti tubuh sekitar 0,3–0,7°C lebih tinggi daripada sebelum ovulasi. Sebagian orang mungkin merasa lebih gerah di paruh kedua siklus. Namun penelitian tentang olahraga di cuaca panas menemukan jumlah keringat dan detak jantung tidak berbeda antarfase, dan datanya masih terbatas.",
+      actions: [
+        "Minum air secara teratur saat cuaca panas.",
+        "Pilih pakaian yang longgar dan nyaman.",
+        "Istirahat di tempat sejuk dan kurangi aktivitas berat saat siang terik.",
+      ],
+    },
     sections: [
       {
         heading: "Suhu tubuh mengikuti siklus",
@@ -309,7 +370,7 @@ export const educationArticles = [
       }
     ],
     limitations:
-      "Temuan penelitian ini berlaku untuk kelompok, bukan untuk memprediksi respons tubuh setiap orang. Sycle tidak mendiagnosis gejala menstruasi."
+      "Bukti pengaruh fase siklus terhadap panas masih terbatas dan tidak konsisten. Temuan penelitian ini berlaku untuk kelompok, bukan untuk memprediksi respons tubuh setiap orang. Sycle tidak mendiagnosis gejala menstruasi."
   },
   {
     slug: "nyeri-haid-dan-haid-yang-banyak",
@@ -321,6 +382,17 @@ export const educationArticles = [
     references: ["E21", "E22", "E23"],
     terms: ["dismenore"],
     askQuestion: "Kapan nyeri haid perlu diperiksakan ke tenaga kesehatan?",
+    healthcareLink: true,
+    card: {
+      summary:
+        "Nyeri haid terjadi karena otot rahim berkontraksi dan sering kali normal. Kadang nyeri disebabkan kondisi lain seperti endometriosis atau mioma. Haid dianggap terlalu banyak bila, misalnya, perlu mengganti pembalut setiap 1–2 jam atau haid berlangsung lebih dari 7 hari.",
+      actions: [
+        "Coba kompres hangat di perut, pijat lembut, atau olahraga ringan.",
+        "Tanyakan pilihan obat pereda nyeri ke apoteker atau tenaga kesehatan.",
+        "Segera cari pertolongan bila nyeri sangat hebat dan obat pereda nyeri tidak membantu.",
+        "Periksakan diri bila haid makin nyeri, makin banyak, atau tidak teratur.",
+      ],
+    },
     sections: [
       {
         heading: "Mengapa haid terasa nyeri",
@@ -380,6 +452,17 @@ export const educationArticles = [
     references: ["E01", "E02", "E40"],
     terms: ["dehidrasi", "melasma", "gelombang-panas", "kelelahan-panas"],
     askQuestion: "Apa hubungan cuaca panas dengan kehamilan?",
+    healthcareLink: true,
+    card: {
+      summary:
+        "Selama hamil, jantung dan pembuluh darah sudah bekerja lebih keras, dan cuaca panas menambah beban itu. Menurut WHO, risiko utama panas pada kehamilan adalah dehidrasi. Hari panas juga sering disertai kualitas udara yang lebih buruk.",
+      actions: [
+        "Minum sekitar 2–3 liter air per hari, dan lebih banyak saat cuaca panas.",
+        "Habiskan waktu di ruangan sejuk dan beraktivitas di pagi atau sore hari.",
+        "Hubungi bidan atau dokter bila gerakan bayi berkurang atau muncul kontraksi sebelum waktunya.",
+        "Tanyakan ke tenaga kesehatan apakah obat rutinmu memengaruhi ketahanan terhadap panas.",
+      ],
+    },
     sections: [
       {
         heading: "Mengapa ibu hamil lebih rentan",
@@ -435,6 +518,17 @@ export const educationArticles = [
     references: ["E07", "E06", "E36", "E43"],
     terms: ["preeklamsia", "hipertensi-kehamilan", "no2", "pm25", "meta-analisis"],
     askQuestion: "Bagaimana ibu hamil bisa mengurangi paparan polusi udara?",
+    healthcareLink: true,
+    card: {
+      summary:
+        "Ibu hamil termasuk kelompok yang lebih rentan terhadap asap dan udara buruk. Meta-analisis 10 penelitian menemukan paparan polusi udara selama kehamilan berkaitan dengan risiko sedikit lebih tinggi untuk hipertensi kehamilan dan preeklamsia. Peneliti menyebut efeknya kecil dan hasilnya belum meyakinkan.",
+      actions: [
+        "Cek kategori kualitas udara sebelum beraktivitas di luar.",
+        "Saat udara buruk atau ada asap, kurangi aktivitas berat di luar ruangan.",
+        "Hindari asap rokok dan pembakaran di dalam rumah.",
+        "Tetap rutin kontrol kehamilan, termasuk pemeriksaan tekanan darah.",
+      ],
+    },
     sections: [
       {
         heading: "Mengapa dibahas",
@@ -467,7 +561,7 @@ export const educationArticles = [
       }
     ],
     limitations:
-      "Penelitian ini tidak dapat dipakai untuk menilai risiko kehamilanmu secara pribadi. Diskusikan kekhawatiranmu dengan bidan atau dokter."
+      "Hubungan yang ditemukan bersifat populasi, bukan sebab-akibat pada satu orang. Penelitian ini tidak dapat dipakai untuk menilai risiko kehamilanmu secara pribadi. Diskusikan kekhawatiranmu dengan bidan atau dokter."
   },
   {
     slug: "setelah-melahirkan-pemulihan-dan-tanda-bahaya",
@@ -479,6 +573,16 @@ export const educationArticles = [
     references: ["E24", "E25", "E40"],
     terms: ["lokia", "baby-blues", "preeklamsia"],
     askQuestion: "Apa saja tanda bahaya setelah melahirkan?",
+    healthcareLink: true,
+    card: {
+      summary:
+        "Setelah melahirkan, tubuh mengalami banyak perubahan, misalnya darah nifas (lokia) yang berkurang dalam sekitar 4–6 minggu, kram perut, dan payudara yang terasa penuh. Baby blues cukup umum dan biasanya membaik dalam sekitar dua minggu. Beberapa tanda bahaya bisa muncul hingga satu tahun setelah melahirkan dan perlu pertolongan segera.",
+      actions: [
+        "Istirahat bila ada kesempatan dan minta bantuan pasangan atau keluarga.",
+        "Datang ke jadwal kontrol nifas.",
+        "Segera cari pertolongan medis bila mengalami tanda bahaya, misalnya demam 38°C atau lebih, perdarahan banyak, sesak napas, atau pikiran menyakiti diri atau bayi.",
+      ],
+    },
     sections: [
       {
         heading: "Perubahan yang umum terjadi",
@@ -538,6 +642,16 @@ export const educationArticles = [
     references: ["E27", "E26", "E39", "E17"],
     terms: ["asi-eksklusif", "dehidrasi"],
     askQuestion: "Apakah bayi yang menyusu perlu air putih saat cuaca panas?",
+    healthcareLink: true,
+    card: {
+      summary:
+        "WHO dan UNICEF menyarankan ASI eksklusif selama 6 bulan pertama, tanpa tambahan minuman lain termasuk air putih. Saat cuaca panas, bayi mungkin lebih sering minta menyusu karena haus, dan ASI menyesuaikan diri tanpa kehilangan gizinya. Bayi di atas 6 bulan yang sudah makan boleh diberi air putih sedikit-sedikit.",
+      actions: [
+        "Susui bayi lebih sering bila ia meminta.",
+        "Perhatikan bila bayi lebih jarang buang air kecil atau urinenya lebih gelap.",
+        "Ibu menyusui tetap minum air secara teratur dan menyusui di tempat sejuk.",
+      ],
+    },
     sections: [
       {
         heading: "Rekomendasi WHO",
@@ -583,6 +697,16 @@ export const educationArticles = [
     references: ["E14", "E28", "E29", "E30", "E15", "E13"],
     terms: ["perimenopause", "menopause", "hot-flashes", "keringat-malam"],
     askQuestion: "Bagaimana tetap nyaman saat hot flashes di cuaca panas?",
+    healthcareLink: true,
+    card: {
+      summary:
+        "Perimenopause adalah masa transisi sebelum menopause, biasanya mulai di usia 40-an. Menopause ditandai saat seseorang sudah 12 bulan berturut-turut tidak haid, umumnya antara usia 45 dan 55 tahun. Gejala yang umum antara lain hot flashes, keringat malam, dan sulit tidur.",
+      actions: [
+        "Siapkan air dingin di dekat tempat tidur dan pakai baju tidur dari bahan ringan.",
+        "Gunakan kipas angin atau AC dan selimut tipis berlapis.",
+        "Periksakan diri bila gejala mengganggu atau ada perdarahan setelah 12 bulan tidak haid.",
+      ],
+    },
     sections: [
       {
         heading: "Apa bedanya perimenopause dan menopause",
@@ -644,6 +768,15 @@ export const educationArticles = [
     references: ["E05", "E04", "E46", "E07", "E06", "E12", "E44"],
     terms: ["studi-populasi", "tinjauan-sistematis", "meta-analisis", "persalinan-prematur", "cadangan-ovarium", "no2"],
     askQuestion: "Apa kata penelitian tentang panas dan kehamilan?",
+    card: {
+      summary:
+        "Studi populasi mengamati kelompok besar orang untuk mencari hubungan antara paparan dan kondisi kesehatan. Meta-analisis menemukan peluang persalinan prematur sekitar 4–5% lebih tinggi untuk setiap kenaikan suhu 1°C. Penelitian lain mengaitkan polusi udara dengan hipertensi kehamilan, siklus menstruasi yang kurang teratur, dan cadangan ovarium yang lebih rendah.",
+      actions: [
+        "Pantau panas dan kualitas udara di Beranda Sycle.",
+        "Kurangi paparan saat kondisi lingkungan buruk.",
+        "Diskusikan kekhawatiranmu dengan tenaga kesehatan.",
+      ],
+    },
     sections: [
       {
         heading: "Cara membaca hasil penelitian",
@@ -683,7 +816,7 @@ export const educationArticles = [
       }
     ],
     limitations:
-      "Ringkasan ini menyederhanakan hasil penelitian. Detail metode dan keterbatasan setiap penelitian dapat dibaca di sumber aslinya."
+      "Hubungan pada kelompok tidak sama dengan sebab-akibat dan tidak bisa dipakai menghitung risiko pribadi. Ringkasan ini menyederhanakan hasil penelitian. Detail metode dan keterbatasan setiap penelitian dapat dibaca di sumber aslinya."
   },
   {
     slug: "perubahan-iklim-dan-kesehatan-perempuan",
@@ -695,6 +828,15 @@ export const educationArticles = [
     references: ["E03", "E08", "E20", "E16"],
     terms: ["gelombang-panas", "heat-index", "ispu", "indeks-uv"],
     askQuestion: "Apa dampak perubahan iklim bagi kesehatan perempuan?",
+    card: {
+      summary:
+        "Gelombang panas menjadi lebih sering dan lebih kuat, dan perubahan iklim juga berkaitan dengan kualitas udara yang memburuk. ACOG menyatakan perubahan iklim berdampak pada kesehatan kehamilan dan kesehatan reproduksi perempuan. Kementerian Kesehatan RI telah menetapkan Rencana Aksi Nasional Mitigasi dan Adaptasi Perubahan Iklim Sektor Kesehatan.",
+      actions: [
+        "Cek kondisi lingkungan di Beranda sebelum beraktivitas.",
+        "Isi Personalisasi untuk mendapat panduan yang lebih sesuai.",
+        "Kenali tanda bahaya lewat artikel lain di Info & Edukasi.",
+      ],
+    },
     sections: [
       {
         heading: "Iklim yang berubah",
