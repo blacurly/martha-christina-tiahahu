@@ -262,24 +262,50 @@ export default function GlossaryPage() {
         </Link>
 
         {/* Hero */}
-        <section className="overflow-hidden rounded-[28px] border border-[#F3D5E1] bg-[#FDEFF4]">
-          <div className="grid items-center sm:grid-cols-[1fr_auto]">
-            <div className="p-6 sm:p-9 lg:p-11">
-              <p className="inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-[0.12em] text-[#B84E73]">
+        <section className="relative isolate overflow-hidden rounded-[28px] border border-[#F0DFE7] bg-white p-5 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] sm:p-7 lg:p-8">
+          {/* Dekorasi background */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-16 -top-20 -z-10 size-64 rounded-full bg-[#F8E8EF] opacity-80 blur-3xl"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -bottom-24 right-36 -z-10 size-56 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
+          />
+
+          <div className="relative grid items-center gap-5 lg:grid-cols-[1fr_320px] lg:gap-6">
+            {/* Konten teks */}
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-3.5 py-2 text-sm font-extrabold text-[#984568]">
                 <BookOpen className="size-4" />
                 Glosarium Sycle
+              </div>
+
+              <p className="mt-4 text-xs font-extrabold uppercase tracking-[0.17em] text-[#B84E73]">
+                INFO &amp; EDUKASI · GLOSARIUM
               </p>
-              <h1 className="mt-4 text-3xl font-extrabold leading-tight tracking-[-0.03em] sm:text-4xl lg:text-[44px]">
+
+              <h1 className="mt-3 max-w-[680px] text-3xl font-extrabold leading-tight tracking-[-0.035em] sm:text-4xl lg:text-[42px]">
                 Satu istilah,
-                <span className="block text-[#B84E73]">satu pemahaman baru.</span>
+                <span className="block text-[#B84E73]">
+                  satu pemahaman baru.
+                </span>
               </h1>
-              <p className="mt-4 max-w-[460px] text-base leading-7 text-[#6E5F6C]">
-                Jelajahi istilah kesehatan perempuan dan lingkungan dengan cara
-                yang lebih menyenangkan.
+
+              <p className="mt-4 max-w-[620px] text-base leading-7 text-[#756774] sm:text-lg sm:leading-8">
+                Jelajahi istilah kesehatan perempuan dan lingkungan
+                dengan cara yang lebih mudah dipahami. Bangun pemahaman
+                baru melalui penjelasan, kartu belajar, dan kuis interaktif.
               </p>
+
+              <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-4 py-2 text-sm font-bold text-[#765C6D]">
+                <Sparkles className="size-4 text-[#B84E73]" />
+                {GLOSSARY.length} istilah untuk dipelajari
+              </div>
             </div>
 
-            <div className="hidden h-full sm:block">
+            {/* Ilustrasi */}
+            <div className="hidden items-center justify-center lg:flex">
               <video
                 src="/brand/glossary-hero.mp4"
                 poster="/brand/glossary-hero-poster.webp"
@@ -289,7 +315,7 @@ export default function GlossaryPage() {
                 playsInline
                 preload="metadata"
                 aria-hidden="true"
-                className="block h-full max-h-[300px] w-[260px] object-cover lg:w-[320px]"
+                className="h-[300px] w-[300px] rounded-[24px] object-cover"
               />
             </div>
           </div>

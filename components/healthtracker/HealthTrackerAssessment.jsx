@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { useAssessment } from "@/context/AssessmentContext";
 import StoryScreen from "@/components/healthtracker/assessment/StoryScreen";
+import SummaryScreen from "./assessment/SummaryScreen";
 
 import {
   HEALTH_TRACKER_SCALE,
@@ -1035,51 +1036,16 @@ export default function HealthTrackerAssessment() {
 
           {/* Step 5: Summary */}
           {currentStep === summaryStep && (
-            <>
-              <h2 className="text-lg font-bold text-[#332A35]">
-                Ringkasan Check-In
-              </h2>
-
-              <p className="mb-5 mt-2 text-sm leading-6 text-[#746875]">
-                Periksa kembali jawabanmu sebelum menyimpan catatan
-                kesehatan.
-              </p>
-
-              <div className="space-y-3">
-                <div className="rounded-xl border border-[#F0E3E9] bg-[#FFF8FB] p-4">
-                  <p className="text-xs font-semibold text-[#B84E73]">
-                    KONDISI
-                  </p>
-
-                  <p className="mt-1 text-sm font-semibold text-[#332A35]">
-                    {
-                      CONDITION_OPTIONS.find(
-                        (item) => item.value === condition
-                      )?.label
-                    }
-                  </p>
-                </div>
-
-                {summaryQuestions.map(renderSummaryItem)}
-
-                {story.trim() && (
-                  <div className="rounded-xl border border-[#F0E3E9] bg-white p-4">
-                    <p className="text-xs font-semibold text-[#B84E73]">
-                      CERITA HARI INI
-                    </p>
-
-                    <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-[#5F5360]">
-                      {story}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <p className="mt-5 rounded-xl bg-[#E9F2EA] p-4 text-xs leading-5 text-[#426B4A]">
-                Data lingkungan merupakan konteks pendukung untuk
-                memahami pengalaman harian, bukan diagnosis medis.
-              </p>
-            </>
+            <SummaryScreen
+              conditionLabel={
+                CONDITION_OPTIONS.find(
+                  (item) => item.value === condition
+                )?.label || "Belum dipilih"
+              }
+              summaryQuestions={summaryQuestions}
+              renderSummaryItem={renderSummaryItem}
+              story={story}
+            />
           )}
         </div>
 
