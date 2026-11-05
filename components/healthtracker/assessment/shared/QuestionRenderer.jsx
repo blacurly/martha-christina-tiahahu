@@ -23,7 +23,7 @@ import {
 import {
   getLabel,
   getValue,
-} from "../utils/questionHelpers";
+} from "@/lib/healthtracker/questionHelpers";
 
 // Ikon pilihan jawaban
 function getOptionIcon(label = "") {

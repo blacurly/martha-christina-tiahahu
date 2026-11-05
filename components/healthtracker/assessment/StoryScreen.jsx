@@ -2,7 +2,14 @@
 
 const MAX_LENGTH = 2000;
 
-export default function StoryScreen({ story = "", setStory }) {
+export default function StoryScreen({
+  story = "",
+  setStory = () => {},
+}) {
+  const handleStoryChange = (event) => {
+    setStory(event.target.value);
+  };
+
   return (
     <div className="space-y-5">
       <div>
@@ -31,7 +38,7 @@ export default function StoryScreen({ story = "", setStory }) {
         <textarea
           id="assessment-story"
           value={story}
-          onChange={(event) => setStory(event.target.value)}
+          onChange={handleStoryChange}
           maxLength={MAX_LENGTH}
           rows={7}
           placeholder="Tuliskan ceritamu di sini..."
