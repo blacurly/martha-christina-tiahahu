@@ -1,31 +1,33 @@
 "use client";
 
+import QuestionRenderer from "./shared/QuestionRenderer";
+
 export default function GeneralQuestionsScreen({
-  questions = [],
-  renderQuestion,
+  questions,
+  answers,
+  scores,
+  updateAnswer,
+  updateScore,
 }) {
   return (
-    <section className="space-y-7">
-      {questions.length > 0 ? (
-        questions.map((question) => (
-          <div
-            key={question.code}
-            className="border-b border-[#F0E3E9] pb-6 last:border-0 last:pb-0"
-          >
-            <h2 className="text-lg font-bold leading-relaxed text-[#332A35]">
-              {question.question}
-            </h2>
+    <section>
+      {questions.map((question) => (
+        <div key={question.code} className="mb-6">
+          <h2 className="text-lg font-bold text-[#332A35]">
+            {question.question}
+          </h2>
 
-            <div className="mt-5">
-              {renderQuestion(question)}
-            </div>
+          <div className="mt-5">
+            <QuestionRenderer
+              question={question}
+              answers={answers}
+              scores={scores}
+              updateAnswer={updateAnswer}
+              updateScore={updateScore}
+            />
           </div>
-        ))
-      ) : (
-        <p className="rounded-xl bg-[#FFF8FB] p-4 text-sm leading-6 text-[#746875]">
-          Tidak ada pertanyaan umum yang perlu ditampilkan saat ini.
-        </p>
-      )}
+        </div>
+      ))}
     </section>
   );
 }

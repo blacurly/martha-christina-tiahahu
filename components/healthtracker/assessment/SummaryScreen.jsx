@@ -33,14 +33,7 @@ export default function SummaryScreen({
 
       {/* Ringkasan jawaban */}
       <div className="space-y-4">
-        {summaryQuestions.map((question) => (
-          <div
-            key={question.code}
-            className="rounded-2xl border border-[#E8DDE5] bg-white p-4"
-          >
-            {renderSummaryItem(question)}
-          </div>
-        ))}
+        {summaryQuestions.map(renderSummaryItem)}
       </div>
 
       {/* Cerita Hari Ini */}

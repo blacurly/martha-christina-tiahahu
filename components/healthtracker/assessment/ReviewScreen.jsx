@@ -1,73 +1,49 @@
-"use client";
-
 export default function ReviewScreen({
   conditionLabel,
-  questions = [],
+  summaryQuestions,
   renderSummaryItem,
-  story = "",
+  story,
 }) {
   return (
-    <section className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-[#332A35]">
-          Periksa kembali check-in kamu
-        </h2>
+    <>
+      <h2 className="text-lg font-bold text-[#332A35]">
+        Periksa Kembali Catatanmu
+      </h2>
 
-        <p className="mt-2 text-sm leading-6 text-[#6F6571]">
-          Berikut rangkuman kondisi dan jawaban yang sudah
-          kamu isi. Pastikan semuanya sudah sesuai.
-        </p>
-      </div>
+      <p className="mb-5 mt-2 text-sm leading-6 text-[#746875]">
+        Berikut rangkuman informasi yang sudah kamu bagikan.
+        Kamu bisa kembali untuk mengubah jawaban sebelum melanjutkan.
+      </p>
 
-      {/* Kondisi yang dipilih */}
-      <div className="rounded-2xl border border-[#E8DDE5] bg-white p-4">
-        <p className="text-sm font-semibold text-[#8A7E8C]">
-          Kondisi yang dipilih
-        </p>
-
-        <p className="mt-1 text-base font-bold text-[#332A35]">
-          {conditionLabel || "Belum dipilih"}
-        </p>
-      </div>
-
-      {/* Ringkasan jawaban */}
-      <div className="space-y-4">
-        <h3 className="text-base font-bold text-[#332A35]">
-          Jawaban check-in
-        </h3>
-
-        {questions.length > 0 ? (
-          questions.map((question) => (
-            <div
-              key={question.code}
-              className="rounded-2xl border border-[#E8DDE5] bg-white p-4"
-            >
-              {renderSummaryItem(question)}
-            </div>
-          ))
-        ) : (
-          <p className="rounded-xl bg-[#FFF8FB] p-4 text-sm leading-6 text-[#746875]">
-            Belum ada jawaban pertanyaan yang ditampilkan.
+      <div className="space-y-3">
+        <div className="rounded-xl border border-[#F0E3E9] bg-[#FFF8FB] p-4">
+          <p className="text-xs font-semibold text-[#B84E73]">
+            KONDISI
           </p>
-        )}
-      </div>
 
-      {/* Cerita pengguna */}
-      <div className="rounded-2xl border border-[#E8DDE5] bg-white p-4">
-        <h3 className="text-base font-bold text-[#332A35]">
-          Cerita kamu
-        </h3>
+          <p className="mt-1 text-sm font-semibold text-[#332A35]">
+            {conditionLabel}
+          </p>
+        </div>
+
+        {summaryQuestions.map(renderSummaryItem)}
 
         {story.trim() ? (
-          <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#6F6571]">
-            {story}
-          </p>
+          <div className="rounded-xl border border-[#F0E3E9] bg-white p-4">
+            <p className="text-xs font-semibold text-[#B84E73]">
+              CERITA HARI INI
+            </p>
+
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-[#5F5360]">
+              {story}
+            </p>
+          </div>
         ) : (
-          <p className="mt-2 text-sm italic text-[#8A7E8C]">
-            Tidak ada cerita tambahan.
+          <p className="rounded-xl bg-[#FFF8FB] p-4 text-sm text-[#8A7D89]">
+            Kamu tidak menambahkan cerita hari ini.
           </p>
         )}
       </div>
-    </section>
+    </>
   );
 }

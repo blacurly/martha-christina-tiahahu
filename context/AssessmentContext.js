@@ -39,6 +39,12 @@ export function AssessmentProvider({ children }) {
   const [story, setStory] = useState("");
   const [entries, setEntries] = useState([]);
   const [notice, setNotice] = useState("");
+  const [healthTrackerSessionId, setHealthTrackerSessionId] =
+    useState(0);
+
+  const startNewHealthTrackerCheckIn = useCallback(() => {
+    setHealthTrackerSessionId((previous) => previous + 1);
+  }, []);
 
   const updateAnswer = useCallback((key, value) => {
     setAnswers((previous) => ({
@@ -165,6 +171,8 @@ export function AssessmentProvider({ children }) {
       setEntries,
       notice,
       setNotice,
+      healthTrackerSessionId,
+      startNewHealthTrackerCheckIn,
       resetAssessment,
       validatePersonal,
       validateCore,
@@ -187,6 +195,8 @@ export function AssessmentProvider({ children }) {
       story,
       entries,
       notice,
+      healthTrackerSessionId,
+      startNewHealthTrackerCheckIn,
       resetAssessment,
       validatePersonal,
       validateCore,

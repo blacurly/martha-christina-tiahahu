@@ -1,11 +1,16 @@
 "use client";
 
+import QuestionRenderer from "./shared/QuestionRenderer";
+
 export default function ActivityScreen({
-  activityQuestion,
-  renderQuestion,
+  question,
+  answers,
+  scores,
+  updateAnswer,
+  updateScore,
 }) {
   return (
-    <section>
+    <>
       <h2 className="text-lg font-bold text-[#332A35]">
         Aktivitas hari ini
       </h2>
@@ -15,13 +20,19 @@ export default function ActivityScreen({
         hari ini.
       </p>
 
-      {activityQuestion ? (
-        renderQuestion(activityQuestion)
+      {question ? (
+        <QuestionRenderer
+          question={question}
+          answers={answers}
+          scores={scores}
+          updateAnswer={updateAnswer}
+          updateScore={updateScore}
+        />
       ) : (
         <p className="text-sm text-red-600">
           Pertanyaan HT-04 tidak ditemukan.
         </p>
       )}
-    </section>
+    </>
   );
 }
