@@ -1,9 +1,10 @@
+import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from rag.hybrid_retriever import HybridRetriever
 from rag.generation import generate_answer
-
+from rag.refleksi_refactor import refleksi_tracker
 
 app = FastAPI(title="Climate Change RAG API")
 retriever = HybridRetriever()
@@ -18,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+logger = logging.getLogger(__name__)
 class ChatRequest(BaseModel):
     message: str
 
@@ -42,3 +43,51 @@ def chat(payload: ChatRequest):
         }
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+class Iklim(BaseModel):
+    label: str
+    value: float | str
+    unit: str | None = None
+
+
+class Catatan(BaseModel):
+    kondisi: str = Field(min_length=1, max_length=100)
+    gejala: list[str] = Field(default_factory=list, max_length=30)
+    iklim: list[Iklim] = Field(default_factory=list, max_length=10)
+    cerita: str = Field(default="", max_length=2000)
+
+
+class RefleksiRequest(BaseModel):
+    catatan: Catatan
+
+@app.post("/refleksi")
+def chat(payload: RefleksiRequest):
+    catatan = payload.catatan
+    if not catatan.kondisi.strip():
+        raise HTTPException(status_code=400, detail="kondisi tidak boleh kosong")
+    try:
+        contexts = retriever.hybrid_retrieve(query_catatan(catatan),top_k=4)
+        refleksi = refleksi_tracker(catatan.model_dump(), contexts)
+        return {refleksi}
+    except Exception as exc:
+        logger.exception("Gagal memproses /refleksi")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+def query_catatan(c: Catatan) -> str:
+    bagian = [c.kondisi, *c.gejala]
+    if c.cerita.strip():
+        bagian.append(c.cerita.strip())
+    label = " ".join(i.label.lower() for i in c.iklim)
+    for kunci, topik in TOPIK_IKLIM.items():
+        if kunci in label:
+            bagian.append(topik)
+    return " ".join(bagian)
+
+TOPIK_IKLIM = {
+    "panas": "paparan panas",
+    "suhu": "paparan panas suhu tinggi",
+    "kelembapan": "kelembapan panas",
+    "udara": "polusi udara kualitas udara",
+    "uv": "radiasi UV", 
+}

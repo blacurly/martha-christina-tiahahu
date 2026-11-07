@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/session";
-import { saveTrackerRecord } from "@/lib/repositories/trackerRepository";
-import { mapHealthTrackerToPayload } from "@/lib/healthtracker/trackerMapper";
+import { saveTrackerRecord, saveHealthTracker } from "@/lib/repositories/trackerRepository";
+import { mapHealthTrackerToPayload, mapHealthTrackerToTable } from "@/lib/healthtracker/trackerMapper";
 
 export async function saveHealthTrackerAssessment({
   condition,
