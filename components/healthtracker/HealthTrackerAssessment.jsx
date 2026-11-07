@@ -171,6 +171,9 @@ export default function HealthTrackerAssessment() {
     validateCurrentStep,
     setError,
     setAiNotice,
+    condition,
+    answers,
+    snapshot,
   });
 
   function renderSummaryItem(question) {
@@ -329,6 +332,7 @@ export default function HealthTrackerAssessment() {
               condition={condition}
               story={story}
               snapshot={snapshot}
+              aiNotice={aiNotice}
             />
           )}
         </div>

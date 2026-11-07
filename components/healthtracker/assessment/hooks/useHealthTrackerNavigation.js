@@ -14,6 +14,9 @@ export default function useHealthTrackerNavigation({
   validateCurrentStep,
   setError,
   setAiNotice,
+  condition,
+  answers,
+  snapshot,
 }) {
   const [isAILoading, setIsAILoading] = useState(false);
 
@@ -63,10 +66,52 @@ export default function useHealthTrackerNavigation({
     setCurrentStep(summaryStep);
   }
 
-  function handleContinueWithAI() {
+    function handleContinueWithoutAI() {
     setError("");
-    setAiNotice("");
-    setIsAILoading(true);
+    setAiNotice([]);
+    setCurrentStep(summaryStep);
+  }
+
+  async function handleContinueWithAI() {
+    if (isAILoading) return
+    setIsAILoading(true)
+
+    const gejala = answers?.['HT-02']
+    const catatan = {
+      kondisi: condition,
+      gejala: Array.isArray(gejala) ? gejala : gejala ? [gejala] : [],
+      cerita: (story ?? '').trim(),
+      iklim: Object.values(snapshot?.indicators ?? {})
+        .filter((i) => i.status === 'ok' && i.value != null)
+        .map(({ label, value, unit }) => ({ label, value, unit })),
+    }
+
+    try {
+      const response = await fetch('/api/refleksi-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ catatan }),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data.error || 'Permintaan gagal')
+
+      setAiNotice((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: typeof data.answer === 'string' && data.answer
+            ? data.answer
+            : 'Belum ada jawaban.',
+        },
+      ])
+    } catch (error) {
+      setAiNotice((prev) => [
+        ...prev,
+        { role: 'assistant', content: `Maaf, terjadi kendala: ${error.message}` },
+      ])
+    } finally {
+      setIsAILoading(false)
+    }
   }
 
   function handleAIComplete() {
