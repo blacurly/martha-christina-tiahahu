@@ -24,7 +24,7 @@ export default function useHealthTrackerAssessment() {
   const [currentStep, setCurrentStep] = useState(0);
 
   const [error, setError] = useState("");
-  const [aiNotice, setAiNotice] = useState("");
+  const [aiNotice, setAiNotice] = useState([]);
   const [saving, setSaving] = useState(false);
 
   function updateAnswer(code, value) {
