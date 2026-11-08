@@ -69,7 +69,8 @@ def chat(payload: RefleksiRequest):
     try:
         contexts = retriever.hybrid_retrieve(query_catatan(catatan),top_k=4)
         refleksi = refleksi_tracker(catatan.model_dump(), contexts)
-        return {refleksi}
+        print("HASIL REFLEKSI : ",refleksi)
+        return {**refleksi, "relatedArticles": artikel_terkait(contexts)}
     except Exception as exc:
         logger.exception("Gagal memproses /refleksi")
         raise HTTPException(status_code=500, detail=str(exc))
@@ -91,3 +92,19 @@ TOPIK_IKLIM = {
     "udara": "polusi udara kualitas udara",
     "uv": "radiasi UV", 
 }
+
+def artikel_terkait(contexts: list[dict]) -> list[dict]:
+    hasil, terlihat = [], set()
+    for item in contexts:
+        meta = item.get("metadata") or {}
+        url = meta.get("source_url")
+        kunci = url or item.get("source")
+        if not kunci or kunci in terlihat:
+            continue
+        terlihat.add(kunci)
+        hasil.append({
+            "title": meta.get("title") or item.get("source"),
+            "url": url,
+            "publisher": meta.get("publisher"),
+        })
+    return hasil
