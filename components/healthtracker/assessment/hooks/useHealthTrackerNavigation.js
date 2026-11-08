@@ -43,6 +43,12 @@ export default function useHealthTrackerNavigation({
   function handleBack() {
     setError("");
 
+    // Dari hasil refleksi AI, kembali ke awal check-in.
+    if (currentStep === aiSummaryStep) {
+      setCurrentStep(0);
+      return;
+    }
+
     setCurrentStep((previous) =>
       Math.max(previous - 1, 0)
     );

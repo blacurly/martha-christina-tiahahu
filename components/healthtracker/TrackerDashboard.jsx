@@ -89,7 +89,6 @@ export default function TrackerDashboard({
         </div>
       </header>
 
-      
       {/* DAILY CHECK-IN */}
       <section className="relative isolate mb-9 overflow-hidden rounded-[28px] border border-[#F0DFE7] bg-white px-6 py-9 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] sm:px-9 sm:py-11 lg:px-12 lg:py-12">
 

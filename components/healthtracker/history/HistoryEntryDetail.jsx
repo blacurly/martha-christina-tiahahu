@@ -19,26 +19,14 @@ import {
   HEALTH_TRACKER_SCALE,
 } from "@/data/healthTrackerQuestions";
 
-const SINGLE_ANSWER_FIELDS = {
-  "HT-01": "ht01_comfort",
-  "HT-04": "ht04_activity_location",
-  "HT-05": "ht05_outdoor",
-  "HM-01": "hm01_menstruating",
-  "HM-02": "hm02_day",
-  "HM-03": "hm03_flow",
-  "HM-04": "hm04_pain",
-  "HM-05": "hm05_pain_disruption",
-  "HM-06": "hm06_toilet_access",
-  "HS-01": "hs01_breastfeeding",
-  "HS-02": "hs02_discomfort",
-  "HS-03": "hs03_disruption",
+const CONDITION_LABELS = {
+  menstruasi: "Menstruasi",
+  kehamilan: "Hamil",
+  menyusui: "Menyusui",
+  lewati: "Catatan umum",
 };
 
-const MULTIPLE_ANSWER_FIELDS = {
-  "HT-02": "ht02_other_text",
-  "HK-01": "hk01_other_text",
-  "HS-04": "hs04_other_text",
-};
+const GENERAL_QUESTIONS = ["HT-01", "HT-02", "HT-04", "HT-05"];
 
 const CONDITION_QUESTIONS = {
   menstruasi: ["HM-01", "HM-02", "HM-03", "HM-04", "HM-05", "HM-06"],
@@ -47,12 +35,42 @@ const CONDITION_QUESTIONS = {
   lewati: [],
 };
 
-const CONDITION_LABELS = {
-  menstruasi: "Menstruasi",
-  kehamilan: "Hamil",
-  menyusui: "Menyusui",
-  lewati: "Catatan umum",
-};
+function hasValue(value) {
+  return value !== null && value !== undefined && value !== "";
+}
+
+// Mengubah nilai menjadi teks yang aman ditampilkan oleh React.
+function safeText(value) {
+  if (value === null || value === undefined || value === "") {
+    return "";
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Ya" : "Tidak";
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(safeText).filter(Boolean).join(", ");
+  }
+
+  if (typeof value === "object") {
+    return (
+      safeText(
+        value.name ??
+        value.label ??
+        value.value ??
+        value.status ??
+        value.detail
+      ) || ""
+    );
+  }
+
+  return "";
+}
 
 function getQuestion(code) {
   return HEALTH_TRACKER_QUESTIONS?.[code] ?? null;
@@ -63,50 +81,44 @@ function getQuestionLabel(code) {
 }
 
 function getOptionLabel(code, value) {
-  if (value === null || value === undefined || value === "") {
-    return "";
-  }
+  if (!hasValue(value)) return "";
 
   const question = getQuestion(code);
 
   const option = question?.options?.find(
-    (item) => item.value === value
+    (item) => String(item.value) === String(value)
   );
 
-  return option?.label ?? String(value).replaceAll("_", " ");
+  return option?.label ?? safeText(value).replaceAll("_", " ");
 }
 
 function getScaleLabel(value) {
-  if (value === null || value === undefined || value === "") {
-    return "";
-  }
+  if (!hasValue(value)) return "";
 
   const numericValue = Number(value);
 
   if (Number.isNaN(numericValue)) {
-    return String(value);
+    return safeText(value);
   }
 
   if (Array.isArray(HEALTH_TRACKER_SCALE)) {
-    const scaleItem = HEALTH_TRACKER_SCALE.find(
-      (item, index) => {
-        if (typeof item === "string") {
-          return index === numericValue;
-        }
-
-        return (
-          Number(item?.value) === numericValue ||
-          index === numericValue
-        );
+    const scaleItem = HEALTH_TRACKER_SCALE.find((item, index) => {
+      if (typeof item === "string") {
+        return index === numericValue;
       }
-    );
+
+      return (
+        Number(item?.value) === numericValue ||
+        index === numericValue
+      );
+    });
 
     if (typeof scaleItem === "string") {
       return scaleItem;
     }
 
     if (scaleItem?.label) {
-      return scaleItem.label;
+      return safeText(scaleItem.label);
     }
   }
 
@@ -121,7 +133,7 @@ function getScaleLabel(value) {
     }
 
     if (scaleItem?.label) {
-      return scaleItem.label;
+      return safeText(scaleItem.label);
     }
   }
 
@@ -153,40 +165,15 @@ function formatIndicatorName(value) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function hasValue(value) {
-  return value !== null && value !== undefined && value !== "";
-}
+function AnswerRow({ item }) {
+  const code = item.code_question;
+  const answer = item.answer;
+  const scale = item.scale;
 
-function AnswerRow({ code, record }) {
-  const field = SINGLE_ANSWER_FIELDS[code];
-  const value = field ? record?.[field] : null;
+  const answerLabel = getOptionLabel(code, answer);
+  const scaleLabel = getScaleLabel(scale);
 
-  if (!hasValue(value)) return null;
-
-  const label =
-    code === "HM-05" || code === "HS-03"
-      ? getScaleLabel(value)
-      : getOptionLabel(code, value);
-
-  return (
-    <div className="rounded-xl bg-[#F8F5F8] p-3.5">
-      <p className="text-xs leading-5 text-[#8A7D89]">
-        {getQuestionLabel(code)}
-      </p>
-
-      <p className="mt-1 text-sm font-semibold leading-6 text-[#332A35]">
-        {label}
-      </p>
-    </div>
-  );
-}
-
-function MultipleAnswerRow({ code, items = [], otherText }) {
-  const selectedItems = items.filter(
-    (item) => item.question_code === code
-  );
-
-  if (selectedItems.length === 0 && !otherText) {
+  if (!hasValue(answer) && !hasValue(scale)) {
     return null;
   }
 
@@ -196,68 +183,35 @@ function MultipleAnswerRow({ code, items = [], otherText }) {
         {getQuestionLabel(code)}
       </p>
 
-      {selectedItems.length > 0 && (
-        <div className="mt-2 space-y-2">
-          {selectedItems.map((item, index) => (
-            <div
-              key={`${item.option_code}-${index}`}
-              className="rounded-lg bg-white px-3 py-2.5"
-            >
-              <p className="text-sm font-semibold text-[#332A35]">
-                {getOptionLabel(code, item.option_code)}
-              </p>
-
-              {hasValue(item.disruption_level) && (
-                <p className="mt-1 text-xs text-[#8A7D89]">
-                  Tingkat gangguan:{" "}
-                  <span className="font-semibold text-[#B84E73]">
-                    {getScaleLabel(item.disruption_level)}
-                  </span>
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
+      {hasValue(answer) && (
+        <p className="mt-1 text-sm font-semibold leading-6 text-[#332A35]">
+          {answerLabel}
+        </p>
       )}
 
-      {otherText && (
-        <div className="mt-3 rounded-lg border border-[#E8DCE3] bg-white p-3">
-          <p className="text-xs text-[#8A7D89]">
-            Keterangan lainnya
-          </p>
-
-          <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[#5F5660]">
-            {otherText}
-          </p>
-        </div>
+      {hasValue(scale) && (
+        <p className="mt-1 text-xs text-[#8A7D89]">
+          Skala:{" "}
+          <span className="font-semibold text-[#B84E73]">
+            {scaleLabel}
+          </span>
+        </p>
       )}
     </div>
   );
 }
 
-function AnswerSection({ record, items = [] }) {
-  const condition = record.context;
-  const conditionQuestions = CONDITION_QUESTIONS[condition] ?? [];
+function AnswerSection({ record, answers = [] }) {
+  const condition = record?.context;
 
-  const hasGeneralAnswers = Boolean(
-    record.ht01_comfort ||
-    record.ht02_other_text ||
-    record.ht04_activity_location ||
-    record.ht05_outdoor ||
-    items.some((item) => item.question_code === "HT-02")
+  const generalAnswers = answers.filter((item) =>
+    GENERAL_QUESTIONS.includes(item.code_question)
   );
 
-  const hasConditionAnswers = Boolean(
-    conditionQuestions.some((code) => {
-      const field =
-        SINGLE_ANSWER_FIELDS[code] ??
-        MULTIPLE_ANSWER_FIELDS[code];
+  const conditionCodes = CONDITION_QUESTIONS[condition] ?? [];
 
-      return field && hasValue(record[field]);
-    }) ||
-    items.some((item) =>
-      conditionQuestions.includes(item.question_code)
-    )
+  const conditionAnswers = answers.filter((item) =>
+    conditionCodes.includes(item.code_question)
   );
 
   return (
@@ -268,18 +222,14 @@ function AnswerSection({ record, items = [] }) {
           Pertanyaan umum
         </h3>
 
-        {hasGeneralAnswers ? (
+        {generalAnswers.length > 0 ? (
           <div className="grid gap-3 sm:grid-cols-2">
-            <AnswerRow code="HT-01" record={record} />
-
-            <MultipleAnswerRow
-              code="HT-02"
-              items={items}
-              otherText={record.ht02_other_text}
-            />
-
-            <AnswerRow code="HT-04" record={record} />
-            <AnswerRow code="HT-05" record={record} />
+            {generalAnswers.map((item, index) => (
+              <AnswerRow
+                key={`${item.code_question}-${index}`}
+                item={item}
+              />
+            ))}
           </div>
         ) : (
           <p className="rounded-xl bg-[#F8F5F8] p-3.5 text-sm text-[#817582]">
@@ -295,33 +245,14 @@ function AnswerSection({ record, items = [] }) {
             Pertanyaan lanjutan
           </h3>
 
-          {hasConditionAnswers ? (
+          {conditionAnswers.length > 0 ? (
             <div className="grid gap-3 sm:grid-cols-2">
-              {conditionQuestions.map((code) => {
-                if (
-                  code === "HK-01" ||
-                  code === "HS-04"
-                ) {
-                  return (
-                    <MultipleAnswerRow
-                      key={code}
-                      code={code}
-                      items={items}
-                      otherText={
-                        record[MULTIPLE_ANSWER_FIELDS[code]]
-                      }
-                    />
-                  );
-                }
-
-                return (
-                  <AnswerRow
-                    key={code}
-                    code={code}
-                    record={record}
-                  />
-                );
-              })}
+              {conditionAnswers.map((item, index) => (
+                <AnswerRow
+                  key={`${item.code_question}-${index}`}
+                  item={item}
+                />
+              ))}
             </div>
           ) : (
             <p className="rounded-xl bg-[#F8F5F8] p-3.5 text-sm text-[#817582]">
@@ -331,6 +262,49 @@ function AnswerSection({ record, items = [] }) {
         </section>
       )}
     </div>
+  );
+}
+
+// Mengambil nilai indikator tanpa merender object langsung.
+function getIndicatorValue(item) {
+  if (!item || typeof item !== "object") {
+    return safeText(item);
+  }
+
+  const value =
+    item.value ??
+    item.label ??
+    item.status ??
+    item.temperature ??
+    item.aqi ??
+    item.pm25 ??
+    item.humidity ??
+    item.uv;
+
+  return safeText(value);
+}
+
+function getIndicatorUnit(item) {
+  if (!item || typeof item !== "object") return "";
+
+  return safeText(item.unit);
+}
+
+function getIndicatorSource(item) {
+  if (!item || typeof item !== "object") return "";
+
+  const source = item.source;
+
+  if (!source) return "";
+
+  if (typeof source === "string") {
+    return source;
+  }
+
+  return safeText(
+    source.name ??
+    source.label ??
+    source.detail
   );
 }
 
@@ -357,7 +331,15 @@ function EnvironmentSection({ snapshot }) {
         item?.name ?? item?.key ?? `Indikator ${index + 1}`,
         item,
       ])
-    : Object.entries(indicators ?? {});
+    : Object.entries(
+        indicators && typeof indicators === "object"
+          ? indicators
+          : {}
+      );
+
+  const validIndicators = indicatorEntries.filter(
+    ([, item]) => hasValue(getIndicatorValue(item))
+  );
 
   return (
     <section className="rounded-2xl border border-[#E9F2EA] bg-[#F7FAF7] p-4 sm:p-5">
@@ -376,7 +358,7 @@ function EnvironmentSection({ snapshot }) {
           <p className="text-xs text-[#7B897D]">Lokasi</p>
 
           <p className="mt-0.5 text-sm font-semibold text-[#435A47]">
-            {snapshot.location_label || "Lokasi tidak tersedia"}
+            {safeText(snapshot.location_label) || "Lokasi tidak tersedia"}
           </p>
         </div>
       </div>
@@ -400,29 +382,16 @@ function EnvironmentSection({ snapshot }) {
         </div>
       )}
 
-      {indicatorEntries.length > 0 && (
+      {validIndicators.length > 0 ? (
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
-          {indicatorEntries.map(([key, item]) => {
-            const value =
-              item && typeof item === "object"
-                ? item.value ?? item.label ?? item.status ?? null
-                : item;
-
-            const unit =
-              item && typeof item === "object"
-                ? item.unit
-                : null;
-
-            const source =
-              item && typeof item === "object"
-                ? item.source
-                : null;
-
-            if (!hasValue(value)) return null;
+          {validIndicators.map(([key, item], index) => {
+            const value = getIndicatorValue(item);
+            const unit = getIndicatorUnit(item);
+            const source = getIndicatorSource(item);
 
             return (
               <div
-                key={key}
+                key={`${key}-${index}`}
                 className="rounded-xl border border-[#E5EEE6] bg-white p-3"
               >
                 <p className="text-xs text-[#7B897D]">
@@ -430,7 +399,7 @@ function EnvironmentSection({ snapshot }) {
                 </p>
 
                 <p className="mt-1 text-sm font-bold text-[#435A47]">
-                  {String(value)}
+                  {value}
                   {unit ? ` ${unit}` : ""}
                 </p>
 
@@ -443,6 +412,10 @@ function EnvironmentSection({ snapshot }) {
             );
           })}
         </div>
+      ) : (
+        <p className="mt-4 rounded-xl bg-white p-3 text-sm text-[#718174]">
+          Data indikator lingkungan belum tersedia.
+        </p>
       )}
 
       <p className="mt-4 text-xs leading-5 text-[#718174]">
@@ -466,33 +439,33 @@ export default function HistoryEntryDetail({
     if (!recordId) return;
 
     try {
-        setLoading(true);
-        setError("");
-        setDetail(null);
+      setLoading(true);
+      setError("");
+      setDetail(null);
 
-        const result = await getTrackerHistoryDetail(recordId);
+      const result = await getTrackerHistoryDetail(recordId);
 
-        if (!result?.ok) {
+      if (!result?.ok) {
         setError(result?.message || "Detail catatan gagal dimuat.");
         return;
-        }
+      }
 
-        setDetail(result);
+      setDetail(result);
     } catch (error) {
-        console.error("Gagal memuat detail riwayat:", error);
-        setError("Terjadi kesalahan saat memuat detail catatan.");
+      console.error("Gagal memuat detail riwayat:", error);
+      setError("Terjadi kesalahan saat memuat detail catatan.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-    }, [recordId]);
+  }, [recordId]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (!open || !recordId) return;
 
     let cancelled = false;
 
     const fetchDetail = async () => {
-        try {
+      try {
         setLoading(true);
         setError("");
         setDetail(null);
@@ -502,29 +475,29 @@ export default function HistoryEntryDetail({
         if (cancelled) return;
 
         if (!result?.ok) {
-            setError(result?.message || "Detail catatan gagal dimuat.");
-            return;
+          setError(result?.message || "Detail catatan gagal dimuat.");
+          return;
         }
 
         setDetail(result);
-        } catch (error) {
+      } catch (error) {
         if (cancelled) return;
 
         console.error("Gagal memuat detail riwayat:", error);
         setError("Terjadi kesalahan saat memuat detail catatan.");
-        } finally {
+      } finally {
         if (!cancelled) {
-            setLoading(false);
+          setLoading(false);
         }
-        }
+      }
     };
 
     fetchDetail();
 
     return () => {
-        cancelled = true;
+      cancelled = true;
     };
-    }, [open, recordId]);
+  }, [open, recordId]);
 
   if (!open) return null;
 
@@ -622,7 +595,7 @@ export default function HistoryEntryDetail({
 
               <AnswerSection
                 record={detail.record}
-                items={detail.items ?? []}
+                answers={detail.answers ?? []}
               />
 
               {detail.record.story && (

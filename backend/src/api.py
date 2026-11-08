@@ -2,7 +2,7 @@ import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from rag.hybrid_retriever import HybridRetriever
+from src.rag.hybrid_retriever import HybridRetriever
 from rag.generation import generate_answer
 from rag.refleksi_refactor import refleksi_tracker
 
@@ -69,7 +69,7 @@ def chat(payload: RefleksiRequest):
     try:
         contexts = retriever.hybrid_retrieve(query_catatan(catatan),top_k=4)
         refleksi = refleksi_tracker(catatan.model_dump(), contexts)
-        return {refleksi}
+        return refleksi
     except Exception as exc:
         logger.exception("Gagal memproses /refleksi")
         raise HTTPException(status_code=500, detail=str(exc))
