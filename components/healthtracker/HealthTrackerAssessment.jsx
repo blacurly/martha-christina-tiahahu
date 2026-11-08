@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAssessment } from "@/context/AssessmentContext";
@@ -12,6 +14,7 @@ import ReviewScreen from "./assessment/ReviewScreen";
 import StoryScreen from "./assessment/StoryScreen";
 import SummaryScreen from "./assessment/SummaryScreen";
 import LoadingAIScreen from "./assessment/LoadingAIScreen";
+import AISummaryScreen from "./assessment/AISummaryScreen";
 
 import useHealthTrackerEnvironment from "./assessment/hooks/useHealthTrackerEnvironment";
 import useHealthTrackerAssessment from "./assessment/hooks/useHealthTrackerAssessment";
@@ -123,6 +126,7 @@ export default function HealthTrackerAssessment() {
   const summaryStep = steps.length - 1;
   const reviewStep = summaryStep - 1;
   const storyStep = reviewStep - 1;
+  const aiSummaryStep = summaryStep + 1;
 
   function validateCurrentStep() {
     if (currentStep === 0) {
@@ -165,6 +169,7 @@ export default function HealthTrackerAssessment() {
     setCurrentStep,
     storyStep,
     summaryStep,
+    aiSummaryStep,
     questionSteps,
     hasQuestionAnswer,
     story,
@@ -199,9 +204,17 @@ export default function HealthTrackerAssessment() {
 
   return (
     <main className="health-tracker-flow mx-auto w-full max-w-4xl">
+      <Link
+      href="/healthtracker"
+      className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-[#8A6578] transition hover:text-[#B84E73]"
+    >
+      <ArrowLeft size={17} />
+      Kembali ke Health Tracker
+    </Link>
 
       {/* Hero dan informasi lokasi hanya tampil sebelum SummaryScreen */}
-      {currentStep !== summaryStep && (
+      {currentStep !== summaryStep &&
+        currentStep !== aiSummaryStep && (
         <section className="mb-7 overflow-hidden rounded-3xl border border-[#F0E3E9] bg-[#FFF8FB] p-6 sm:p-8">
 
           <div className="mb-5 flex items-center gap-2">
@@ -212,6 +225,10 @@ export default function HealthTrackerAssessment() {
               Catatan kesehatan personal
             </span>
           </div>
+
+          <p className="mb-2 text-sm font-bold text-[#B84E73]">
+            Halo, Sahabat SYCLE!
+          </p>
 
           <h1 className="max-w-2xl text-2xl font-bold leading-snug text-[#332A35] sm:text-3xl">
             Bagaimana keadaan tubuhmu hari ini?
@@ -236,7 +253,7 @@ export default function HealthTrackerAssessment() {
                   {environmentError}
                 </p>
               ) : snapshot ? (
-                <p className="text-sm text-[#52745A]">
+                <p className="mt-2 text-sm text-[#52745A]">
                   Data lingkungan berhasil disiapkan.
                 </p>
               ) : null}
@@ -322,9 +339,22 @@ export default function HealthTrackerAssessment() {
             />
           )}
 
-          {/* Step 5: Summary */}
+          {/* Hasil tanpa AI */}
           {currentStep === summaryStep && (
             <SummaryScreen
+              conditionLabel={conditionLabel}
+              summaryQuestions={summaryQuestions}
+              answers={answers}
+              scores={scores}
+              condition={condition}
+              story={story}
+              snapshot={snapshot}
+            />
+          )}
+
+          {/* Hasil dengan AI */}
+          {currentStep === aiSummaryStep && (
+            <AISummaryScreen
               conditionLabel={conditionLabel}
               summaryQuestions={summaryQuestions}
               answers={answers}
@@ -344,15 +374,6 @@ export default function HealthTrackerAssessment() {
             className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-700"
           >
             {error}
-          </p>
-        )}
-
-        {aiNotice && currentStep === reviewStep && (
-          <p
-            role="status"
-            className="mt-4 rounded-xl border border-[#EADDE3] bg-[#FFF8FB] p-4 text-sm leading-6 text-[#746875]"
-          >
-            {aiNotice}
           </p>
         )}
 
@@ -385,7 +406,8 @@ export default function HealthTrackerAssessment() {
                   Lanjut dengan AI
                 </button>
               </div>
-            ) : currentStep === summaryStep ? (
+            ) : currentStep === summaryStep ||
+                currentStep === aiSummaryStep ? (
               <div className="flex flex-col gap-3 sm:flex-row">
                 <button
                   type="button"

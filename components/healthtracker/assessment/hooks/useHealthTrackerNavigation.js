@@ -8,6 +8,7 @@ export default function useHealthTrackerNavigation({
   setCurrentStep,
   storyStep,
   summaryStep,
+  aiSummaryStep,
   questionSteps,
   hasQuestionAnswer,
   story,
@@ -66,12 +67,6 @@ export default function useHealthTrackerNavigation({
     setCurrentStep(summaryStep);
   }
 
-    function handleContinueWithoutAI() {
-    setError("");
-    setAiNotice([]);
-    setCurrentStep(summaryStep);
-  }
-
   async function handleContinueWithAI() {
     if (isAILoading) return
     setIsAILoading(true)
@@ -110,13 +105,14 @@ export default function useHealthTrackerNavigation({
         { role: 'assistant', content: `Maaf, terjadi kendala: ${error.message}` },
       ])
     } finally {
-      setIsAILoading(false)
+      setIsAILoading(false);
+      setCurrentStep(aiSummaryStep);
     }
   }
 
   function handleAIComplete() {
     setIsAILoading(false);
-    setCurrentStep(summaryStep);
+    setCurrentStep(aiSummaryStep);
   }
 
   return {

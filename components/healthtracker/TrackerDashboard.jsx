@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+
 import {
   Heart,
   CalendarDays,
@@ -64,15 +66,9 @@ export default function TrackerDashboard({
   return (
     <main className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-6 sm:py-10">
       {/* HEADER */}
-      <header className="mb-8">
-        <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+      <header className="mb-9">
+        <div className="flex items-center justify-between gap-5">
           <div className="min-w-0">
-            {/* GREETING */}
-            <p className="mb-2 text-sm font-semibold text-[#8E3E5E]">
-              {showWelcome
-                ? `Selamat datang di SYCLE, ${displayName}! 👋`
-                : `Senang melihatmu kembali, ${displayName}! 👋`}
-            </p>
 
             {/* TITLE */}
             <h1 className="text-3xl font-extrabold tracking-tight text-[#332A35] sm:text-4xl">
@@ -81,9 +77,8 @@ export default function TrackerDashboard({
 
             {/* DESCRIPTION */}
             <p className="mt-3 max-w-2xl text-sm leading-7 text-[#6F6570] sm:text-base">
-              Kenali pola tubuhmu melalui catatan kesehatan,
-              aktivitas sehari-hari, dan pengalaman lingkungan
-              yang menyertainya.
+              Ruang personal untuk mencatat pengalaman tubuh,
+              aktivitas sehari-hari, dan kondisi lingkunganmu.
             </p>
           </div>
 
@@ -94,37 +89,64 @@ export default function TrackerDashboard({
         </div>
       </header>
 
+      
       {/* DAILY CHECK-IN */}
-      <section className="relative mb-9 overflow-hidden rounded-[26px] border border-[#F0DFE7] bg-[#F8E8EF] p-6 sm:p-9 lg:p-10">
+      <section className="relative isolate mb-9 overflow-hidden rounded-[28px] border border-[#F0DFE7] bg-white px-6 py-9 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] sm:px-9 sm:py-11 lg:px-12 lg:py-12">
+
+        {/* BACKGROUND DECORATION */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full border-[38px] border-white/30"
+          className="pointer-events-none absolute -right-16 -top-20 -z-10 size-64 rounded-full bg-[#F8E8EF] opacity-80 blur-3xl"
         />
 
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -bottom-24 right-24 h-48 w-48 rounded-full bg-white/20"
+          className="pointer-events-none absolute -bottom-28 right-24 -z-10 size-64 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
         />
 
-        <div className="relative z-10 max-w-2xl">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-[11px] font-extrabold tracking-[0.12em] text-[#8E3E5E]">
-            <Heart size={13} />
-            DAILY CHECK-IN
-          </span>
+        <div className="relative grid items-center gap-8 lg:grid-cols-[1fr_300px] lg:gap-12">
 
-          <h2 className="mt-5 text-2xl font-extrabold leading-tight tracking-tight text-[#332A35] sm:text-3xl lg:text-[34px]">
-            Bagaimana keadaanmu hari ini?
-          </h2>
+          {/* TEXT CONTENT */}
+          <div className="max-w-[680px]">
 
-          <p className="mt-3 max-w-xl text-sm leading-7 text-[#6F6570] sm:text-base">
-            Luangkan beberapa menit untuk mencatat kondisi
-            tubuh, gejala, aktivitas, dan ceritamu hari ini.
-            Setiap cerita berharga untuk mengenali dirimu.
-          </p>
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB]/90 px-3.5 py-2 text-sm font-bold text-[#984568]">
+              <Heart className="size-4" />
+              Daily Check-In
+            </div>
 
-          <div className="mt-6">
-            <StartHealthTrackerButton />
+            <h2 className="max-w-[650px] text-3xl font-extrabold leading-tight tracking-[-0.035em] text-[#332A35] sm:text-4xl lg:text-[42px]">
+              Bagaimana keadaanmu hari ini?
+              <span className="block text-[#B84E73]">
+                Yuk, kenali tubuhmu.
+              </span>
+            </h2>
+
+            <p className="mt-5 max-w-[590px] text-base leading-7 text-[#756774] sm:text-lg sm:leading-8">
+              Luangkan beberapa menit untuk mencatat pengalaman
+              tubuh, aktivitas sehari-hari, dan situasi lingkungan
+              yang kamu alami. Setiap cerita berharga untuk
+              memahami dirimu.
+            </p>
+
+            <div className="mt-7">
+              <StartHealthTrackerButton />
+            </div>
           </div>
+
+          {/* HERO ILLUSTRATION */}
+          <div className="hidden lg:flex lg:justify-center">
+            <div className="relative size-[300px] overflow-hidden rounded-[32px]">
+              <Image
+                src="/images/healthtracker/daily-illustration.jpg"
+                alt="Ilustrasi perempuan dan kepedulian terhadap kesehatan diri"
+                fill
+                priority
+                sizes="300px"
+                className="object-contain"
+              />
+            </div>
+          </div>
+
         </div>
       </section>
 

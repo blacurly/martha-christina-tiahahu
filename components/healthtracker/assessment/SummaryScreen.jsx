@@ -269,6 +269,7 @@ export default function SummaryScreen({
   condition,
   story = "",
   snapshot = null,
+  showHeader = true,
 }) {
   const activityQuestions = summaryQuestions.filter(
     (question) =>
@@ -302,23 +303,25 @@ export default function SummaryScreen({
   return (
     <section className="space-y-6">
       {/* Header */}
-      <div>
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-bold tracking-wide text-[#8E3E5E]">
-          <ClipboardCheck size={15} />
-          CHECK-IN SELESAI
+      {showHeader && (
+        <div>
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-bold tracking-wide text-[#8E3E5E]">
+            <ClipboardCheck size={15} />
+            CHECK-IN SELESAI
+          </div>
+
+          <h2 className="text-xl font-bold text-[#332A35]">
+            Gambaran Check-In Hari Ini
+          </h2>
+
+          <p className="mt-2 text-sm leading-relaxed text-[#746875]">
+            Berikut gambaran aktivitas, kondisi tubuh, dan pengalaman
+            yang kamu catat hari ini.
+          </p>
         </div>
+      )}
 
-        <h2 className="text-xl font-bold text-[#332A35]">
-          Gambaran Check-In Hari Ini
-        </h2>
-
-        <p className="mt-2 text-sm leading-relaxed text-[#746875]">
-          Berikut gambaran aktivitas, kondisi tubuh, dan pengalaman
-          yang kamu catat hari ini.
-        </p>
-      </div>
-
-            {/* Konteks lingkungan */}
+      {/* Konteks lingkungan */}
       <SummaryCard
         icon={MapPin}
         title="Konteks Lingkungan"

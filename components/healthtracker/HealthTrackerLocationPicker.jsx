@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MapPin, LocateFixed, Search, CheckCircle2 } from "lucide-react";
 import { useAssessment } from "@/context/AssessmentContext";
+import { Button } from "@/components/ui/button";
 
 export default function HealthTrackerLocationPicker() {
   const {
@@ -18,6 +19,49 @@ export default function HealthTrackerLocationPicker() {
   const [status, setStatus] = useState("");
   const [showPicker, setShowPicker] = useState(false);
 
+  useEffect(() => {
+    const query = searchText.trim();
+
+    if (query.length < 3) {
+      setResults([]);
+      setStatus("");
+      return;
+    }
+
+    const timeout = setTimeout(async () => {
+      setLoading(true);
+      setStatus("");
+
+      try {
+        const response = await fetch(
+          `/api/locations/search?q=${encodeURIComponent(query)}`
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || "Pencarian wilayah gagal.");
+        }
+
+        const items = Array.isArray(result.items) ? result.items : [];
+
+        setResults(items);
+        setStatus(
+          items.length
+            ? "Pilih lokasi yang sesuai."
+            : "Wilayah tidak ditemukan."
+        );
+      } catch (error) {
+        setResults([]);
+        setStatus(error.message || "Pencarian lokasi gagal.");
+      } finally {
+        setLoading(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [searchText]);
+
   const hasLocation = Boolean(
     environmentLocation?.adm4 ||
     (
@@ -25,44 +69,6 @@ export default function HealthTrackerLocationPicker() {
       environmentLocation?.coordinates?.longitude != null
     )
   );
-
-  async function handleSearch() {
-    const query = searchText.trim();
-
-    if (query.length < 3) {
-      setStatus("Ketik minimal 3 huruf untuk mencari lokasi.");
-      return;
-    }
-
-    setLoading(true);
-    setStatus("");
-    setResults([]);
-
-    try {
-      const response = await fetch(
-        `/api/locations/search?q=${encodeURIComponent(query)}`
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Pencarian wilayah gagal.");
-      }
-
-      const items = Array.isArray(result.items) ? result.items : [];
-
-      setResults(items);
-      setStatus(
-        items.length
-          ? "Pilih lokasi yang sesuai."
-          : "Wilayah tidak ditemukan."
-      );
-    } catch (error) {
-      setStatus(error.message || "Pencarian lokasi gagal.");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   function handleSelectLocation(item) {
     const village =
@@ -75,14 +81,12 @@ export default function HealthTrackerLocationPicker() {
       return;
     }
 
-    const locationPath = [
-      item.province,
-      item.regency,
-      item.district,
+    const locationLabel = [
       village,
-    ].filter(Boolean).join(" > ");
+      item.regency,
+    ].filter(Boolean).join(", ");
 
-    setLocation(locationPath);
+    setLocation(locationLabel);
 
     setEnvironmentLocation({
       adm4,
@@ -216,40 +220,27 @@ export default function HealthTrackerLocationPicker() {
             Cari kota atau wilayah
           </label>
 
-          <div className="mt-2 flex gap-2">
-            <div className="flex min-w-0 flex-1 items-center rounded-xl border border-[#EADDE3] px-3">
+          <div className="relative mt-2">
+            <div className="flex min-w-0 items-center rounded-xl border border-[#EADDE3] px-3">
               <Search size={17} className="shrink-0 text-[#8A7B87]" />
+
               <input
                 id="health-tracker-location"
+                type="text"
                 value={searchText}
                 onChange={(event) => setSearchText(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") handleSearch();
-                }}
-                placeholder="Cari minimal 3 huruf..."
+                placeholder="Cari kota atau wilayah (minimal 3 huruf)"
+                autoComplete="off"
                 className="w-full min-w-0 bg-transparent px-2 py-3 text-sm text-[#332A35] outline-none"
               />
             </div>
 
-            <button
-              type="button"
-              onClick={handleSearch}
-              disabled={loading}
-              className="rounded-xl bg-[#B84E73] px-4 text-sm font-semibold text-white hover:bg-[#8E3E5E] disabled:opacity-50"
-            >
-              Cari
-            </button>
+            {loading && (
+              <p className="mt-2 text-xs text-[#8A7B87]">
+                Sedang mencari lokasi...
+              </p>
+            )}
           </div>
-
-          <button
-            type="button"
-            onClick={handleUseMyLocation}
-            disabled={loading}
-            className="mt-3 flex items-center gap-2 text-sm font-semibold text-[#8E3E5E] disabled:opacity-50"
-          >
-            <LocateFixed size={17} />
-            Gunakan lokasi saya
-          </button>
 
           {results.length > 0 && (
             <div className="mt-3 max-h-60 overflow-y-auto rounded-xl border border-[#EADDE3]">
@@ -288,11 +279,18 @@ export default function HealthTrackerLocationPicker() {
             </div>
           )}
 
-          {status && (
-            <p role="status" className="mt-3 text-sm text-[#746875]">
-              {status}
-            </p>
-          )}
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={handleUseMyLocation}
+            disabled={loading}
+            className="mt-3 h-9 justify-center gap-2 rounded-xl border-[#F0E3E9] bg-[#FFF8FB] px-4 text-sm font-semibold text-[#8E3E5E] shadow-none hover:border-[#E8C7D4] hover:bg-[#F8E8EF] hover:text-[#8E3E5E]"
+          >
+            <LocateFixed size={17} />
+            Gunakan Lokasi Saya
+          </Button>
+
         </div>
       )}
     </div>

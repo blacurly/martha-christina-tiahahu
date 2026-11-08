@@ -32,8 +32,7 @@ export default function useHealthTrackerSubmission({
         return;
       }
 
-      router.push("/healthtracker");
-      router.refresh();
+      router.push("/healthtracker/history");
     } catch (error) {
       console.error("Gagal menyimpan Health Tracker:", error);
       setError("Terjadi kesalahan saat menyimpan check-in.");
