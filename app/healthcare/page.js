@@ -73,6 +73,15 @@ function osmUrl(facility) {
   return `https://www.openstreetmap.org/?mlat=${facility.lat}&mlon=${facility.lon}#map=17/${facility.lat}/${facility.lon}`;
 }
 
+// Pesan saat perangkat offline: daftar faskes dan pencarian lokasi selalu butuh koneksi (tidak disimpan di cache).
+const OFFLINE_FACILITY_MESSAGE =
+  "Kamu sedang offline. Daftar fasilitas kesehatan butuh koneksi internet. Sambungkan internet, lalu tekan Coba lagi.";
+const OFFLINE_SEARCH_MESSAGE = "Kamu sedang offline. Pencarian lokasi butuh koneksi internet.";
+
+function isConnectionError(error) {
+  return (typeof navigator !== "undefined" && navigator.onLine === false) || error instanceof TypeError;
+}
+
 export default function HealthcarePage() {
   const { environmentLocation, setEnvironmentLocation } = useAssessment();
 
@@ -113,7 +122,7 @@ export default function HealthcarePage() {
       setResult(data);
       setStatus("ready");
     } catch (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(isConnectionError(error) ? OFFLINE_FACILITY_MESSAGE : error.message);
       setStatus("error");
     }
   }, [adm4, latitude, longitude]);
@@ -202,7 +211,7 @@ export default function HealthcarePage() {
       setSearchResults(data.items ?? []);
       if ((data.items ?? []).length === 0) setLocationMessage("Desa/kelurahan tidak ditemukan.");
     } catch (error) {
-      setLocationMessage(error.message);
+      setLocationMessage(isConnectionError(error) ? OFFLINE_SEARCH_MESSAGE : error.message);
     } finally {
       setSearching(false);
     }
