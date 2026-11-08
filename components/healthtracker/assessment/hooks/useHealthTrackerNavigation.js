@@ -90,11 +90,15 @@ export default function useHealthTrackerNavigation({
       const data = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(data.error || 'Permintaan gagal')
 
-      setAiNotice({
-        role: 'assistant',
-        content: typeof data.answer === 'string' && data.answer ? data.answer : 'Belum ada jawaban.',
-        relatedArticles: Array.isArray(data.relatedArticles) ? data.relatedArticles : [],
-      })
+      setAiNotice((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: typeof data.answer === 'string' && data.answer
+            ? data.answer
+            : 'Belum ada jawaban.',
+        },
+      ])
     } catch (error) {
       setAiNotice((prev) => [
         ...prev,
