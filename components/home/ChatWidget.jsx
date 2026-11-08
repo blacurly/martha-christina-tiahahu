@@ -13,6 +13,16 @@ const SUGGESTED_QUESTIONS = [
   'Apa itu Heat Index dan kenapa perlu diperhatikan?'
 ]
 
+const OFFLINE_MESSAGE =
+  'Kamu sedang offline. Tanya SYCLE butuh koneksi internet untuk mencari jawaban dari sumber. Sambungkan internet, lalu kirim lagi pertanyaanmu. Sementara itu, artikel Info & Edukasi yang pernah kamu buka tetap bisa dibaca.'
+
+function isConnectionError(error) {
+  return (
+    (typeof navigator !== 'undefined' && navigator.onLine === false) ||
+    error instanceof TypeError
+  )
+}
+
 export default function ChatWidget () {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([])
@@ -48,16 +58,28 @@ export default function ChatWidget () {
     const message = input.trim()
     if (!message || loading || needsAccount) return
 
+    // Periksa koneksi sebelum mengirim pertanyaan.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: OFFLINE_MESSAGE }
+      ])
+      return
+    }
+
     setMessages(prev => [...prev, { role: 'user', content: message }])
     setInput('')
     setLoading(true)
+
     try {
       const response = await fetch('/api/tanya-sycle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message })
       })
+
       const data = await response.json()
+
       if (data.needsAccount) {
         setNeedsAccount(true)
         setGuestRemaining(0)
@@ -67,12 +89,15 @@ export default function ChatWidget () {
         ])
         return
       }
+
       if (typeof data.guestRemaining === 'number') {
         setGuestRemaining(data.guestRemaining)
       }
+
       if (!response.ok) {
         throw new Error(data.error || data.detail || 'Permintaan gagal')
       }
+
       setMessages(prev => [
         ...prev,
         {
@@ -86,7 +111,9 @@ export default function ChatWidget () {
         ...prev,
         {
           role: 'assistant',
-          content: `Maaf, terjadi kendala: ${error.message}`
+          content: isConnectionError(error)
+            ? OFFLINE_MESSAGE
+            : `Maaf, terjadi kendala: ${error.message}`
         }
       ])
     } finally {

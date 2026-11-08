@@ -78,6 +78,19 @@ function osmUrl(facility) {
   return `https://www.openstreetmap.org/?mlat=${facility.lat}&mlon=${facility.lon}#map=17/${facility.lat}/${facility.lon}`;
 }
 
+const OFFLINE_FACILITY_MESSAGE =
+  "Kamu sedang offline. Daftar fasilitas kesehatan butuh koneksi internet. Sambungkan internet, lalu tekan Coba lagi.";
+
+const OFFLINE_SEARCH_MESSAGE =
+  "Kamu sedang offline. Pencarian lokasi butuh koneksi internet.";
+
+function isConnectionError(error) {
+  return (
+    (typeof navigator !== "undefined" && navigator.onLine === false) ||
+    error instanceof TypeError
+  );
+}
+
 export default function HealthcarePage() {
   const { environmentLocation, setEnvironmentLocation } =
     useAssessment();
@@ -133,7 +146,11 @@ export default function HealthcarePage() {
       setResult(data);
       setStatus("ready");
     } catch (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(
+        isConnectionError(error)
+          ? OFFLINE_FACILITY_MESSAGE
+          : error.message
+      );
       setStatus("error");
     }
   }, [adm4, latitude, longitude]);
@@ -154,12 +171,7 @@ export default function HealthcarePage() {
   useEffect(() => {
     const query = searchText.trim();
 
-    if (query.length < 3) {
-      setSearchResults([]);
-      setLocationMessage("");
-      setSearching(false);
-      return;
-    }
+    if (query.length < 3) return;
 
     const controller = new AbortController();
 
@@ -196,7 +208,9 @@ export default function HealthcarePage() {
         if (error.name !== "AbortError") {
           setSearchResults([]);
           setLocationMessage(
-            error.message || "Pencarian lokasi gagal."
+            isConnectionError(error)
+              ? OFFLINE_SEARCH_MESSAGE
+              : error.message || "Pencarian lokasi gagal."
           );
         }
       } finally {
@@ -420,9 +434,17 @@ export default function HealthcarePage() {
                     id="healthcare-location-search"
                     type="search"
                     value={searchText}
-                    onChange={(event) =>
-                      setSearchText(event.target.value)
-                    }
+                    onChange={(event) => {
+                      const value = event.target.value;
+
+                      setSearchText(value);
+
+                      if (value.trim().length < 3) {
+                        setSearchResults([]);
+                        setLocationMessage("");
+                        setSearching(false);
+                      }
+                    }}
                     placeholder="Contoh: Cileungsi atau Jati Padang"
                     aria-label="Cari desa atau kelurahan"
                     autoComplete="off"
