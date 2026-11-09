@@ -6,7 +6,13 @@ import { deleteTrackerRecord } from "@/lib/repositories/trackerRepository";
 import { getMyTrackerEntryDetail } from "@/lib/tracker/records";
 
 export async function deleteTrackerHistory(recordId) {
-  if (!recordId || typeof recordId !== "string") {
+  // Validasi ID bigint (JavaScript number atau string angka).
+  if (
+    recordId === null ||
+    recordId === undefined ||
+    !Number.isSafeInteger(Number(recordId)) ||
+    Number(recordId) <= 0
+  ) {
     return {
       ok: false,
       message: "ID riwayat tidak valid.",
@@ -24,7 +30,14 @@ export async function deleteTrackerHistory(recordId) {
 
   const supabase = await createClient();
 
-  const result = await deleteTrackerRecord(supabase, recordId);
+  // Hapus catatan utama dari health_tracker.
+  // tracker_answer dan tracker_lingkungan_snapshots
+  // ikut terhapus melalui ON DELETE CASCADE.
+  const result = await deleteTrackerRecord(
+    supabase,
+    Number(recordId),
+    user.id
+  );
 
   if (!result.ok) {
     if (result.reason === "not_found") {
