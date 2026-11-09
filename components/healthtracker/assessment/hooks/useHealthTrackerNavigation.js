@@ -88,7 +88,7 @@ export default function useHealthTrackerNavigation({
     }
 
     try {
-      const response = await fetch('/api/refleksi-aii', {
+      const response = await fetch('/api/refleksi-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ catatan }),
