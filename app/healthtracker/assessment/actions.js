@@ -12,6 +12,7 @@ export async function saveHealthTrackerAssessment({
   scores,
   story = "",
   snapshot = null,
+  aiNotice
 }) {
   const user = await getCurrentUser();
 
@@ -29,10 +30,11 @@ export async function saveHealthTrackerAssessment({
       scores,
       story,
       snapshot,
+      aiNotice
     });
 
     const supabase = await createClient();
-
+    console.log("PAYLOAD simpan supabase: ",payload)
     const result = await saveHealthTracker(supabase, payload);
 
     if (!result.ok) {

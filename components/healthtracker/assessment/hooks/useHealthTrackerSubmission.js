@@ -9,6 +9,7 @@ export default function useHealthTrackerSubmission({
   scores,
   story,
   snapshot,
+  aiNotice,
   setError,
   setSaving,
 }) {
@@ -23,6 +24,7 @@ export default function useHealthTrackerSubmission({
         scores,
         story,
         snapshot: snapshot ?? null,
+        aiNotice
       });
 
       if (!result?.ok) {

@@ -88,7 +88,7 @@ export default function useHealthTrackerNavigation({
     }
 
     try {
-      const response = await fetch('/api/refleksi-ai', {
+      const response = await fetch('/api/refleksi-aii', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ catatan }),
@@ -96,20 +96,11 @@ export default function useHealthTrackerNavigation({
       const data = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(data.error || 'Permintaan gagal')
 
-      setAiNotice((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: typeof data.answer === 'string' && data.answer
-            ? data.answer
-            : 'Belum ada jawaban.',
-        },
-      ])
+      setAiNotice(data)
     } catch (error) {
-      setAiNotice((prev) => [
-        ...prev,
-        { role: 'assistant', content: `Maaf, terjadi kendala: ${error.message}` },
-      ])
+      setAiNotice(
+        { data: `Maaf, terjadi kendala: ${error.message}` },
+      )
     } finally {
       setIsAILoading(false);
       setCurrentStep(aiSummaryStep);

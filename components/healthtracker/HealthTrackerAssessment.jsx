@@ -89,6 +89,7 @@ export default function HealthTrackerAssessment() {
     scores,
     story,
     snapshot,
+    aiNotice,
     setError,
     setSaving,
   });

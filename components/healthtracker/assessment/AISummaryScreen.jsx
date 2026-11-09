@@ -1,69 +1,56 @@
-"use client";
+'use client'
 
-import {
-  Sparkles,
-  MessageCircleHeart,
-  ShieldCheck,
-} from "lucide-react";
+import { Sparkles, MessageCircleHeart, ShieldCheck } from 'lucide-react'
+import { useMemo } from "react";
 
-import SummaryScreen from "./SummaryScreen";
+import SummaryScreen from './SummaryScreen'
+import ReflectionResult from './Reflectionresult';
 
-function SummaryCard({ icon: Icon, title, children }) {
+function SummaryCard ({ icon: Icon, title, children }) {
   return (
-    <article className="rounded-2xl border border-[#F0E3E9] bg-white p-5 shadow-[0_5px_24px_rgb(120_70_90_/_4%)]">
-      <div className="mb-4 flex items-center gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#F8E8EF] text-[#B84E73]">
+    <article className='rounded-2xl border border-[#F0E3E9] bg-white p-5 shadow-[0_5px_24px_rgb(120_70_90_/_4%)]'>
+      <div className='mb-4 flex items-center gap-3'>
+        <div className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#F8E8EF] text-[#B84E73]'>
           <Icon size={21} />
         </div>
 
-        <h3 className="text-sm font-bold text-[#8E3E5E]">
-          {title}
-        </h3>
+        <h3 className='text-sm font-bold text-[#8E3E5E]'>{title}</h3>
       </div>
 
-      <div className="text-sm leading-relaxed text-[#5F5360]">
-        {children}
-      </div>
+      <div className='text-sm leading-relaxed text-[#5F5360]'>{children}</div>
     </article>
-  );
+  )
 }
 
-export default function AISummaryScreen({
+export default function AISummaryScreen ({
   conditionLabel,
   summaryQuestions = [],
   answers = {},
   scores = {},
   condition,
-  story = "",
+  story = '',
   snapshot = null,
-  aiNotice = [],
+  aiNotice = {}
 }) {
-  const messages = Array.isArray(aiNotice)
-    ? aiNotice.filter(
-        (message) =>
-          message.role === "assistant" &&
-          typeof message.content === "string" &&
-          message.content.trim()
-      )
-    : [];
+
+  const messages = aiNotice
 
   return (
-    <section className="space-y-6">
+    <section className='space-y-6'>
       {/* Header */}
       <div>
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-bold tracking-wide text-[#8E3E5E]">
+        <div className='mb-3 inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-bold tracking-wide text-[#8E3E5E]'>
           <Sparkles size={15} />
           REFLEKSI AI
         </div>
 
-        <h2 className="text-xl font-bold text-[#332A35]">
+        <h2 className='text-xl font-bold text-[#332A35]'>
           Gambaran Check-In Hari Ini
         </h2>
 
-        <p className="mt-2 text-sm leading-relaxed text-[#746875]">
-          Berikut rangkuman aktivitas, kondisi tubuh, dan
-          pengalaman yang kamu catat hari ini, beserta
-          refleksi AI.
+        <p className='mt-2 text-sm leading-relaxed text-[#746875]'>
+          Berikut rangkuman aktivitas, kondisi tubuh, dan pengalaman yang kamu
+          catat hari ini, beserta refleksi AI.
         </p>
       </div>
 
@@ -72,16 +59,9 @@ export default function AISummaryScreen({
         icon={MessageCircleHeart}
         title="Hasil Refleksi AI"
       >
-        {messages.length > 0 ? (
+        {messages.answer ? (
           <div className="space-y-4">
-            {messages.map((message, index) => (
-              <p
-                key={index}
-                className="whitespace-pre-wrap"
-              >
-                {message.content}
-              </p>
-            ))}
+            <ReflectionResult data={messages}/>
           </div>
         ) : (
           <p>
@@ -103,27 +83,21 @@ export default function AISummaryScreen({
       />
 
       {/* Catatan Penting */}
-      <div className="rounded-2xl border border-[#D7E6D9] bg-[#E9F2EA] p-4">
-        <div className="flex items-start gap-3">
-          <ShieldCheck
-            size={20}
-            className="mt-0.5 shrink-0 text-[#52745A]"
-          />
+      <div className='rounded-2xl border border-[#D7E6D9] bg-[#E9F2EA] p-4'>
+        <div className='flex items-start gap-3'>
+          <ShieldCheck size={20} className='mt-0.5 shrink-0 text-[#52745A]' />
 
           <div>
-            <p className="text-sm font-bold text-[#365541]">
-              Catatan Penting
-            </p>
+            <p className='text-sm font-bold text-[#365541]'>Catatan Penting</p>
 
-            <p className="mt-1 text-xs leading-5 text-[#526A59]">
-              Refleksi AI merupakan informasi pendukung untuk
-              membantu memahami pengalaman tubuh dan konteks
-              lingkungan. Hasil ini bukan diagnosis atau
-              pengganti konsultasi tenaga kesehatan.
+            <p className='mt-1 text-xs leading-5 text-[#526A59]'>
+              Refleksi AI merupakan informasi pendukung untuk membantu memahami
+              pengalaman tubuh dan konteks lingkungan. Hasil ini bukan diagnosis
+              atau pengganti konsultasi tenaga kesehatan.
             </p>
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }
