@@ -73,7 +73,6 @@ def chat(payload: RefleksiRequest):
         )
 
         refleksi = refleksi_tracker(catatan.model_dump(), contexts)
-
         print("HASIL REFLEKSI : ", refleksi)
 
         return {
@@ -102,19 +101,3 @@ TOPIK_IKLIM = {
     "udara": "polusi udara kualitas udara",
     "uv": "radiasi UV", 
 }
-
-def artikel_terkait(contexts: list[dict]) -> list[dict]:
-    hasil, terlihat = [], set()
-    for item in contexts:
-        meta = item.get("metadata") or {}
-        url = meta.get("source_url")
-        kunci = url or item.get("source")
-        if not kunci or kunci in terlihat:
-            continue
-        terlihat.add(kunci)
-        hasil.append({
-            "title": meta.get("title") or item.get("source"),
-            "url": url,
-            "publisher": meta.get("publisher"),
-        })
-    return hasil
