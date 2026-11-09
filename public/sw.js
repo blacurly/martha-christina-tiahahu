@@ -10,7 +10,7 @@
 // * Bila status login berubah (Guest ↔ Member, mis. logout atau hapus akun), cache halaman dikosongkan agar nama
 //   Member tidak tertinggal di halaman tersimpan.
 
-const VERSION = "sycle-v2-2026-11-06";
+const VERSION = "sycle-v2-2026-10-31";
 const PAGES = `${VERSION}-pages`;
 const STATIC = `${VERSION}-static`;
 const ENVIRONMENT = `${VERSION}-environment`;

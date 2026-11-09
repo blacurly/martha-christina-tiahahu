@@ -13,9 +13,6 @@ const SUGGESTED_QUESTIONS = [
   'Apa itu Heat Index dan kenapa perlu diperhatikan?'
 ]
 
-const OFFLINE_MESSAGE =
-  'Kamu sedang offline. Tanya SYCLE butuh koneksi internet untuk mencari jawaban dari sumber. Sambungkan internet, lalu kirim lagi pertanyaanmu. Sementara itu, artikel Info & Edukasi yang pernah kamu buka tetap bisa dibaca.'
-
 export default function ChatWidget () {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([])
@@ -53,14 +50,6 @@ export default function ChatWidget () {
 
     setMessages(prev => [...prev, { role: 'user', content: message }])
     setInput('')
-
-    // Tanya SYCLE butuh koneksi untuk mencari jawaban dari sumber; jangan kirim permintaan saat offline.
-    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-      setMessages(prev => [...prev, { role: 'assistant', content: OFFLINE_MESSAGE }])
-      setInput(message)
-      return
-    }
-
     setLoading(true)
     try {
       const response = await fetch('/api/tanya-sycle', {
@@ -93,14 +82,11 @@ export default function ChatWidget () {
         }
       ])
     } catch (error) {
-      const offline =
-        (typeof navigator !== 'undefined' && navigator.onLine === false) ||
-        error instanceof TypeError
       setMessages(prev => [
         ...prev,
         {
           role: 'assistant',
-          content: offline ? OFFLINE_MESSAGE : `Maaf, terjadi kendala: ${error.message}`
+          content: `Maaf, terjadi kendala: ${error.message}`
         }
       ])
     } finally {
