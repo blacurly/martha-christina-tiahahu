@@ -158,6 +158,116 @@ function formatDate(value) {
   });
 }
 
+function renderInlineMarkdown(text) {
+  const parts = [];
+  const pattern =
+    /(\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)|\*\*(.+?)\*\*)/g;
+
+  let lastIndex = 0;
+  let match;
+  let index = 0;
+
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+
+    if (match[2] && match[3]) {
+      parts.push(
+        <a
+          key={index++}
+          href={match[3]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold text-[#B84E73] underline underline-offset-2"
+        >
+          {match[2]}
+        </a>
+      );
+    } else if (match[4]) {
+      parts.push(
+        <strong key={index++} className="font-bold text-[#332A35]">
+          {match[4]}
+        </strong>
+      );
+    }
+
+    lastIndex = pattern.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts;
+}
+
+function AiReflectionSection({ content }) {
+  const reflection =
+    typeof content === "string" ? content.trim() : "";
+
+  const lines = reflection.split(/\r?\n/);
+
+  return (
+    <section className="rounded-2xl border border-[#EAD9F0] bg-[#FAF7FC] p-4 sm:p-5">
+      <h3 className="flex items-center gap-2 text-sm font-extrabold text-[#76558A]">
+        <MessageCircle size={18} />
+        Refleksi AI SYCLE
+      </h3>
+
+      {reflection ? (
+        <div className="mt-4 space-y-3 text-sm leading-7 text-[#5F5660]">
+          {lines.map((line, index) => {
+            const trimmed = line.trim();
+
+            if (!trimmed) return <div key={index} className="h-1" />;
+
+            if (trimmed.startsWith("## ")) {
+              return (
+                <h4
+                  key={index}
+                  className="pt-2 text-sm font-extrabold text-[#76558A]"
+                >
+                  {renderInlineMarkdown(trimmed.slice(3))}
+                </h4>
+              );
+            }
+
+            if (trimmed.startsWith("### ")) {
+              return (
+                <h5
+                  key={index}
+                  className="font-bold text-[#76558A]"
+                >
+                  {renderInlineMarkdown(trimmed.slice(4))}
+                </h5>
+              );
+            }
+
+            if (/^[-*]\s+/.test(trimmed)) {
+              return (
+                <ul key={index} className="list-disc pl-5">
+                  <li>{renderInlineMarkdown(trimmed.replace(/^[-*]\s+/, ""))}</li>
+                </ul>
+              );
+            }
+
+            return (
+              <p key={index}>
+                {renderInlineMarkdown(trimmed)}
+              </p>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="mt-3 text-sm leading-6 text-[#817582]">
+          Tidak ada refleksi AI pada catatan ini.
+        </p>
+      )}
+    </section>
+  );
+}
+
 function formatIndicatorName(value) {
   return String(value)
     .replaceAll("_", " ")
@@ -612,6 +722,10 @@ export default function HistoryEntryDetail({
               )}
 
               <EnvironmentSection snapshot={detail.snapshot} />
+
+               <AiReflectionSection
+                content={detail.record.refleksi_ai}
+              />
 
               {detail.snapshotWarning && (
                 <p className="text-xs text-[#8A7D89]">
