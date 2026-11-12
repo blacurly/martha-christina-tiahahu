@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 import { Trash2, X } from "lucide-react";
 import { deleteTrackerHistory } from "@/app/healthtracker/history/actions";
 
+const PRIMARY_BUTTON =
+  "inline-flex h-11 items-center justify-center rounded-full bg-[#B84E73] px-5 text-sm font-bold text-white transition-colors duration-200 hover:bg-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60";
+
+const SECONDARY_BUTTON =
+  "inline-flex h-11 items-center justify-center rounded-full border border-[#E8D5DE] bg-white px-5 text-sm font-bold text-[#8E3E5E] transition-colors duration-200 hover:border-[#B84E73] hover:bg-[#FFF8FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+
 export default function DeleteHistoryButton({ recordId }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -27,6 +33,13 @@ export default function DeleteHistoryButton({ recordId }) {
     });
   }
 
+  function handleClose() {
+    if (isPending) return;
+
+    setIsOpen(false);
+    setMessage("");
+  }
+
   return (
     <>
       <button
@@ -36,7 +49,7 @@ export default function DeleteHistoryButton({ recordId }) {
           setIsOpen(true);
         }}
         aria-label="Hapus riwayat Check-In"
-        className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E8C9D5] px-4 py-2 text-xs font-bold text-[#B84E73] transition hover:border-[#B84E73] hover:bg-[#F8E8EF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#E8C9D5] bg-white px-5 text-sm font-bold text-[#B84E73] transition-colors duration-200 hover:border-[#B84E73] hover:bg-[#F8E8EF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
       >
         <Trash2 size={15} />
         Hapus
@@ -45,7 +58,7 @@ export default function DeleteHistoryButton({ recordId }) {
       {isOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-[#332A35]/40 p-5"
-          onClick={() => !isPending && setIsOpen(false)}
+          onClick={handleClose}
         >
           <section
             role="alertdialog"
@@ -62,10 +75,10 @@ export default function DeleteHistoryButton({ recordId }) {
 
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 disabled={isPending}
                 aria-label="Tutup dialog"
-                className="rounded-full p-2 text-[#8A7D89] transition hover:bg-[#FFF8FB] disabled:opacity-50"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-[#8A7D89] transition-colors duration-200 hover:bg-[#FFF8FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 disabled:opacity-50"
               >
                 <X size={19} />
               </button>
@@ -99,9 +112,9 @@ export default function DeleteHistoryButton({ recordId }) {
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 disabled={isPending}
-                className="rounded-full border border-[#E8DCE3] px-5 py-3 text-sm font-bold text-[#6F6570] transition hover:bg-[#FFF8FB] disabled:opacity-50"
+                className={SECONDARY_BUTTON}
               >
                 Batal
               </button>
@@ -110,7 +123,7 @@ export default function DeleteHistoryButton({ recordId }) {
                 type="button"
                 onClick={handleDelete}
                 disabled={isPending}
-                className="rounded-full bg-[#B84E73] px-5 py-3 text-sm font-extrabold text-white transition hover:bg-[#8E3E5E] disabled:cursor-not-allowed disabled:opacity-60"
+                className={PRIMARY_BUTTON}
               >
                 {isPending ? "Menghapus..." : "Ya, Hapus Riwayat"}
               </button>

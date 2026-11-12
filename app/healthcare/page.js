@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -6,6 +5,7 @@ import Link from "next/link";
 import {
   BadgeCheck,
   Building2,
+  ChevronRight,
   ExternalLink,
   Hospital,
   Info,
@@ -15,12 +15,30 @@ import {
   Navigation,
   RefreshCw,
   Search,
+  ShieldCheck,
   Stethoscope,
   UserRound,
   X,
 } from "lucide-react";
 
 import { useAssessment } from "@/context/AssessmentContext";
+
+/* =========================
+   BUTTON STYLES
+========================= */
+
+const PRIMARY_BUTTON =
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-transparent !bg-[#B84E73] px-5 text-sm font-bold !text-white shadow-sm transition-colors duration-200 hover:!bg-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+
+const SECONDARY_BUTTON =
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#E8D5DE] bg-white px-5 text-sm font-bold text-[#8E3E5E] transition-colors duration-200 hover:border-[#B84E73] hover:bg-[#FFF8FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2";
+
+const FILTER_BUTTON =
+  "inline-flex min-h-10 items-center justify-center rounded-full border px-4 text-sm font-bold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2";
+
+/* =========================
+   CONSTANTS
+========================= */
 
 const TYPE_FILTERS = [
   { value: "all", label: "Semua" },
@@ -58,6 +76,16 @@ const COMPLETENESS = {
   },
 };
 
+const OFFLINE_FACILITY_MESSAGE =
+  "Kamu sedang offline. Daftar fasilitas kesehatan butuh koneksi internet. Sambungkan internet, lalu tekan Coba lagi.";
+
+const OFFLINE_SEARCH_MESSAGE =
+  "Kamu sedang offline. Pencarian lokasi butuh koneksi internet.";
+
+/* =========================
+   HELPERS
+========================= */
+
 function formatDistance(km) {
   if (km < 1) return `${Math.round(km * 1000)} m`;
 
@@ -78,18 +106,16 @@ function osmUrl(facility) {
   return `https://www.openstreetmap.org/?mlat=${facility.lat}&mlon=${facility.lon}#map=17/${facility.lat}/${facility.lon}`;
 }
 
-const OFFLINE_FACILITY_MESSAGE =
-  "Kamu sedang offline. Daftar fasilitas kesehatan butuh koneksi internet. Sambungkan internet, lalu tekan Coba lagi.";
-
-const OFFLINE_SEARCH_MESSAGE =
-  "Kamu sedang offline. Pencarian lokasi butuh koneksi internet.";
-
 function isConnectionError(error) {
   return (
     (typeof navigator !== "undefined" && navigator.onLine === false) ||
     error instanceof TypeError
   );
 }
+
+/* =========================
+   MAIN PAGE
+========================= */
 
 export default function HealthcarePage() {
   const { environmentLocation, setEnvironmentLocation } =
@@ -98,15 +124,17 @@ export default function HealthcarePage() {
   const [result, setResult] = useState(null);
   const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
+
   const [activeType, setActiveType] = useState("all");
   const [selected, setSelected] = useState(null);
 
-  // State pencarian lokasi
+  // Pencarian lokasi
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [locationMessage, setLocationMessage] = useState("");
   const [changingLocation, setChangingLocation] = useState(false);
+  const [detectingLocation, setDetectingLocation] = useState(false);
 
   const closeButtonRef = useRef(null);
 
@@ -119,8 +147,16 @@ export default function HealthcarePage() {
   const hasLocation =
     Boolean(adm4) || (latitude !== null && longitude !== null);
 
-  // Memuat fasilitas kesehatan berdasarkan lokasi
+  const showLocationPicker =
+    !hasLocation || changingLocation;
+
+  /* =========================
+     LOAD FACILITIES
+  ========================= */
+
   const loadFacilities = useCallback(async () => {
+    if (!hasLocation) return;
+
     const params = new URLSearchParams();
 
     if (adm4) {
@@ -138,9 +174,7 @@ export default function HealthcarePage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.error || "Data belum dapat dimuat."
-        );
+        throw new Error(data.error || "Data belum dapat dimuat.");
       }
 
       setResult(data);
@@ -149,13 +183,13 @@ export default function HealthcarePage() {
       setErrorMessage(
         isConnectionError(error)
           ? OFFLINE_FACILITY_MESSAGE
-          : error.message
+          : error.message || "Data fasilitas belum dapat dimuat."
       );
+
       setStatus("error");
     }
-  }, [adm4, latitude, longitude]);
+  }, [hasLocation, adm4, latitude, longitude]);
 
-  // Muat fasilitas setiap kali lokasi berubah
   useEffect(() => {
     if (!hasLocation) return;
 
@@ -167,7 +201,10 @@ export default function HealthcarePage() {
     return () => cancelAnimationFrame(frame);
   }, [hasLocation, loadFacilities]);
 
-  // Pencarian lokasi otomatis dengan debounce
+  /* =========================
+     SEARCH LOCATION
+  ========================= */
+
   useEffect(() => {
     const query = searchText.trim();
 
@@ -188,9 +225,7 @@ export default function HealthcarePage() {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(
-            data.error || "Pencarian lokasi gagal."
-          );
+          throw new Error(data.error || "Pencarian lokasi gagal.");
         }
 
         const items = Array.isArray(data.items)
@@ -207,6 +242,7 @@ export default function HealthcarePage() {
       } catch (error) {
         if (error.name !== "AbortError") {
           setSearchResults([]);
+
           setLocationMessage(
             isConnectionError(error)
               ? OFFLINE_SEARCH_MESSAGE
@@ -226,7 +262,10 @@ export default function HealthcarePage() {
     };
   }, [searchText]);
 
-  // Popup detail: kunci scroll dan tutup dengan Escape
+  /* =========================
+     DETAIL MODAL
+  ========================= */
+
   useEffect(() => {
     if (!selected) return;
 
@@ -253,6 +292,10 @@ export default function HealthcarePage() {
     };
   }, [selected]);
 
+  /* =========================
+     FACILITY FILTERS
+  ========================= */
+
   const facilities = useMemo(
     () => result?.facilities ?? [],
     [result]
@@ -269,7 +312,6 @@ export default function HealthcarePage() {
     return counts;
   }, [facilities]);
 
-  // Filter jenis tanpa mengubah urutan jarak
   const visibleFacilities = useMemo(
     () =>
       activeType === "all"
@@ -280,7 +322,10 @@ export default function HealthcarePage() {
     [facilities, activeType]
   );
 
-  // Menggunakan lokasi perangkat
+  /* =========================
+     LOCATION ACTIONS
+  ========================= */
+
   function handleDeviceLocation() {
     if (!navigator.geolocation) {
       setLocationMessage(
@@ -289,13 +334,16 @@ export default function HealthcarePage() {
       return;
     }
 
+    setDetectingLocation(true);
     setLocationMessage("Sedang mendeteksi lokasi…");
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        setDetectingLocation(false);
         setLocationMessage("");
         setSearchResults([]);
         setSearchText("");
+        setChangingLocation(false);
 
         setEnvironmentLocation({
           adm4: null,
@@ -306,6 +354,8 @@ export default function HealthcarePage() {
         });
       },
       () => {
+        setDetectingLocation(false);
+
         setLocationMessage(
           "Izin lokasi ditolak atau gagal. Silakan cari nama desa/kelurahan."
         );
@@ -314,12 +364,12 @@ export default function HealthcarePage() {
     );
   }
 
-  // Memilih lokasi dari rekomendasi
   function chooseVillage(item) {
     setSearchResults([]);
     setSearchText("");
     setLocationMessage("");
     setChangingLocation(false);
+    setActiveType("all");
 
     setEnvironmentLocation({
       adm4: item.code,
@@ -327,31 +377,43 @@ export default function HealthcarePage() {
     });
   }
 
-  const showLocationPicker =
-    !hasLocation || changingLocation;
+  function clearLocationSearch() {
+    setSearchText("");
+    setSearchResults([]);
+    setLocationMessage("");
+    setSearching(false);
+  }
+
+  /* =========================
+     RENDER
+  ========================= */
 
   return (
-    <main className="min-h-screen bg-[#FFF8FB] px-5 py-8 text-[#332A35] md:px-8 md:py-12">
+    <main className="min-h-screen bg-[#FFF8FB] px-4 py-8 text-[#332A35] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-8">
-
-        {/* HEADER */}
-        <section className="relative isolate overflow-hidden rounded-[28px] border border-[#F0DDE5] bg-white px-6 py-9 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] sm:px-9 sm:py-11 lg:px-12 lg:py-12">
+        {/* HERO */}
+        <section className="relative isolate overflow-hidden rounded-[28px] border border-[#F0DFE7] bg-white p-6 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] sm:p-9 lg:p-12">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute -right-16 -top-20 -z-10 size-64 rounded-full bg-[#F8E8EF] opacity-80 blur-3xl"
           />
+
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -bottom-28 right-24 -z-10 size-64 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
+            className="pointer-events-none absolute -bottom-24 right-36 -z-10 size-56 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
           />
 
           <div className="relative max-w-[760px]">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB]/90 px-3.5 py-2 text-sm font-bold text-[#984568]">
-              <Stethoscope size={16} aria-hidden="true" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-3.5 py-2 text-sm font-extrabold text-[#984568]">
+              <Stethoscope className="size-4" />
               Healthcare SYCLE
             </div>
 
-            <h1 className="text-3xl font-extrabold leading-tight tracking-[-0.035em] text-[#332A35] sm:text-4xl lg:text-[42px]">
+            <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.17em] text-[#B84E73]">
+              INFORMASI LAYANAN KESEHATAN
+            </p>
+
+            <h1 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.035em] sm:text-4xl lg:text-[42px]">
               Temukan fasilitas kesehatan
               <span className="block text-[#B84E73]">
                 terdekat dari lokasimu.
@@ -363,24 +425,33 @@ export default function HealthcarePage() {
               dan praktik dokter di sekitarmu. Daftar fasilitas
               diurutkan berdasarkan jarak dari lokasi pilihanmu.
             </p>
+
+            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-4 py-2 text-sm font-bold text-[#765C6D]">
+              <ShieldCheck className="size-4 text-[#B84E73]" />
+              Informasi fasilitas kesehatan di sekitarmu
+            </div>
           </div>
         </section>
 
-        {/* LOKASI */}
+        {/* LOCATION SECTION */}
         <section
           aria-labelledby="judul-lokasi"
-          className="rounded-[22px] border border-[#F0DDE5] bg-white p-5 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] md:p-7"
+          className="rounded-[24px] border border-[#F0E3E9] bg-white p-5 shadow-[0_5px_24px_rgb(120_70_90_/_5%)] sm:p-7"
         >
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#F8E8EF] text-[#B84E73]">
-                <MapPin size={22} aria-hidden="true" />
-              </div>
+            <div className="flex min-w-0 items-start gap-3">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#F8E8EF] text-[#B84E73]">
+                <MapPin className="size-5" />
+              </span>
 
-              <div>
+              <div className="min-w-0">
+                <p className="text-xs font-extrabold uppercase tracking-[0.13em] text-[#B84E73]">
+                  LOKASI PENCARIAN
+                </p>
+
                 <h2
                   id="judul-lokasi"
-                  className="text-lg font-extrabold"
+                  className="mt-1 text-lg font-extrabold"
                 >
                   {hasLocation && result?.location
                     ? result.location.label
@@ -400,21 +471,21 @@ export default function HealthcarePage() {
                 type="button"
                 onClick={() => {
                   setChangingLocation(true);
-                  setSearchText("");
-                  setSearchResults([]);
-                  setLocationMessage("");
+                  clearLocationSearch();
                 }}
-                className="rounded-xl border border-[#F0DDE5] px-4 py-2 text-sm font-bold text-[#8E3E5E] transition-colors hover:bg-[#F8E8EF]"
+                className={SECONDARY_BUTTON}
               >
+                <MapPin className="size-4" />
                 Ganti lokasi
               </button>
             )}
           </div>
 
           {showLocationPicker && (
-            <div className="mt-6 space-y-4">
+            <div className="mt-6 space-y-5">
 
-              {/* INPUT PENCARIAN */}
+              {/* LOCATION SEARCH */}
+
               <div>
                 <label
                   htmlFor="healthcare-location-search"
@@ -423,12 +494,8 @@ export default function HealthcarePage() {
                   Cari desa atau kelurahan
                 </label>
 
-                <div className="flex min-h-12 items-center gap-3 rounded-xl border border-[#EAD7E0] bg-[#FFF8FB] px-4 transition-colors focus-within:border-[#B84E73] focus-within:ring-2 focus-within:ring-[#B84E73]/10">
-                  <Search
-                    size={19}
-                    className="shrink-0 text-[#B84E73]"
-                    aria-hidden="true"
-                  />
+                <div className="flex h-12 items-center gap-3 rounded-xl border border-[#E8DCE3] bg-[#FFFCFE] px-4 transition-colors focus-within:border-[#B84E73] focus-within:ring-2 focus-within:ring-[#B84E73]/10">
+                  <Search className="size-5 shrink-0 text-[#B84E73]" />
 
                   <input
                     id="healthcare-location-search"
@@ -446,15 +513,13 @@ export default function HealthcarePage() {
                       }
                     }}
                     placeholder="Contoh: Cileungsi atau Jati Padang"
-                    aria-label="Cari desa atau kelurahan"
                     autoComplete="off"
-                    className="min-h-12 w-full bg-transparent text-sm text-[#332A35] outline-none placeholder:text-[#A395A2]"
+                    className="h-full w-full bg-transparent text-sm text-[#332A35] outline-none placeholder:text-[#A99AA3]"
                   />
 
                   {searching && (
                     <Loader2
-                      size={18}
-                      className="shrink-0 animate-spin text-[#B84E73]"
+                      className="size-5 shrink-0 animate-spin text-[#B84E73]"
                       aria-label="Sedang mencari"
                     />
                   )}
@@ -462,15 +527,11 @@ export default function HealthcarePage() {
                   {searchText && !searching && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setSearchText("");
-                        setSearchResults([]);
-                        setLocationMessage("");
-                      }}
+                      onClick={clearLocationSearch}
                       aria-label="Hapus pencarian"
-                      className="shrink-0 rounded-full p-1 text-[#8B7D8A] hover:bg-[#F8E8EF] hover:text-[#B84E73]"
+                      className="rounded-full p-1 text-[#8B7D8A] transition-colors hover:bg-[#F8E8EF] hover:text-[#B84E73]"
                     >
-                      <X size={17} />
+                      <X className="size-4" />
                     </button>
                   )}
                 </div>
@@ -480,11 +541,12 @@ export default function HealthcarePage() {
                 </p>
               </div>
 
-              {/* DROPDOWN REKOMENDASI */}
+              {/* SEARCH RESULTS */}
+
               {searchResults.length > 0 && (
-                <div className="overflow-hidden rounded-xl border border-[#F0DDE5] bg-white shadow-[0_5px_20px_rgb(120_70_90_/_6%)]">
+                <div className="overflow-hidden rounded-2xl border border-[#F0E3E9] bg-white shadow-[0_5px_20px_rgb(120_70_90_/_6%)]">
                   <div className="border-b border-[#F3E6EC] bg-[#FFF8FB] px-4 py-3">
-                    <p className="text-xs font-bold text-[#8E3E5E]">
+                    <p className="text-xs font-extrabold text-[#8E3E5E]">
                       Rekomendasi lokasi
                     </p>
                   </div>
@@ -495,10 +557,10 @@ export default function HealthcarePage() {
                         <button
                           type="button"
                           onClick={() => chooseVillage(item)}
-                          className="flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-[#FFF4F8] focus-visible:bg-[#FFF4F8] focus-visible:outline-none"
+                          className="flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-[#FFF8FB] focus-visible:bg-[#FFF8FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B84E73]"
                         >
                           <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#F8E8EF] text-[#B84E73]">
-                            <MapPin size={17} aria-hidden="true" />
+                            <MapPin className="size-4" />
                           </span>
 
                           <span className="min-w-0 flex-1">
@@ -527,10 +589,11 @@ export default function HealthcarePage() {
                 </div>
               )}
 
-              {/* PESAN PENCARIAN */}
+              {/* LOCATION MESSAGE */}
+
               {locationMessage && (
                 <p
-                  className="text-sm leading-6 text-[#8E3E5E]"
+                  className="rounded-xl bg-[#FFF8FB] px-4 py-3 text-sm leading-6 text-[#8E3E5E]"
                   aria-live="polite"
                 >
                   {locationMessage}
@@ -538,11 +601,13 @@ export default function HealthcarePage() {
               )}
 
               {/* GPS */}
-              <div className="flex flex-col gap-3 border-t border-[#F3E6EC] pt-4 sm:flex-row sm:items-center sm:justify-between">
+
+              <div className="flex flex-col gap-4 border-t border-[#F0E7EC] pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm font-bold text-[#514351]">
-                    Ingin menggunakan lokasi saat ini?
+                  <p className="text-sm font-extrabold text-[#514351]">
+                    Gunakan lokasi saat ini
                   </p>
+
                   <p className="mt-1 text-xs leading-5 text-[#8B7D8A]">
                     Izinkan akses lokasi pada browser untuk mendeteksi posisimu.
                   </p>
@@ -551,24 +616,29 @@ export default function HealthcarePage() {
                 <button
                   type="button"
                   onClick={handleDeviceLocation}
-                  className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#B84E73] px-4 text-sm font-bold text-white transition-colors hover:bg-[#8E3E5E]"
+                  disabled={detectingLocation}
+                  className={PRIMARY_BUTTON}
                 >
-                  <LocateFixed size={17} aria-hidden="true" />
-                  Gunakan Lokasiku
+                  {detectingLocation ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <LocateFixed className="size-4" />
+                  )}
+
+                  {detectingLocation
+                    ? "Mendeteksi lokasi..."
+                    : "Gunakan Lokasiku"}
                 </button>
               </div>
 
-              {/* BATAL GANTI LOKASI */}
               {changingLocation && hasLocation && (
                 <button
                   type="button"
                   onClick={() => {
                     setChangingLocation(false);
-                    setSearchResults([]);
-                    setSearchText("");
-                    setLocationMessage("");
+                    clearLocationSearch();
                   }}
-                  className="min-h-10 rounded-xl px-3 text-sm font-bold text-[#766976] transition-colors hover:bg-[#F8E8EF]"
+                  className="text-sm font-bold text-[#8E3E5E] transition-colors hover:text-[#B84E73]"
                 >
                   Batal mengganti lokasi
                 </button>
@@ -577,17 +647,24 @@ export default function HealthcarePage() {
           )}
         </section>
 
-        {/* DAFTAR FASILITAS */}
+        {/* FACILITIES */}
+
         {hasLocation && (
           <section
             aria-labelledby="judul-faskes"
-            className="space-y-4"
+            className="space-y-5"
           >
+            {/* SECTION HEADER */}
+
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
+                <p className="text-xs font-extrabold uppercase tracking-[0.13em] text-[#B84E73]">
+                  LAYANAN KESEHATAN
+                </p>
+
                 <h2
                   id="judul-faskes"
-                  className="text-xl font-extrabold"
+                  className="mt-1 text-xl font-extrabold sm:text-2xl"
                 >
                   Fasilitas kesehatan terdekat
                 </h2>
@@ -598,7 +675,7 @@ export default function HealthcarePage() {
                     aria-live="polite"
                   >
                     {visibleFacilities.length} fasilitas dalam radius{" "}
-                    {result.radiusKm} km, diurutkan dari yang terdekat
+                    {result.radiusKm} km, diurutkan dari yang terdekat.
                   </p>
                 )}
               </div>
@@ -607,15 +684,16 @@ export default function HealthcarePage() {
                 <button
                   type="button"
                   onClick={loadFacilities}
-                  className="inline-flex items-center gap-1.5 text-sm font-bold text-[#B84E73] hover:text-[#8E3E5E]"
+                  className={SECONDARY_BUTTON}
                 >
-                  <RefreshCw size={15} aria-hidden="true" />
+                  <RefreshCw className="size-4" />
                   Muat ulang
                 </button>
               )}
             </div>
 
-            {/* FILTER JENIS */}
+            {/* FILTERS */}
+
             {status === "ready" && facilities.length > 0 && (
               <div
                 className="flex flex-wrap gap-2"
@@ -635,13 +713,16 @@ export default function HealthcarePage() {
                       type="button"
                       onClick={() => setActiveType(type.value)}
                       aria-pressed={active}
-                      className={`rounded-full border px-4 py-2 text-sm font-bold transition-colors ${
+                      className={`${FILTER_BUTTON} ${
                         active
-                          ? "border-[#B84E73] bg-[#B84E73] text-white"
-                          : "border-[#F0DDE5] bg-white text-[#665663] hover:bg-[#F8E8EF]"
+                          ? "border-[#B84E73] !bg-[#B84E73] !text-white"
+                          : "border-[#E8D5DE] bg-white text-[#8E3E5E] hover:border-[#B84E73] hover:bg-[#FFF8FB]"
                       }`}
                     >
-                      {type.label} ({typeCounts[type.value] ?? 0})
+                      {type.label}
+                      <span className={active ? "text-white/90" : "text-[#A38C9A]"}>
+                        {typeCounts[type.value] ?? 0}
+                      </span>
                     </button>
                   );
                 })}
@@ -649,174 +730,213 @@ export default function HealthcarePage() {
             )}
 
             {/* LOADING */}
+
             {status === "loading" && (
-              <div className="flex items-center justify-center gap-3 rounded-[22px] border border-[#F0DDE5] bg-white p-10 text-sm text-[#766976]">
-                <Loader2
-                  className="size-5 animate-spin text-[#B84E73]"
-                  aria-hidden="true"
-                />
-                Mencari fasilitas kesehatan di sekitarmu…
+              <div className="flex flex-col items-center justify-center gap-3 rounded-[24px] border border-[#F0E3E9] bg-white px-6 py-12 text-center">
+                <Loader2 className="size-7 animate-spin text-[#B84E73]" />
+
+                <div>
+                  <p className="font-extrabold text-[#332A35]">
+                    Sedang mencari fasilitas kesehatan
+                  </p>
+
+                  <p className="mt-1 text-sm text-[#766976]">
+                    Mohon tunggu sebentar.
+                  </p>
+                </div>
               </div>
             )}
 
             {/* ERROR */}
+
             {status === "error" && (
-              <div className="rounded-[22px] border border-[#F2D6B8] bg-[#FFF6EC] p-6 text-sm leading-6 text-[#6E5236]">
-                <p className="font-extrabold">
-                  Data fasilitas belum dapat dimuat
-                </p>
+              <div className="rounded-[24px] border border-[#F2D6B8] bg-[#FFF6EC] p-6">
+                <div className="flex items-start gap-3">
+                  <Info className="mt-0.5 size-5 shrink-0 text-[#A35F2A]" />
 
-                <p className="mt-1">{errorMessage}</p>
+                  <div>
+                    <p className="font-extrabold text-[#7A4A1F]">
+                      Data fasilitas belum dapat dimuat
+                    </p>
 
-                <button
-                  type="button"
-                  onClick={loadFacilities}
-                  className="mt-3 rounded-xl bg-[#B84E73] px-4 py-2 font-bold text-white hover:bg-[#8E3E5E]"
-                >
-                  Coba lagi
-                </button>
+                    <p className="mt-1 text-sm leading-6 text-[#6E5236]">
+                      {errorMessage}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={loadFacilities}
+                      className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-[#B84E73] px-5 text-sm font-bold !text-white transition-colors hover:bg-[#8E3E5E]"
+                    >
+                      <RefreshCw className="size-4" />
+                      Coba lagi
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* OSM TIDAK TERSEDIA */}
+            {/* OSM NOTICE */}
+
             {status === "ready" && !result.osmAvailable && (
-              <p className="rounded-xl bg-[#FFF6EC] p-4 text-sm leading-6 text-[#6E5236]">
-                Data OpenStreetMap sedang tidak dapat diakses.
-                Yang tampil hanya faskes mitra SYCLE (bila ada).
-                Coba muat ulang beberapa saat lagi.
-              </p>
+              <div className="rounded-2xl border border-[#F2D6B8] bg-[#FFF6EC] p-4">
+                <p className="text-sm leading-6 text-[#6E5236]">
+                  Data OpenStreetMap sedang tidak dapat diakses.
+                  Yang tampil hanya faskes mitra SYCLE (bila ada).
+                  Coba muat ulang beberapa saat lagi.
+                </p>
+              </div>
             )}
 
-            {/* DATA KOSONG */}
-            {status === "ready" &&
-              visibleFacilities.length === 0 && (
-                <div className="rounded-[22px] border border-dashed border-[#E4CBD7] bg-white p-8 text-center text-sm text-[#766976]">
+            {/* EMPTY STATE */}
+
+            {status === "ready" && visibleFacilities.length === 0 && (
+              <div className="rounded-[24px] border border-dashed border-[#E4CBD7] bg-white px-6 py-12 text-center">
+                <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-[#F8E8EF]">
+                  <Hospital className="size-7 text-[#B84E73]" />
+                </span>
+
+                <h3 className="mt-4 font-extrabold text-[#332A35]">
+                  Belum ada fasilitas ditemukan
+                </h3>
+
+                <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-[#766976]">
                   Belum ada fasilitas kesehatan yang tercatat
-                  di sekitar lokasi ini.
-                </div>
-              )}
+                  untuk kategori ini di sekitar lokasi pilihanmu.
+                  Coba pilih kategori lain.
+                </p>
+              </div>
+            )}
 
-            {/* KARTU FASILITAS */}
-            {status === "ready" &&
-              visibleFacilities.length > 0 && (
-                <ol className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {visibleFacilities.map((facility) => {
-                    const Icon =
-                      TYPE_ICON[facility.type] ?? Hospital;
+            {/* FACILITY CARDS */}
 
-                    const quality =
-                      COMPLETENESS[facility.completeness] ??
-                      COMPLETENESS.terbatas;
+            {status === "ready" && visibleFacilities.length > 0 && (
+              <ol className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {visibleFacilities.map((facility) => {
+                  const Icon =
+                    TYPE_ICON[facility.type] ?? Hospital;
 
-                    return (
-                      <li
-                        key={facility.id}
-                        className="flex flex-col rounded-[22px] border border-[#F0DDE5] bg-white p-5 shadow-[0_5px_24px_rgb(120_70_90_/_5%)] transition-shadow hover:shadow-[0_8px_28px_rgb(120_70_90_/_9%)]"
-                      >
-                        <div className="flex items-start gap-4">
-                          <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#F8E8EF] text-[#B84E73]">
-                            <Icon
-                              size={24}
-                              aria-hidden="true"
-                            />
-                          </div>
+                  const quality =
+                    COMPLETENESS[facility.completeness] ??
+                    COMPLETENESS.terbatas;
 
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-1.5">
-                              <span className="rounded-full bg-[#F8E8EF] px-2.5 py-1 text-xs font-bold text-[#8E3E5E]">
-                                {facility.typeLabel}
-                              </span>
+                  return (
+                    <li
+                      key={facility.id}
+                      className="flex flex-col rounded-[24px] border border-[#F0E3E9] bg-white p-5 shadow-[0_5px_24px_rgb(120_70_90_/_5%)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#E5C6D4] hover:shadow-[0_10px_26px_rgb(120_70_90_/_8%)] sm:p-6"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#F8E8EF] text-[#B84E73]">
+                          <Icon className="size-6" />
+                        </span>
 
-                              {facility.isPartner && (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-[#EEEAF8] px-2.5 py-1 text-xs font-bold text-[#5E4A86]">
-                                  <BadgeCheck
-                                    size={13}
-                                    aria-hidden="true"
-                                  />
-                                  Mitra SYCLE
-                                </span>
-                              )}
-                            </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="rounded-full bg-[#F8E8EF] px-2.5 py-1 text-xs font-bold text-[#8E3E5E]">
+                              {facility.typeLabel}
+                            </span>
 
-                            <h3 className="mt-2 text-lg font-extrabold leading-snug">
-                              {facility.name}
-                            </h3>
-                          </div>
-
-                          <span className="shrink-0 text-sm font-extrabold text-[#B84E73]">
-                            {formatDistance(facility.distanceKm)}
-                          </span>
-                        </div>
-
-                        <p className="mt-3 flex items-start gap-2 text-sm leading-6 text-[#766976]">
-                          <MapPin
-                            size={16}
-                            className="mt-1 shrink-0"
-                            aria-hidden="true"
-                          />
-
-                          <span>
-                            {facility.address ??
-                              "Alamat jalan belum tercatat"}
-
-                            {facility.area && (
-                              <span className="block text-xs text-[#8B7D8A]">
-                                {facility.area}
+                            {facility.isPartner && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-[#EEEAF8] px-2.5 py-1 text-xs font-bold text-[#5E4A86]">
+                                <BadgeCheck className="size-3.5" />
+                                Mitra SYCLE
                               </span>
                             )}
-                          </span>
-                        </p>
+                          </div>
 
-                        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#F0DDE5] pt-4">
-                          <span
-                            className={`rounded-full px-2.5 py-1 text-xs font-bold ${quality.className}`}
-                          >
-                            {quality.label}
-                          </span>
-
-                          <button
-                            type="button"
-                            onClick={() => setSelected(facility)}
-                            className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#B84E73] px-4 text-sm font-bold text-[#8E3E5E] transition-colors hover:bg-[#F8E8EF]"
-                          >
-                            <Info
-                              size={16}
-                              aria-hidden="true"
-                            />
-                            Lihat detail
-                          </button>
+                          <h3 className="mt-2 text-base font-extrabold leading-snug text-[#332A35] sm:text-lg">
+                            {facility.name}
+                          </h3>
                         </div>
-                      </li>
-                    );
-                  })}
-                </ol>
-              )}
+                      </div>
 
-            {/* SUMBER DATA */}
+                      {/* DISTANCE */}
+
+                      <div className="mt-4 flex items-center gap-2 rounded-xl bg-[#FFF8FB] px-3 py-2.5">
+                        <Navigation className="size-4 shrink-0 text-[#B84E73]" />
+
+                        <span className="text-xs font-semibold text-[#766976]">
+                          Jarak dari lokasi pilihan
+                        </span>
+
+                        <span className="ml-auto text-sm font-extrabold text-[#B84E73]">
+                          {formatDistance(facility.distanceKm)}
+                        </span>
+                      </div>
+
+                      {/* ADDRESS */}
+
+                      <div className="mt-4 flex items-start gap-2">
+                        <MapPin className="mt-1 size-4 shrink-0 text-[#A38C9A]" />
+
+                        <p className="text-sm leading-6 text-[#766976]">
+                          {facility.address ??
+                            "Alamat jalan belum tercatat"}
+
+                          {facility.area && (
+                            <span className="mt-0.5 block text-xs text-[#8B7D8A]">
+                              {facility.area}
+                            </span>
+                          )}
+                        </p>
+                      </div>
+
+                      {/* CARD FOOTER */}
+
+                      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-[#F0E7EC] pt-4 mt-5">
+                        <span
+                          className={`inline-flex min-h-7 items-center rounded-full px-3 py-1 text-xs font-bold ${quality.className}`}
+                        >
+                          {quality.label}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelected(facility)}
+                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[#E8D5DE] bg-white px-4 text-sm font-bold text-[#8E3E5E] transition-colors hover:border-[#B84E73] hover:bg-[#FFF8FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
+                        >
+                          <Info className="size-4" />
+                          Lihat detail
+                          <ChevronRight className="size-4" />
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+
+            {/* DATA SOURCE */}
+
             {status === "ready" && (
-              <p className="text-xs leading-5 text-[#8B7D8A]">
-                Data faskes ©{" "}
-                <a
-                  href="https://www.openstreetmap.org/copyright"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold underline-offset-2 hover:underline"
-                >
-                  kontributor OpenStreetMap
-                </a>{" "}
-                (ODbL), snapshot {result.snapshotDate}. Data
-                terbuka bisa belum lengkap atau belum diperbarui.
-                Label Mitra SYCLE tidak memengaruhi urutan.
-              </p>
+              <div className="flex items-start gap-2 rounded-xl bg-[#F8F4F6] p-4">
+                <Info className="mt-0.5 size-4 shrink-0 text-[#8E3E5E]" />
+
+                <p className="text-xs leading-6 text-[#8B7D8A]">
+                  Data faskes ©{" "}
+                  <a
+                    href="https://www.openstreetmap.org/copyright"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold text-[#8E3E5E] underline-offset-2 hover:underline"
+                  >
+                    kontributor OpenStreetMap
+                  </a>{" "}
+                  (ODbL), snapshot {result.snapshotDate}. Data
+                  terbuka bisa belum lengkap atau belum diperbarui.
+                  Label Mitra SYCLE tidak memengaruhi urutan.
+                </p>
+              </div>
             )}
           </section>
         )}
       </div>
 
-      {/* DETAIL FASILITAS */}
+      {/* FACILITY DETAIL MODAL */}
+
       {selected && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-[#332A35]/45 backdrop-blur-[3px] sm:items-center sm:p-5"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-[#332A35]/45 p-0 backdrop-blur-[3px] sm:items-center sm:p-5"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               setSelected(null);
@@ -827,83 +947,99 @@ export default function HealthcarePage() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="judul-detail-faskes"
-            className="relative max-h-[90dvh] w-full max-w-[560px] overflow-y-auto rounded-t-[28px] bg-[#FFFDFE] p-6 shadow-2xl sm:rounded-[28px] sm:p-7"
+            className="relative max-h-[90dvh] w-full max-w-[560px] overflow-y-auto rounded-t-[28px] border border-[#F0E3E9] bg-[#FFFDFE] p-6 shadow-2xl sm:rounded-[28px] sm:p-7"
           >
+            {/* CLOSE */}
+
             <button
               ref={closeButtonRef}
               type="button"
               onClick={() => setSelected(null)}
-              aria-label="Tutup"
-              className="absolute right-4 top-4 rounded-full p-2 text-[#8A7A85] hover:bg-[#F8E8EF] hover:text-[#B84E73]"
+              aria-label="Tutup detail fasilitas"
+              className="absolute right-5 top-5 flex size-10 items-center justify-center rounded-full border border-[#F0E3E9] bg-white text-[#8A7A85] transition-colors hover:bg-[#F8E8EF] hover:text-[#B84E73] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73]"
             >
               <X className="size-5" />
             </button>
 
-            <div className="flex flex-wrap items-center gap-1.5 pr-10">
-              <span className="rounded-full bg-[#F8E8EF] px-2.5 py-1 text-xs font-bold text-[#8E3E5E]">
-                {selected.typeLabel}
-              </span>
+            {/* MODAL HEADER */}
 
-              {selected.isPartner && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#EEEAF8] px-2.5 py-1 text-xs font-bold text-[#5E4A86]">
-                  <BadgeCheck
-                    size={13}
-                    aria-hidden="true"
-                  />
-                  Mitra SYCLE
+            <div className="pr-12">
+              <p className="text-xs font-extrabold uppercase tracking-[0.13em] text-[#B84E73]">
+                DETAIL FASILITAS
+              </p>
+
+              <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                <span className="rounded-full bg-[#F8E8EF] px-2.5 py-1 text-xs font-bold text-[#8E3E5E]">
+                  {selected.typeLabel}
                 </span>
-              )}
+
+                {selected.isPartner && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#EEEAF8] px-2.5 py-1 text-xs font-bold text-[#5E4A86]">
+                    <BadgeCheck className="size-3.5" />
+                    Mitra SYCLE
+                  </span>
+                )}
+              </div>
+
+              <h2
+                id="judul-detail-faskes"
+                className="mt-3 text-2xl font-extrabold leading-tight text-[#332A35]"
+              >
+                {selected.name}
+              </h2>
+
+              <p className="mt-2 inline-flex items-center gap-2 text-sm font-bold text-[#B84E73]">
+                <Navigation className="size-4" />
+                {formatDistance(selected.distanceKm)} dari lokasimu
+              </p>
             </div>
 
-            <h2
-              id="judul-detail-faskes"
-              className="mt-3 pr-10 text-2xl font-extrabold leading-tight"
-            >
-              {selected.name}
-            </h2>
+            {/* DETAIL INFORMATION */}
 
-            <p className="mt-1 text-sm font-bold text-[#B84E73]">
-              {formatDistance(selected.distanceKm)} dari lokasimu
-            </p>
-
-            <dl className="mt-5 space-y-4 text-sm leading-6">
-              <div>
-                <dt className="font-extrabold text-[#514351]">
+            <div className="mt-6 space-y-3">
+              <div className="rounded-2xl border border-[#F0E3E9] bg-white p-4">
+                <p className="text-xs font-extrabold uppercase tracking-wide text-[#B84E73]">
                   Alamat
-                </dt>
-                <dd className="text-[#6F6370]">
+                </p>
+
+                <p className="mt-2 flex items-start gap-2 text-sm leading-6 text-[#6F6370]">
+                  <MapPin className="mt-1 size-4 shrink-0 text-[#A38C9A]" />
+
                   {selected.address ??
                     "Alamat jalan belum tercatat"}
-                </dd>
+                </p>
               </div>
 
               {selected.area && (
-                <div>
-                  <dt className="font-extrabold text-[#514351]">
+                <div className="rounded-2xl border border-[#F0E3E9] bg-white p-4">
+                  <p className="text-xs font-extrabold uppercase tracking-wide text-[#B84E73]">
                     Wilayah
-                  </dt>
-                  <dd className="text-[#6F6370]">
+                  </p>
+
+                  <p className="mt-2 text-sm leading-6 text-[#6F6370]">
                     {selected.area}
-                  </dd>
+                  </p>
                 </div>
               )}
 
-              <div>
-                <dt className="font-extrabold text-[#514351]">
+              <div className="rounded-2xl border border-[#F0E3E9] bg-white p-4">
+                <p className="text-xs font-extrabold uppercase tracking-wide text-[#B84E73]">
                   Layanan
-                </dt>
-                <dd className="text-[#6F6370]">
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-[#6F6370]">
                   {selected.services.length > 0
                     ? selected.services.join(", ")
                     : "Informasi layanan belum tercatat"}
-                </dd>
+                </p>
               </div>
 
-              <div>
-                <dt className="font-extrabold text-[#514351]">
+              <div className="rounded-2xl border border-[#F0E3E9] bg-white p-4">
+                <p className="text-xs font-extrabold uppercase tracking-wide text-[#B84E73]">
                   Kelengkapan data
-                </dt>
-                <dd className="text-[#6F6370]">
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-[#6F6370]">
                   {
                     (
                       COMPLETENESS[selected.completeness] ??
@@ -917,32 +1053,32 @@ export default function HealthcarePage() {
                       COMPLETENESS.terbatas
                     ).description
                   }
-                </dd>
+                </p>
               </div>
 
-              <div>
-                <dt className="font-extrabold text-[#514351]">
+              <div className="rounded-2xl border border-[#F0E3E9] bg-white p-4">
+                <p className="text-xs font-extrabold uppercase tracking-wide text-[#B84E73]">
                   Sumber data
-                </dt>
-                <dd className="text-[#6F6370]">
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-[#6F6370]">
                   {selected.source === "mitra"
                     ? "Data mitra SYCLE"
                     : `OpenStreetMap (data terbuka), snapshot ${result?.snapshotDate ?? ""}`}
-                </dd>
+                </p>
               </div>
-            </dl>
+            </div>
 
-            <div className="mt-6 flex flex-col gap-2 border-t border-[#F0E3E9] pt-5 sm:flex-row">
+            {/* MAP ACTIONS */}
+
+            <div className="mt-6 grid gap-3 border-t border-[#F0E7EC] pt-5 sm:grid-cols-2">
               <a
                 href={directionsUrl(selected)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#B84E73] px-4 text-sm font-bold text-white hover:bg-[#8E3E5E]"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-transparent !bg-[#B84E73] px-4 text-sm font-bold !text-white transition-colors hover:!bg-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
               >
-                <Navigation
-                  size={17}
-                  aria-hidden="true"
-                />
+                <Navigation className="size-4" />
                 Petunjuk arah
                 <span className="sr-only">
                   (buka Google Maps di tab baru)
@@ -953,12 +1089,9 @@ export default function HealthcarePage() {
                 href={osmUrl(selected)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-[#B84E73] px-4 text-sm font-bold text-[#8E3E5E] hover:bg-[#F8E8EF]"
+                className={SECONDARY_BUTTON}
               >
-                <ExternalLink
-                  size={17}
-                  aria-hidden="true"
-                />
+                <ExternalLink className="size-4" />
                 Lihat di peta
                 <span className="sr-only">
                   (buka OpenStreetMap di tab baru)
@@ -966,12 +1099,14 @@ export default function HealthcarePage() {
               </a>
             </div>
 
-            <p className="mt-4 text-xs leading-5 text-[#8A7A85]">
+            {/* DISCLAIMER */}
+
+            <p className="mt-5 rounded-xl bg-[#F8F4F6] p-4 text-xs leading-6 text-[#8A7A85]">
               Sebelum berkunjung, pastikan jam layanan langsung
               ke fasilitas. Butuh informasi tanda bahaya? Baca{" "}
               <Link
                 href="/education/guidance"
-                className="font-bold text-[#984568] hover:underline"
+                className="font-bold text-[#8E3E5E] underline-offset-2 hover:text-[#B84E73] hover:underline"
               >
                 Panduan Perlindungan
               </Link>

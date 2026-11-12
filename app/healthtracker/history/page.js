@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
-import { ArrowLeft, CalendarDays } from "lucide-react";
+import { CalendarDays, ChevronRight  } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/auth/session";
 import { getMyTrackerEntries } from "@/lib/tracker/records";
@@ -38,13 +38,26 @@ async function HistoryContent() {
 
   return (
     <main className="mx-auto min-h-screen max-w-[1120px] px-4 py-8 sm:px-6 lg:px-8">
-      <Link
-        href="/healthtracker"
-        className="inline-flex items-center gap-2 text-sm font-bold text-[#8A6578] transition hover:text-[#B84E73]"
+      <nav
+        aria-label="Breadcrumb"
+        className="flex items-center gap-2 text-sm"
       >
-        <ArrowLeft size={17} />
-        Kembali ke Health Tracker
-      </Link>
+        <Link
+          href="/healthtracker"
+          className="font-semibold text-[#8E3E5E] transition-colors hover:text-[#B84E73]"
+        >
+          Health Tracker
+        </Link>
+
+        <ChevronRight size={15} className="text-[#B8AAB3]" />
+
+        <span
+          aria-current="page"
+          className="font-bold text-[#332A35]"
+        >
+          Riwayat
+        </span>
+      </nav>
 
       <header className="mt-7 mb-7">
         <div className="flex items-center gap-2 text-[#B84E73]">

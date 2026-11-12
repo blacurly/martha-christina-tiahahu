@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { MapPin, UserRound } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
-import { useAssessment } from "@/context/AssessmentContext";
 
 const navItems = [
   { href: "/", label: "Beranda" },
@@ -19,8 +18,6 @@ const navItems = [
 
 export default function Navbar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const { location } = useAssessment();
 
   const [user, setUser] = useState(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
@@ -32,8 +29,12 @@ export default function Navbar() {
 
   const displayName =
     user?.user_metadata?.full_name ||
+    user?.user_metadata?.display_name ||
     user?.user_metadata?.name ||
-    "Akun Saya";
+    user?.email?.split("@")[0] ||
+    "Pengguna";
+
+  const greetingName = displayName.trim().split(/\s+/)[0];
 
   useEffect(() => {
     const supabase = createClient();
@@ -41,6 +42,16 @@ export default function Navbar() {
 
     async function checkSession() {
       const { data, error } = await supabase.auth.getSession();
+
+      console.log(
+        "DATA USER SESSION:",
+        data.session?.user?.user_metadata
+      );
+
+      if (mounted) {
+        setUser(error ? null : data.session?.user ?? null);
+        setIsCheckingAuth(false);
+      }
 
       if (mounted) {
         setUser(error ? null : data.session?.user ?? null);
@@ -53,6 +64,11 @@ export default function Navbar() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log(
+        "DATA USER NAVBAR:",
+        session?.user?.user_metadata
+      );
+
       if (mounted) {
         setUser(session?.user ?? null);
         setIsCheckingAuth(false);
@@ -98,12 +114,21 @@ export default function Navbar() {
             <div className="relative group">
               <button
                 type="button"
-                className="nav-account"
+                className="nav-account flex items-center gap-2"
                 aria-label={`Menu profil ${displayName}`}
                 aria-haspopup="true"
               >
                 <UserRound size={19} aria-hidden="true" />
-                <span>{displayName}</span>
+
+                <span className="flex flex-col items-start leading-tight">
+                  <span className="text-sm font-bold">
+                    Hi, {greetingName}!
+                  </span>
+
+                  <span className="mt-1 text-xs font-medium text-[#B84E73]">
+                    Lihat Profile
+                  </span>
+                </span>
               </button>
 
               {/* Dropdown Profile */}

@@ -269,7 +269,7 @@ export default function HealthTrackerAssessment() {
 
       {/* Assessment */}
       <section className="rounded-3xl border border-[#F0E3E9] bg-white p-5 sm:p-7">
-        <div className="mt-8">
+        <div>
           {/* Step 1: Activity */}
           {currentStep === 0 && (
             <ActivityScreen
@@ -335,9 +335,7 @@ export default function HealthTrackerAssessment() {
 
           {/* Loading AI */}
           {currentStep === reviewStep && isAILoading && (
-            <LoadingAIScreen
-              onComplete={handleAIComplete}
-            />
+            <LoadingAIScreen />
           )}
 
           {/* Hasil tanpa AI */}
@@ -380,81 +378,94 @@ export default function HealthTrackerAssessment() {
 
         {/* Navigation */}
         {!isAILoading && (
-          <div className="mt-8 flex flex-col-reverse gap-3 border-t border-[#F0E3E9] pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-6 flex flex-col-reverse gap-3 border-t border-[#F0E3E9] pt-5 sm:flex-row sm:items-center sm:justify-between">
+
+          <button
+            type="button"
+            onClick={handleBack}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#EAD8E0] bg-white px-5 py-3 text-sm font-bold text-[#8E3E5E] shadow-[0_2px_8px_rgba(120,70,90,0.04)] transition-all hover:border-[#DDB3C3] hover:bg-[#FFF8FB] hover:text-[#B84E73] active:scale-[0.98]"
+          >
+            <ArrowLeft size={17} />
+            Kembali
+          </button>
+
+        {currentStep === reviewStep ? (
+          <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
-              onClick={handleBack}
-              className="..."
+              onClick={handleContinueWithoutAI}
+              className="rounded-xl border border-[#B84E73] px-5 py-3 text-sm font-semibold text-[#8E3E5E] transition hover:bg-[#FFF8FB]"
             >
-              Kembali
+              Lanjut Tanpa AI
             </button>
 
-            {currentStep === reviewStep ? (
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={handleContinueWithoutAI}
-                  className="rounded-xl border border-[#B84E73] px-5 py-3 text-sm font-semibold text-[#8E3E5E] transition hover:bg-[#FFF8FB]"
-                >
-                  Lanjut Tanpa AI
-                </button>
+            <button
+              type="button"
+              onClick={handleContinueWithAI}
+              className="rounded-xl bg-[#B84E73] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E]"
+            >
+              Lanjut dengan AI
+            </button>
+          </div>
+        ) : currentStep === summaryStep ||
+          currentStep === aiSummaryStep ? (
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => router.push("/healthtracker")}
+              disabled={saving}
+              className="rounded-xl border border-[#B84E73] px-5 py-3 text-sm font-semibold text-[#8E3E5E] transition hover:bg-[#FFF8FB] disabled:opacity-50"
+            >
+              Jangan Simpan
+            </button>
 
-                <button
-                  type="button"
-                  onClick={handleContinueWithAI}
-                  className="rounded-xl bg-[#B84E73] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E]"
-                >
-                  Lanjut dengan AI
-                </button>
-              </div>
-            ) : currentStep === summaryStep ||
-                currentStep === aiSummaryStep ? (
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={() => router.push("/healthtracker")}
-                  disabled={saving}
-                  className="rounded-xl border border-[#B84E73] px-5 py-3 text-sm font-semibold text-[#8E3E5E] transition hover:bg-[#FFF8FB] disabled:opacity-50"
-                >
-                  Jangan Simpan
-                </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={saving}
+              className="rounded-xl bg-[#B84E73] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {saving ? "Menyimpan..." : "Simpan Check-In"}
+            </button>
+          </div>
+        ) : currentStep === 1 ? (
+          <button
+            type="button"
+            onClick={handleNext}
+            disabled={!condition}
+            className="rounded-xl bg-[#B84E73] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#B84E73]"
+          >
+            Lanjutkan
+          </button>
+        ) : currentStep === 2 || currentStep === 3 ? (
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                setCurrentStep(currentStep === 2 ? 3 : storyStep)
+              }
+              className="rounded-xl border border-[#B84E73] px-5 py-3 text-sm font-semibold text-[#8E3E5E] transition hover:bg-[#FFF8FB]"
+            >
+              Lewati
+            </button>
 
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={saving}
-                  className="rounded-xl bg-[#B84E73] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {saving ? "Menyimpan..." : "Simpan Check-In"}
-                </button>
-              </div>
-            ) : currentStep === 2 || currentStep === 3 ? (
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setCurrentStep(currentStep === 2 ? 3 : storyStep)}
-                  className="rounded-xl border border-[#B84E73] px-5 py-3 text-sm font-semibold text-[#8E3E5E] transition hover:bg-[#FFF8FB]"
-                >
-                  Lewati
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="rounded-xl bg-[#B84E73] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E]"
-                >
-                  Lanjutkan
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={handleNext}
-                className="rounded-xl bg-[#B84E73] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E]"
-              >
-                Lanjutkan
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={handleNext}
+              className="rounded-xl bg-[#B84E73] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E]"
+            >
+              Lanjutkan
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={handleNext}
+            className="rounded-xl bg-[#B84E73] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E]"
+          >
+            Lanjutkan
+          </button>
+        )}
           </div>
         )}
       </section>

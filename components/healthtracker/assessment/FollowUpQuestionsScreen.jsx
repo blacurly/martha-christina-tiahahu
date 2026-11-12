@@ -13,16 +13,16 @@ export default function FollowUpQuestionsScreen({
   return (
     <section className="space-y-6">
       <div>
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-bold tracking-wide text-[#8E3E5E]">
+        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-extrabold tracking-wide text-[#8E3E5E]">
           <ClipboardList size={14} />
-          PERTANYAAN LANJUTAN
+          TAHAP 04 · PERTANYAAN LANJUTAN
         </div>
 
-        <h2 className="text-xl font-bold text-[#332A35]">
+        <h2 className="text-xl font-extrabold tracking-tight text-[#332A35] sm:text-2xl">
           Kenali kondisi tubuhmu lebih lanjut
         </h2>
 
-        <p className="mt-2 text-sm leading-relaxed text-[#746875]">
+        <p className="mt-2 max-w-2xl text-sm leading-7 text-[#746875] sm:text-base">
           Pertanyaan berikut membantu mencatat pengalaman
           tubuh yang berkaitan dengan kondisi yang kamu pilih.
           Jawab sesuai dengan yang kamu rasakan.

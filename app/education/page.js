@@ -7,7 +7,6 @@ import {
   ArrowRight,
   ArrowUpRight,
   BookOpen,
-  CheckCircle2,
   ExternalLink,
   FileText,
   Leaf,
@@ -27,6 +26,18 @@ const categories = [
 ];
 
 const CARDS_PER_PAGE = 4;
+
+// Konsistensi tombol utama
+const PRIMARY_BUTTON =
+  "inline-flex h-11 items-center justify-center rounded-full !border-0 !bg-[#B84E73] !px-5 !text-sm !font-bold !text-white shadow-sm transition-colors duration-200 hover:!bg-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+
+// Konsistensi tombol sekunder
+const SECONDARY_BUTTON =
+  "inline-flex h-11 items-center justify-center rounded-full !border !border-[#E8D5DE] !bg-white !px-5 !text-sm !font-bold !text-[#8E3E5E] transition-colors duration-200 hover:!border-[#B84E73] hover:!bg-[#FFF8FB] hover:!text-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+
+// Tombol khusus bagian disclaimer
+const SAGE_BUTTON =
+  "inline-flex h-11 shrink-0 items-center justify-center rounded-full !border !border-[#C8DCCB] !bg-white/80 !px-5 !text-sm !font-bold !text-[#48634D] transition-colors duration-200 hover:!bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#78977D] focus-visible:ring-offset-2";
 
 function normalizeText(value = "") {
   return String(value)
@@ -168,28 +179,15 @@ export default function EducationPage() {
     setCurrentPage(0);
   }
 
+  function resetFilters() {
+    setSearch("");
+    setActiveCategory("semua");
+    setCurrentPage(0);
+  }
+
   return (
     <main className="min-h-screen bg-[#FFF8FB] text-[#332A35]">
       <div className="mx-auto w-full max-w-[1120px] px-5 pb-16 pt-8 sm:px-8 lg:px-10 lg:pt-10">
-        {/* Breadcrumb */}
-        <nav
-          aria-label="Breadcrumb"
-          className="mb-6 flex items-center gap-2 text-sm text-[#887986]"
-        >
-          <Link
-            href="/"
-            className="transition-colors hover:text-[#B84E73]"
-          >
-            Beranda
-          </Link>
-
-          <span aria-hidden="true">/</span>
-
-          <span className="font-semibold text-[#B84E73]">
-            Info &amp; Edukasi
-          </span>
-        </nav>
-
         {/* Hero */}
         <section className="relative isolate overflow-hidden rounded-[28px] border border-[#F0DFE7] bg-white px-6 py-9 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] sm:px-9 sm:py-11 lg:px-12 lg:py-12">
           <div
@@ -223,12 +221,12 @@ export default function EducationPage() {
                 dengan bahasa yang lebih mudah dipahami.
               </p>
 
-              <div className="mt-7 flex flex-wrap gap-3">
+              <div className="mt-7 flex flex-wrap items-center gap-3">
                 <Button
                   nativeButton={false}
                   render={<Link href="/education/references" />}
                   size="lg"
-                  className="h-11 rounded-full bg-[#B84E73] px-5 text-sm font-extrabold text-white shadow-sm hover:bg-[#8E3E5E]"
+                  className={PRIMARY_BUTTON}
                 >
                   Jelajahi referensi
                   <ArrowUpRight className="ml-1 size-4" />
@@ -239,7 +237,7 @@ export default function EducationPage() {
                   render={<Link href="/education/glossary" />}
                   variant="outline"
                   size="lg"
-                  className="h-11 rounded-full border-[#E7D5DE] bg-white/90 px-5 text-sm font-bold text-[#70495D] hover:border-[#D7A9BC] hover:bg-[#FFF4F8] hover:text-[#984568]"
+                  className={SECONDARY_BUTTON}
                 >
                   Glosarium
                 </Button>
@@ -249,14 +247,14 @@ export default function EducationPage() {
                   render={<Link href="/education/guidance" />}
                   variant="outline"
                   size="lg"
-                  className="h-11 rounded-full border-[#E7D5DE] bg-white/90 px-5 text-sm font-bold text-[#70495D] hover:border-[#D7A9BC] hover:bg-[#FFF4F8] hover:text-[#984568]"
+                  className={SECONDARY_BUTTON}
                 >
                   Panduan perlindungan
                 </Button>
               </div>
             </div>
 
-            {/* Hero visual: ilustrasi animasi (video pendek tanpa suara, berulang) */}
+            {/* Hero visual */}
             <div className="hidden lg:flex lg:justify-center">
               <div className="overflow-hidden rounded-[32px] border border-white/80 shadow-[0_12px_40px_rgb(120_70_90_/_12%)]">
                 <video
@@ -342,7 +340,7 @@ export default function EducationPage() {
                         changeCategory(category.value)
                       }
                       aria-pressed={isActive}
-                      className={`rounded-full border px-4 py-2.5 text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#B84E73]/15 ${
+                      className={`inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-bold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 ${
                         isActive
                           ? "border-[#B84E73] bg-[#B84E73] text-white shadow-sm"
                           : "border-[#E9DCE3] bg-white text-[#796878] hover:border-[#D7A9BC] hover:bg-[#FFF4F8] hover:text-[#984568]"
@@ -381,12 +379,8 @@ export default function EducationPage() {
                 {(search || activeCategory !== "semua") && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setSearch("");
-                      setActiveCategory("semua");
-                      setCurrentPage(0);
-                    }}
-                    className="text-sm font-bold text-[#B84E73] underline-offset-4 hover:underline"
+                    onClick={resetFilters}
+                    className="text-sm font-bold text-[#B84E73] underline-offset-4 transition-colors hover:text-[#8E3E5E] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
                   >
                     Hapus filter
                   </button>
@@ -394,7 +388,7 @@ export default function EducationPage() {
               </div>
 
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:gap-6">
-                {visibleArticles.map((article, index) => {
+                {visibleArticles.map((article) => {
                   const source = getSource(article);
                   const external = isExternalSource(source);
                   const isDraft = article.status === "draft";
@@ -453,7 +447,7 @@ export default function EducationPage() {
                               />
                             }
                             size="sm"
-                            className="h-9 rounded-full bg-[#B84E73] px-4 text-xs font-extrabold text-white hover:bg-[#8E3E5E]"
+                            className="inline-flex h-11 items-center justify-center rounded-full !border-0 !bg-[#B84E73] !px-5 !text-xs !font-bold !text-white shadow-sm transition-colors duration-200 hover:!bg-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
                           >
                             Baca selengkapnya
                             <ArrowUpRight className="ml-1 size-3.5" />
@@ -465,7 +459,7 @@ export default function EducationPage() {
                                 href={source}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex max-w-full items-center gap-1.5 text-xs font-bold text-[#8B6075] transition-colors hover:text-[#B84E73]"
+                                className="inline-flex max-w-full items-center gap-1.5 text-xs font-bold text-[#8B6075] transition-colors hover:text-[#B84E73] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
                                 title={getSourceTitle(article)}
                               >
                                 <span className="max-w-[125px] truncate">
@@ -476,7 +470,7 @@ export default function EducationPage() {
                             ) : (
                               <Link
                                 href={source}
-                                className="inline-flex max-w-full items-center gap-1.5 text-xs font-bold text-[#8B6075] transition-colors hover:text-[#B84E73]"
+                                className="inline-flex max-w-full items-center gap-1.5 text-xs font-bold text-[#8B6075] transition-colors hover:text-[#B84E73] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
                               >
                                 <span className="max-w-[125px] truncate">
                                   {getSourceTitle(article)}
@@ -509,7 +503,7 @@ export default function EducationPage() {
                       )
                     }
                     aria-label="Halaman sebelumnya"
-                    className="size-10 rounded-xl border-[#E7D5DE] bg-white text-[#70495D] hover:bg-[#FFF4F8] disabled:opacity-40"
+                    className="size-10 rounded-xl !border-[#E7D5DE] !bg-white !text-[#70495D] hover:!bg-[#FFF4F8] disabled:opacity-40"
                   >
                     <ArrowLeft className="size-4" />
                   </Button>
@@ -532,10 +526,10 @@ export default function EducationPage() {
                       aria-current={
                         page === safePage ? "page" : undefined
                       }
-                      className={`size-10 rounded-xl ${
+                      className={`size-10 rounded-xl !text-sm !font-bold ${
                         page === safePage
-                          ? "bg-[#B84E73] text-white hover:bg-[#8E3E5E]"
-                          : "border-[#E7D5DE] bg-white text-[#70495D] hover:bg-[#FFF4F8]"
+                          ? "!border-[#B84E73] !bg-[#B84E73] !text-white hover:!bg-[#8E3E5E]"
+                          : "!border-[#E7D5DE] !bg-white !text-[#70495D] hover:!bg-[#FFF4F8]"
                       }`}
                     >
                       {page + 1}
@@ -553,7 +547,7 @@ export default function EducationPage() {
                       )
                     }
                     aria-label="Halaman berikutnya"
-                    className="size-10 rounded-xl border-[#E7D5DE] bg-white text-[#70495D] hover:bg-[#FFF4F8] disabled:opacity-40"
+                    className="size-10 rounded-xl !border-[#E7D5DE] !bg-white !text-[#70495D] hover:!bg-[#FFF4F8] disabled:opacity-40"
                   >
                     <ArrowRight className="size-4" />
                   </Button>
@@ -578,12 +572,8 @@ export default function EducationPage() {
 
               <Button
                 type="button"
-                onClick={() => {
-                  setSearch("");
-                  setActiveCategory("semua");
-                  setCurrentPage(0);
-                }}
-                className="mt-6 h-10 rounded-full bg-[#B84E73] px-5 text-sm font-extrabold text-white hover:bg-[#8E3E5E]"
+                onClick={resetFilters}
+                className={`mt-6 ${PRIMARY_BUTTON}`}
               >
                 Tampilkan semua artikel
               </Button>
@@ -618,7 +608,7 @@ export default function EducationPage() {
               render={<Link href="/education/references" />}
               variant="outline"
               size="lg"
-              className="h-10 shrink-0 rounded-full border-[#C8DCCB] bg-white/80 px-4 text-sm font-extrabold text-[#48634D] hover:bg-white"
+              className={SAGE_BUTTON}
             >
               Lihat referensi
               <ArrowUpRight className="ml-1 size-4" />

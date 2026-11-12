@@ -1,4 +1,3 @@
-
 "use client";
 
 import { LoaderCircle, MapPin, Navigation } from "lucide-react";

@@ -9,6 +9,7 @@ import {
   Clock3,
   Download,
   CalendarCheck,
+  ArrowLeft,
 } from "lucide-react";
 
 import DeleteHistoryButton from "@/components/healthtracker/history/DeleteHistoryButton";
@@ -132,14 +133,14 @@ function HistoryEntryCard({ entry }) {
           <button
             type="button"
             onClick={() => setIsDetailOpen(true)}
-            className="inline-flex items-center justify-center rounded-full bg-[#B84E73] px-4 py-2.5 text-xs font-bold text-white transition-all duration-200 hover:bg-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
+            className="inline-flex h-11 items-center justify-center rounded-full bg-[#B84E73] px-5 text-sm font-bold text-white transition-colors duration-200 hover:bg-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
           >
             Lihat Detail
           </button>
 
           <Link
             href={`/api/tracker/records/${entry.id}/pdf`}
-            className="inline-flex items-center gap-2 rounded-full border border-[#E8DCE3] px-4 py-2.5 text-xs font-bold text-[#6F6570] transition-all duration-200 hover:border-[#B84E73] hover:bg-[#FFF8FB] hover:text-[#B84E73] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73]"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#E8D5DE] bg-white px-5 text-sm font-bold text-[#8E3E5E] transition-colors duration-200 hover:border-[#B84E73] hover:bg-[#FFF8FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
           >
             <Download size={14} />
             Unduh PDF

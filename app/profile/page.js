@@ -1,10 +1,8 @@
 import Link from "next/link";
 import {
-  UserRoundPen,
+  Settings,
   ShieldCheck,
-  UserRoundX,
   ChevronRight,
-  KeyRound,
   Mail,
   LogOut,
 } from "lucide-react";
@@ -24,13 +22,15 @@ export const metadata = {
 };
 
 function getInitials(name = "") {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join("")
-    .toUpperCase() || "S";
+  return (
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase() || "S"
+  );
 }
 
 function formatDate(value) {
@@ -44,74 +44,32 @@ function formatDate(value) {
   }).format(new Date(value));
 }
 
-function InfoItem({ icon: Icon, label, value }) {
-  return (
-    <div className="flex min-w-0 items-start gap-3">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#F8E8EF] text-[#B84E73]">
-        <Icon size={17} />
-      </div>
-
-      <div className="min-w-0">
-        <p className="text-xs text-[#8A7D89]">{label}</p>
-        <p className="mt-1 break-words text-sm font-bold text-[#332A35]">
-          {value || "Belum dilengkapi"}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function MenuItem({
-  icon: Icon,
-  title,
-  description,
-  href,
-  disabled = false,
-}) {
-  const content = (
-    <div className="flex items-center gap-3">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#F8E8EF] text-[#B84E73]">
-        <Icon size={18} />
-      </div>
-
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold text-[#332A35]">
-          {title}
-        </p>
-
-        {description && (
-          <p className="mt-1 text-xs leading-5 text-[#8A7D89]">
-            {description}
-          </p>
-        )}
-      </div>
-
-      {!disabled && (
-        <ChevronRight
-          size={18}
-          className="shrink-0 text-[#A99BA5]"
-        />
-      )}
-    </div>
-  );
-
-  const className =
-    "block rounded-2xl border border-[#F0E5EB] bg-white p-4 transition-colors";
-
-  if (disabled) {
-    return (
-      <div className={`${className} opacity-70`}>
-        {content}
-      </div>
-    );
-  }
-
+function MenuItem({ icon: Icon, title, description, href }) {
   return (
     <Link
       href={href}
-      className={`${className} hover:border-[#DDB3C3] hover:bg-[#FFFBFD]`}
+      className="group block rounded-2xl border border-[#F0E5EB] bg-white p-4 transition-all hover:border-[#DDB3C3] hover:bg-[#FFFBFD] hover:shadow-sm"
     >
-      {content}
+      <div className="flex items-center gap-4">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#F8E8EF] text-[#B84E73] transition-colors group-hover:bg-[#F3DCE6]">
+          <Icon size={20} />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold text-[#332A35]">
+            {title}
+          </p>
+
+          <p className="mt-1 text-xs leading-5 text-[#8A7D89]">
+            {description}
+          </p>
+        </div>
+
+        <ChevronRight
+          size={19}
+          className="shrink-0 text-[#A99BA5] transition-transform group-hover:translate-x-1 group-hover:text-[#B84E73]"
+        />
+      </div>
     </Link>
   );
 }
@@ -136,52 +94,7 @@ async function ProfileContent() {
     user.displayName ||
     "Pengguna SYCLE";
 
-  const completedFields = [
-    profile.full_name,
-    profile.birth_date,
-    profile.domicile,
-    profile.occupation,
-  ].filter((value) => Boolean(value?.trim?.() || value)).length;
-
-  const isProfileComplete = completedFields === 4;
-
   const joinedDate = formatDate(profile.created_at);
-  const birthDate = formatDate(profile.birth_date);
-
-  const settingGroups = [{
-    title: "Pengaturan",
-    items: [
-      {
-        title: "Informasi Pribadi",
-        description: "Kelola nama, tanggal lahir, domisili, dan pekerjaan.",
-        icon: UserRoundPen,
-        href: "/profile/complete",
-      },
-    ],
-  },
-  {
-    title: "Privasi dan Keamanan",
-    items: [
-      {
-        title: "Ubah Password",
-        description: "Perbarui password akunmu.",
-        icon: KeyRound,
-        href: "/reset-password",
-      },
-      {
-        title: "Kebijakan Privasi",
-        description: "Pelajari penggunaan dan perlindungan datamu.",
-        icon: ShieldCheck,
-        href: "/profile/privacy",
-      },
-      {
-        title: "Penghapusan Data atau Akun",
-        description: "Kelola penghapusan catatan atau akun SYCLE.",
-        icon: UserRoundX,
-        href: "/profile/delete-account",
-      },
-    ],
-  },];
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
@@ -203,7 +116,6 @@ async function ProfileContent() {
 
       {/* Profile Identity */}
       <section className="relative overflow-hidden rounded-[22px] border border-[#F0DFE7] bg-[#F8E8EF] p-5 sm:p-7">
-
         <div className="flex items-center gap-4">
           <div className="flex size-16 shrink-0 items-center justify-center rounded-full border-4 border-white bg-[#B84E73] text-xl font-extrabold text-white shadow-sm">
             {getInitials(displayName)}
@@ -237,23 +149,22 @@ async function ProfileContent() {
         </div>
       )}
 
-      {/* Account Settings */}
-      {settingGroups.map((group) => (
-        <section key={group.title} className="mt-7">
-          <h2 className="mb-3 font-extrabold text-[#332A35]">
-            {group.title}
-          </h2>
+      {/* Main Menu */}
+      <section className="mt-7 space-y-3">
+        <MenuItem
+          icon={Settings}
+          title="Pengaturan"
+          description="Kelola informasi pribadi, riwayat, dan penghapusan data akun."
+          href="/profile/settings"
+        />
 
-          <div className="grid gap-2 sm:grid-cols-2">
-            {group.items.map((item) => (
-              <MenuItem
-                key={item.title}
-                {...item}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
+        <MenuItem
+          icon={ShieldCheck}
+          title="Privasi & Keamanan"
+          description="Kelola password, alamat email, dan keamanan akunmu."
+          href="/profile/security"
+        />
+      </section>
 
       {/* Logout */}
       <section className="mt-6 flex flex-col gap-3 rounded-[22px] border border-[#F0E5EB] bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -266,6 +177,7 @@ async function ProfileContent() {
             <p className="text-sm font-bold text-[#332A35]">
               Keluar dari Akun
             </p>
+
             <p className="mt-1 text-xs text-[#8A7D89]">
               Akhiri sesi akunmu di perangkat ini.
             </p>

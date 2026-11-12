@@ -35,11 +35,20 @@ const CONDITION_QUESTIONS = {
   lewati: [],
 };
 
+// Standar tombol SYCLE
+const PRIMARY_BUTTON =
+  "inline-flex h-11 min-h-11 items-center justify-center gap-2 rounded-full bg-[#B84E73] px-5 text-sm font-bold text-white transition-colors duration-200 hover:bg-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+
+const SECONDARY_BUTTON =
+  "inline-flex h-11 min-h-11 items-center justify-center gap-2 rounded-full border border-[#E8D5DE] bg-white px-5 text-sm font-bold text-[#8E3E5E] transition-colors duration-200 hover:border-[#B84E73] hover:bg-[#FFF8FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2";
+
+const ICON_BUTTON =
+  "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F8E8EF] text-[#8E3E5E] transition-colors duration-200 hover:bg-[#F0DCE6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2";
+
 function hasValue(value) {
   return value !== null && value !== undefined && value !== "";
 }
 
-// Mengubah nilai menjadi teks yang aman ditampilkan oleh React.
 function safeText(value) {
   if (value === null || value === undefined || value === "") {
     return "";
@@ -61,10 +70,10 @@ function safeText(value) {
     return (
       safeText(
         value.name ??
-        value.label ??
-        value.value ??
-        value.status ??
-        value.detail
+          value.label ??
+          value.value ??
+          value.status ??
+          value.detail
       ) || ""
     );
   }
@@ -113,13 +122,8 @@ function getScaleLabel(value) {
       );
     });
 
-    if (typeof scaleItem === "string") {
-      return scaleItem;
-    }
-
-    if (scaleItem?.label) {
-      return safeText(scaleItem.label);
-    }
+    if (typeof scaleItem === "string") return scaleItem;
+    if (scaleItem?.label) return safeText(scaleItem.label);
   }
 
   if (
@@ -128,13 +132,8 @@ function getScaleLabel(value) {
   ) {
     const scaleItem = HEALTH_TRACKER_SCALE[numericValue];
 
-    if (typeof scaleItem === "string") {
-      return scaleItem;
-    }
-
-    if (scaleItem?.label) {
-      return safeText(scaleItem.label);
-    }
+    if (typeof scaleItem === "string") return scaleItem;
+    if (scaleItem?.label) return safeText(scaleItem.label);
   }
 
   return String(value);
@@ -220,7 +219,9 @@ function AiReflectionSection({ content }) {
           {lines.map((line, index) => {
             const trimmed = line.trim();
 
-            if (!trimmed) return <div key={index} className="h-1" />;
+            if (!trimmed) {
+              return <div key={index} className="h-1" />;
+            }
 
             if (trimmed.startsWith("## ")) {
               return (
@@ -247,7 +248,11 @@ function AiReflectionSection({ content }) {
             if (/^[-*]\s+/.test(trimmed)) {
               return (
                 <ul key={index} className="list-disc pl-5">
-                  <li>{renderInlineMarkdown(trimmed.replace(/^[-*]\s+/, ""))}</li>
+                  <li>
+                    {renderInlineMarkdown(
+                      trimmed.replace(/^[-*]\s+/, "")
+                    )}
+                  </li>
                 </ul>
               );
             }
@@ -375,7 +380,6 @@ function AnswerSection({ record, answers = [] }) {
   );
 }
 
-// Mengambil nilai indikator tanpa merender object langsung.
 function getIndicatorValue(item) {
   if (!item || typeof item !== "object") {
     return safeText(item);
@@ -396,7 +400,6 @@ function getIndicatorValue(item) {
 
 function getIndicatorUnit(item) {
   if (!item || typeof item !== "object") return "";
-
   return safeText(item.unit);
 }
 
@@ -406,15 +409,12 @@ function getIndicatorSource(item) {
   const source = item.source;
 
   if (!source) return "";
-
-  if (typeof source === "string") {
-    return source;
-  }
+  if (typeof source === "string") return source;
 
   return safeText(
     source.name ??
-    source.label ??
-    source.detail
+      source.label ??
+      source.detail
   );
 }
 
@@ -466,7 +466,6 @@ function EnvironmentSection({ snapshot }) {
 
         <div>
           <p className="text-xs text-[#7B897D]">Lokasi</p>
-
           <p className="mt-0.5 text-sm font-semibold text-[#435A47]">
             {safeText(snapshot.location_label) || "Lokasi tidak tersedia"}
           </p>
@@ -484,7 +483,6 @@ function EnvironmentSection({ snapshot }) {
             <p className="text-xs text-[#7B897D]">
               Waktu pengambilan data
             </p>
-
             <p className="mt-0.5 text-sm text-[#435A47]">
               {formatDate(snapshot.captured_at)}
             </p>
@@ -613,7 +611,7 @@ export default function HistoryEntryDetail({
 
   return (
     <div
-      className="fixed inset-0 z-100 flex items-end justify-center bg-[#332A35]/45 p-0 backdrop-blur-[2px] sm:items-center sm:p-5"
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-[#332A35]/45 p-0 backdrop-blur-[2px] sm:items-center sm:p-5"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -626,6 +624,7 @@ export default function HistoryEntryDetail({
         aria-labelledby="history-detail-title"
         className="flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[26px] bg-[#FFF8FB] shadow-2xl sm:rounded-[26px]"
       >
+        {/* HEADER MODAL */}
         <header className="flex items-center justify-between gap-3 border-b border-[#F0DFE7] bg-white px-5 py-4 sm:px-6">
           <div>
             <p className="text-xs font-bold text-[#B84E73]">
@@ -644,20 +643,17 @@ export default function HistoryEntryDetail({
             type="button"
             onClick={onClose}
             aria-label="Tutup detail"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F8E8EF] text-[#B84E73] transition hover:bg-[#F1DCE5]"
+            className={ICON_BUTTON}
           >
             <X size={19} />
           </button>
         </header>
 
+        {/* KONTEN MODAL */}
         <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
           {loading && (
             <div className="flex flex-col items-center justify-center gap-3 py-16 text-[#8A6578]">
-              <LoaderCircle
-                size={28}
-                className="animate-spin"
-              />
-
+              <LoaderCircle size={28} className="animate-spin" />
               <p className="text-sm">
                 Memuat detail Check-In...
               </p>
@@ -678,9 +674,10 @@ export default function HistoryEntryDetail({
               <button
                 type="button"
                 onClick={loadDetail}
-                className="mt-3 rounded-full bg-[#B84E73] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#8E3E5E]"
+                disabled={loading}
+                className={`${PRIMARY_BUTTON} mt-4`}
               >
-                Coba lagi
+                Coba Lagi
               </button>
             </div>
           )}
@@ -688,7 +685,7 @@ export default function HistoryEntryDetail({
           {!loading && detail && (
             <div className="space-y-6">
               <section className="rounded-2xl border border-[#F0DFE7] bg-white p-4">
-                <span className="rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-bold text-[#B84E73]">
+                <span className="inline-flex rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-bold text-[#B84E73]">
                   {CONDITION_LABELS[detail.record.context] ??
                     detail.record.context ??
                     "Catatan umum"}
@@ -723,7 +720,7 @@ export default function HistoryEntryDetail({
 
               <EnvironmentSection snapshot={detail.snapshot} />
 
-               <AiReflectionSection
+              <AiReflectionSection
                 content={detail.record.refleksi_ai}
               />
 
@@ -736,11 +733,12 @@ export default function HistoryEntryDetail({
           )}
         </div>
 
-        <footer className="border-t border-[#F0DFE7] bg-white px-5 py-3 text-right sm:px-6">
+        {/* FOOTER MODAL */}
+        <footer className="flex justify-end border-t border-[#F0DFE7] bg-white px-5 py-4 sm:px-6">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-[#E8C9D5] px-5 py-2.5 text-xs font-bold text-[#B84E73] transition hover:bg-[#FFF8FB]"
+            className={SECONDARY_BUTTON}
           >
             Tutup
           </button>

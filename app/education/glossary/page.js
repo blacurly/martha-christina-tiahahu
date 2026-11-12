@@ -28,6 +28,19 @@ import GlossaryQuiz from "@/components/education/GlossaryQuiz";
 
 const PAGE_SIZE = 8;
 
+// Standar tombol mengikuti halaman Referensi.
+const PRIMARY_BUTTON =
+  "inline-flex h-11 items-center justify-center gap-2 rounded-full border border-transparent !bg-[#B84E73] px-5 text-sm font-bold !text-white shadow-sm transition-colors duration-200 hover:!bg-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+
+const SECONDARY_BUTTON =
+  "inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#E8D5DE] bg-white px-5 text-sm font-bold text-[#8E3E5E] transition-colors duration-200 hover:border-[#B84E73] hover:bg-[#FFF8FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+
+const FILTER_BUTTON =
+  "inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-bold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2";
+
+const SOFT_BUTTON =
+  "inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#E1D9F8] bg-white px-4 text-sm font-bold text-[#5E4A86] transition-colors duration-200 hover:border-[#C9B9F0] hover:bg-[#FCFAFF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2";
+
 // Ikon dan warna mengikuti kategori istilah.
 const CATEGORY_STYLE = {
   data: {
@@ -61,8 +74,12 @@ function getStyle(category) {
   return CATEGORY_STYLE[category] ?? CATEGORY_STYLE.data;
 }
 
-// Ikon kategori: video animasi bila tersedia, selain itu ikon lucide di kotak berwarna.
-function CategoryIcon({ category, className = "", iconClassName = "" }) {
+// Ikon kategori: video animasi bila tersedia, selain itu ikon lucide.
+function CategoryIcon({
+  category,
+  className = "",
+  iconClassName = "",
+}) {
   const style = getStyle(category);
 
   if (style.media) {
@@ -82,8 +99,11 @@ function CategoryIcon({ category, className = "", iconClassName = "" }) {
   }
 
   const Icon = style.icon;
+
   return (
-    <div className={`flex shrink-0 items-center justify-center ${style.tile} ${className}`}>
+    <div
+      className={`flex shrink-0 items-center justify-center ${style.tile} ${className}`}
+    >
       <Icon className={iconClassName} strokeWidth={1.6} />
     </div>
   );
@@ -103,12 +123,17 @@ function getArticlesUsingTerm(termId) {
   );
 }
 
-// Istilah pilihan hari ini: berganti setiap hari, sama untuk semua pengguna.
+// Istilah pilihan hari ini: berganti setiap hari.
 function getTermOfTheDay(date) {
   const dayNumber = Math.floor(
-    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) /
+      86400000
   );
-  const sorted = [...GLOSSARY].sort((a, b) => a.term.localeCompare(b.term, "id"));
+
+  const sorted = [...GLOSSARY].sort((a, b) =>
+    a.term.localeCompare(b.term, "id")
+  );
+
   return sorted[dayNumber % sorted.length];
 }
 
@@ -117,24 +142,29 @@ export default function GlossaryPage() {
   const [activeCategory, setActiveCategory] = useState("semua");
   const [sortOrder, setSortOrder] = useState("az");
   const [limit, setLimit] = useState(PAGE_SIZE);
+
   // "jelajahi" = daftar istilah, "kartu" = Kartu Belajar, "kuis" = Kuis.
   const [mode, setMode] = useState("jelajahi");
   const [selectedTerm, setSelectedTerm] = useState(null);
   const [termOfTheDay, setTermOfTheDay] = useState(null);
-  // Istilah yang ditandai "sudah paham". Sengaja tidak disimpan: kembali ke 0 saat halaman dimuat ulang.
+
+  // Progres tidak disimpan dan kembali ke 0 saat halaman dimuat ulang.
   const [understood, setUnderstood] = useState(() => new Set());
 
   const closeButtonRef = useRef(null);
   const modeSectionRef = useRef(null);
 
-  // Istilah pilihan hari ini dihitung di browser agar tanggalnya sesuai zona waktu pengguna.
-  // Membuka istilah langsung bila datang dari link artikel, misalnya /education/glossary?istilah=pm25
+  // Istilah pilihan hari ini dan pembukaan istilah dari URL.
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       setTermOfTheDay(getTermOfTheDay(new Date()));
 
-      const termId = new URLSearchParams(window.location.search).get("istilah");
+      const termId = new URLSearchParams(
+        window.location.search
+      ).get("istilah");
+
       const term = GLOSSARY.find((item) => item.id === termId);
+
       if (term) setSelectedTerm(term);
     });
 
@@ -149,11 +179,16 @@ export default function GlossaryPage() {
     document.body.style.overflow = "hidden";
 
     function handleKeyDown(event) {
-      if (event.key === "Escape") setSelectedTerm(null);
+      if (event.key === "Escape") {
+        setSelectedTerm(null);
+      }
     }
 
     document.addEventListener("keydown", handleKeyDown);
-    const frame = requestAnimationFrame(() => closeButtonRef.current?.focus());
+
+    const frame = requestAnimationFrame(() =>
+      closeButtonRef.current?.focus()
+    );
 
     return () => {
       document.body.style.overflow = previousOverflow;
@@ -164,17 +199,21 @@ export default function GlossaryPage() {
 
   const categoryCounts = useMemo(() => {
     const counts = { semua: GLOSSARY.length };
+
     for (const item of GLOSSARY) {
       counts[item.category] = (counts[item.category] ?? 0) + 1;
     }
+
     return counts;
   }, []);
 
-  // Istilah pada topik terpilih (tanpa pencarian), dipakai Kartu Belajar dan Kuis.
+  // Istilah pada topik terpilih tanpa pencarian.
   const categoryTerms = useMemo(
     () =>
       GLOSSARY.filter(
-        (item) => activeCategory === "semua" || item.category === activeCategory
+        (item) =>
+          activeCategory === "semua" ||
+          item.category === activeCategory
       ).sort((a, b) => a.term.localeCompare(b.term, "id")),
     [activeCategory]
   );
@@ -186,11 +225,18 @@ export default function GlossaryPage() {
       if (!keyword) return true;
 
       const relatedNames = (item.related ?? [])
-        .map((id) => GLOSSARY.find((term) => term.id === id)?.term)
+        .map(
+          (id) => GLOSSARY.find((term) => term.id === id)?.term
+        )
         .filter(Boolean)
         .join(" ");
 
-      return [item.term, item.definition, item.note, relatedNames]
+      return [
+        item.term,
+        item.definition,
+        item.note,
+        relatedNames,
+      ]
         .filter(Boolean)
         .join(" ")
         .toLowerCase()
@@ -201,7 +247,9 @@ export default function GlossaryPage() {
   }, [categoryTerms, search, sortOrder]);
 
   const shownTerms = visibleTerms.slice(0, limit);
-  const progress = Math.round((understood.size / GLOSSARY.length) * 100);
+  const progress = Math.round(
+    (understood.size / GLOSSARY.length) * 100
+  );
 
   function changeCategory(value) {
     setActiveCategory(value);
@@ -215,22 +263,32 @@ export default function GlossaryPage() {
 
   function openMode(value) {
     setMode(value);
+
     requestAnimationFrame(() =>
-      modeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+      modeSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      })
     );
   }
 
   function toggleUnderstood(termId) {
     setUnderstood((previous) => {
       const next = new Set(previous);
-      if (next.has(termId)) next.delete(termId);
-      else next.add(termId);
+
+      if (next.has(termId)) {
+        next.delete(termId);
+      } else {
+        next.add(termId);
+      }
+
       return next;
     });
   }
 
   function openRelatedTerm(relatedId) {
     const term = GLOSSARY.find((item) => item.id === relatedId);
+
     if (term) setSelectedTerm(term);
   }
 
@@ -238,36 +296,31 @@ export default function GlossaryPage() {
     <main className="min-h-screen bg-[#FFF8FB] text-[#332A35]">
       <div className="mx-auto w-full max-w-[1120px] px-5 pb-16 pt-8 sm:px-8 lg:px-10 lg:pt-10">
         {/* Breadcrumb */}
-        <nav
-          aria-label="Breadcrumb"
-          className="mb-4 flex flex-wrap items-center gap-2 text-sm text-[#887986]"
-        >
-          <Link href="/" className="transition-colors hover:text-[#B84E73]">
-            Beranda
-          </Link>
-          <span aria-hidden="true">/</span>
-          <Link href="/education" className="transition-colors hover:text-[#B84E73]">
+        <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-sm">
+          <Link
+            href="/education"
+            className="font-semibold text-[#8E3E5E] transition-colors hover:text-[#B84E73]"
+          >
             Info &amp; Edukasi
           </Link>
-          <span aria-hidden="true">/</span>
-          <span className="font-bold text-[#B84E73]">Glosarium</span>
-        </nav>
 
-        <Link
-          href="/education"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-[#514351] transition hover:text-[#B84E73]"
-        >
-          <ArrowLeft className="size-4" />
-          Kembali ke Info &amp; Edukasi
-        </Link>
+          <ChevronRight className="size-4 text-[#B8AAB3]" />
+
+          <span
+            aria-current="page"
+            className="font-bold text-[#332A35]"
+          >
+            Glosarium
+          </span>
+        </nav>
 
         {/* Hero */}
         <section className="relative isolate overflow-hidden rounded-[28px] border border-[#F0DFE7] bg-white p-5 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] sm:p-7 lg:p-8">
-          {/* Dekorasi background */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute -right-16 -top-20 -z-10 size-64 rounded-full bg-[#F8E8EF] opacity-80 blur-3xl"
           />
+
           <div
             aria-hidden="true"
             className="pointer-events-none absolute -bottom-24 right-36 -z-10 size-56 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
@@ -335,13 +388,15 @@ export default function GlossaryPage() {
                   <h2 className="text-2xl font-extrabold leading-tight sm:text-3xl">
                     {termOfTheDay.term}
                   </h2>
+
                   <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#6E5F6C]">
                     {termOfTheDay.definition}
                   </p>
+
                   <button
                     type="button"
                     onClick={() => setSelectedTerm(termOfTheDay)}
-                    className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#B84E73] px-5 py-2.5 text-sm font-extrabold text-white transition hover:bg-[#8E3E5E]"
+                    className={`mt-5 ${PRIMARY_BUTTON}`}
                   >
                     Pelajari Sekarang
                     <ArrowRight className="size-4" />
@@ -364,11 +419,15 @@ export default function GlossaryPage() {
               <Target className="size-5 text-[#B84E73]" />
               Progres Belajar
             </p>
+
             <p className="mt-3 text-sm text-[#6E5F6C]">
               <span className="text-lg font-extrabold text-[#B84E73]">
                 {understood.size}
               </span>{" "}
-              dari <span className="font-extrabold">{GLOSSARY.length}</span>{" "}
+              dari{" "}
+              <span className="font-extrabold">
+                {GLOSSARY.length}
+              </span>{" "}
               istilah dipahami
             </p>
 
@@ -386,22 +445,26 @@ export default function GlossaryPage() {
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <span className="text-sm font-extrabold">{progress}%</span>
+
+              <span className="text-sm font-extrabold">
+                {progress}%
+              </span>
             </div>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => openMode("kartu")}
-                className="flex items-center gap-2 rounded-2xl border border-[#E1D9F8] bg-white p-3 text-left text-sm font-extrabold text-[#5E4A86] transition hover:border-[#C9B9F0]"
+                className={SOFT_BUTTON}
               >
                 <Layers className="size-5 shrink-0" />
                 Kartu Belajar
               </button>
+
               <button
                 type="button"
                 onClick={() => openMode("kuis")}
-                className="flex items-center gap-2 rounded-2xl border border-[#E1D9F8] bg-white p-3 text-left text-sm font-extrabold text-[#5E4A86] transition hover:border-[#C9B9F0]"
+                className={SOFT_BUTTON}
               >
                 <Trophy className="size-5 shrink-0" />
                 Kuis
@@ -409,13 +472,17 @@ export default function GlossaryPage() {
             </div>
 
             <p className="mt-3 text-xs text-[#8A7A85]">
-              Progres tidak disimpan dan kembali ke 0 saat halaman dimuat ulang.
+              Progres tidak disimpan dan kembali ke 0 saat halaman
+              dimuat ulang.
             </p>
           </div>
         </section>
 
         {/* Jelajahi / Kartu Belajar / Kuis */}
-        <section ref={modeSectionRef} className="mt-10 scroll-mt-24">
+        <section
+          ref={modeSectionRef}
+          className="mt-10 scroll-mt-24"
+        >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-2xl font-extrabold tracking-tight">
               {mode === "kartu"
@@ -429,7 +496,7 @@ export default function GlossaryPage() {
               <button
                 type="button"
                 onClick={() => setMode("jelajahi")}
-                className="inline-flex items-center gap-1.5 text-sm font-bold text-[#B84E73] hover:text-[#8E3E5E]"
+                className="inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-bold text-[#8E3E5E] transition-colors hover:bg-[#F8E8EF] hover:text-[#B84E73] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
               >
                 <ArrowLeft className="size-4" />
                 Kembali ke daftar istilah
@@ -441,11 +508,14 @@ export default function GlossaryPage() {
             <div className="mt-4 flex flex-col gap-3 sm:flex-row">
               <div className="relative flex-1">
                 <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-[#A08D9C]" />
+
                 <input
                   type="search"
                   value={search}
-                  onChange={(event) => changeSearch(event.target.value)}
-                  placeholder="Cari istilah, misalnya “ISPU”, “menopause”, atau “UV”"
+                  onChange={(event) =>
+                    changeSearch(event.target.value)
+                  }
+                  placeholder='Cari istilah, misalnya "ISPU", "menopause", atau "UV"'
                   aria-label="Cari istilah glosarium"
                   className="h-12 w-full rounded-full border border-[#E9DCE3] bg-white pl-12 pr-4 text-sm outline-none transition placeholder:text-[#B2A2AE] focus:border-[#B84E73] focus:ring-4 focus:ring-[#B84E73]/10"
                 />
@@ -453,20 +523,24 @@ export default function GlossaryPage() {
 
               <label className="relative">
                 <span className="sr-only">Urutkan istilah</span>
+
                 <select
                   value={sortOrder}
-                  onChange={(event) => setSortOrder(event.target.value)}
-                  className="h-12 w-full appearance-none rounded-full border border-[#E9DCE3] bg-white pl-5 pr-11 text-sm font-bold text-[#514351] outline-none focus:border-[#B84E73] sm:w-auto"
+                  onChange={(event) =>
+                    setSortOrder(event.target.value)
+                  }
+                  className="h-12 w-full appearance-none rounded-full border border-[#E9DCE3] bg-white pl-5 pr-11 text-sm font-bold text-[#514351] outline-none transition focus:border-[#B84E73] focus:ring-4 focus:ring-[#B84E73]/10 sm:w-auto"
                 >
                   <option value="az">Urutkan: A – Z</option>
                   <option value="za">Urutkan: Z – A</option>
                 </select>
+
                 <ChevronDown className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-[#8A7A85]" />
               </label>
             </div>
           )}
 
-          {/* Filter topik — berlaku untuk daftar, Kartu Belajar, dan Kuis */}
+          {/* Filter topik */}
           <div
             className="mt-4 flex flex-wrap gap-2"
             role="group"
@@ -474,27 +548,32 @@ export default function GlossaryPage() {
           >
             {[{ value: "semua", label: "Semua" }, ...GLOSSARY_CATEGORIES].map(
               (category) => {
-                const active = activeCategory === category.value;
+                const active =
+                  activeCategory === category.value;
 
                 return (
                   <button
                     key={category.value}
                     type="button"
-                    onClick={() => changeCategory(category.value)}
+                    onClick={() =>
+                      changeCategory(category.value)
+                    }
                     aria-pressed={active}
-                    className={`rounded-full border px-4 py-2 text-sm font-bold transition ${
+                    className={`${FILTER_BUTTON} ${
                       active
                         ? "border-[#B84E73] bg-[#B84E73] text-white"
                         : "border-[#E9DCE3] bg-white text-[#514351] hover:border-[#D7A9BC] hover:text-[#984568]"
                     }`}
                   >
-                    {category.label} ({categoryCounts[category.value] ?? 0})
+                    {category.label} (
+                    {categoryCounts[category.value] ?? 0})
                   </button>
                 );
               }
             )}
           </div>
 
+          {/* Kartu Belajar */}
           {mode === "kartu" && (
             <div className="mt-6">
               <GlossaryFlashcards
@@ -506,12 +585,18 @@ export default function GlossaryPage() {
             </div>
           )}
 
+          {/* Kuis */}
           {mode === "kuis" && (
             <div className="mt-6">
-              <GlossaryQuiz key={activeCategory} terms={categoryTerms} allTerms={GLOSSARY} />
+              <GlossaryQuiz
+                key={activeCategory}
+                terms={categoryTerms}
+                allTerms={GLOSSARY}
+              />
             </div>
           )}
 
+          {/* Daftar istilah */}
           {mode === "jelajahi" &&
             (visibleTerms.length > 0 ? (
               <>
@@ -536,8 +621,10 @@ export default function GlossaryPage() {
                             <h3 className="text-lg font-extrabold leading-snug">
                               <button
                                 type="button"
-                                onClick={() => setSelectedTerm(item)}
-                                className="text-left after:absolute after:inset-0 after:rounded-[22px] group-hover:text-[#984568]"
+                                onClick={() =>
+                                  setSelectedTerm(item)
+                                }
+                                className="text-left after:absolute after:inset-0 after:rounded-[22px] group-hover:text-[#984568] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
                               >
                                 {item.term}
                               </button>
@@ -545,23 +632,33 @@ export default function GlossaryPage() {
 
                             <button
                               type="button"
-                              onClick={() => toggleUnderstood(item.id)}
+                              onClick={() =>
+                                toggleUnderstood(item.id)
+                              }
                               aria-pressed={isUnderstood}
                               aria-label={
                                 isUnderstood
                                   ? `Batalkan tanda paham untuk ${item.term}`
                                   : `Tandai ${item.term} sudah paham`
                               }
-                              title={isUnderstood ? "Sudah paham" : "Tandai sudah paham"}
-                              className={`relative z-10 shrink-0 rounded-full p-1 transition ${
+                              title={
+                                isUnderstood
+                                  ? "Sudah paham"
+                                  : "Tandai sudah paham"
+                              }
+                              className={`relative z-10 flex size-9 shrink-0 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#52775B] focus-visible:ring-offset-2 ${
                                 isUnderstood
                                   ? "text-[#52775B]"
-                                  : "text-[#C9B4C0] hover:text-[#52775B]"
+                                  : "text-[#C9B4C0] hover:bg-[#EDF6EE] hover:text-[#52775B]"
                               }`}
                             >
                               <CheckCircle2
                                 className="size-6"
-                                fill={isUnderstood ? "#E3F1E6" : "none"}
+                                fill={
+                                  isUnderstood
+                                    ? "#E3F1E6"
+                                    : "none"
+                                }
                               />
                             </button>
                           </div>
@@ -582,14 +679,21 @@ export default function GlossaryPage() {
                 </div>
 
                 <div className="mt-6 flex flex-col items-center gap-2">
-                  <p className="text-sm text-[#827382]" aria-live="polite">
-                    Menampilkan {shownTerms.length} dari {visibleTerms.length} istilah
+                  <p
+                    className="text-sm text-[#827382]"
+                    aria-live="polite"
+                  >
+                    Menampilkan {shownTerms.length} dari{" "}
+                    {visibleTerms.length} istilah
                   </p>
+
                   {shownTerms.length < visibleTerms.length && (
                     <button
                       type="button"
-                      onClick={() => setLimit((value) => value + PAGE_SIZE)}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-[#E3BFD0] bg-white px-6 py-2.5 text-sm font-extrabold text-[#984568] transition hover:bg-[#FFF4F8]"
+                      onClick={() =>
+                        setLimit((value) => value + PAGE_SIZE)
+                      }
+                      className={SECONDARY_BUTTON}
                     >
                       Lihat lebih banyak
                       <ChevronDown className="size-4" />
@@ -600,17 +704,22 @@ export default function GlossaryPage() {
             ) : (
               <div className="mt-6 rounded-[24px] border border-dashed border-[#E4CBD7] bg-white px-6 py-14 text-center">
                 <Search className="mx-auto size-8 text-[#B84E73]" />
-                <h3 className="mt-4 text-xl font-extrabold">Istilah tidak ditemukan</h3>
+
+                <h3 className="mt-4 text-xl font-extrabold">
+                  Istilah tidak ditemukan
+                </h3>
+
                 <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#827382]">
                   Coba kata kunci lain atau pilih topik “Semua”.
                 </p>
+
                 <button
                   type="button"
                   onClick={() => {
                     changeSearch("");
                     changeCategory("semua");
                   }}
-                  className="mt-5 rounded-full bg-[#B84E73] px-5 py-2.5 text-sm font-extrabold text-white hover:bg-[#8E3E5E]"
+                  className={`mt-5 ${PRIMARY_BUTTON}`}
                 >
                   Tampilkan semua istilah
                 </button>
@@ -621,15 +730,16 @@ export default function GlossaryPage() {
         {/* Catatan */}
         <section className="mt-12 flex gap-3 rounded-[22px] border border-[#D7E6D9] bg-[#E9F2EA] p-5 sm:p-6">
           <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-[#52775B]" />
+
           <p className="text-sm leading-6 text-[#4F6553]">
             <span className="font-extrabold text-[#354A39]">
               Informasi untuk memahami, bukan mendiagnosis.
             </span>{" "}
-            Penjelasan glosarium bersifat edukatif dan disusun dari sumber di
-            halaman{" "}
+            Penjelasan glosarium bersifat edukatif dan disusun dari
+            sumber di halaman{" "}
             <Link
               href="/education/references"
-              className="font-extrabold underline-offset-4 hover:underline"
+              className="font-extrabold underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#52775B] focus-visible:ring-offset-2"
             >
               Referensi
             </Link>
@@ -643,7 +753,9 @@ export default function GlossaryPage() {
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-[#332A35]/45 backdrop-blur-[3px] sm:items-center sm:p-5"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setSelectedTerm(null);
+            if (event.target === event.currentTarget) {
+              setSelectedTerm(null);
+            }
           }}
         >
           <section
@@ -652,12 +764,13 @@ export default function GlossaryPage() {
             aria-labelledby="glossary-modal-title"
             className="relative max-h-[90dvh] w-full max-w-[640px] overflow-y-auto rounded-t-[28px] bg-[#FFFDFE] shadow-2xl sm:rounded-[28px]"
           >
+            {/* Tombol tutup */}
             <button
               ref={closeButtonRef}
               type="button"
               onClick={() => setSelectedTerm(null)}
               aria-label="Tutup"
-              className="absolute right-4 top-4 rounded-full p-2 text-[#8A7A85] transition hover:bg-[#F8E8EF] hover:text-[#B84E73]"
+              className="absolute right-4 top-4 flex size-10 items-center justify-center rounded-full text-[#8A7A85] transition-colors hover:bg-[#F8E8EF] hover:text-[#B84E73] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
             >
               <X className="size-5" />
             </button>
@@ -665,6 +778,7 @@ export default function GlossaryPage() {
             <div className="border-b border-[#F0E3E9] p-6 pr-14 sm:p-7 sm:pr-16">
               {(() => {
                 const style = getStyle(selectedTerm.category);
+
                 return (
                   <div className="flex items-start gap-4">
                     <CategoryIcon
@@ -672,12 +786,14 @@ export default function GlossaryPage() {
                       className="size-14 rounded-2xl"
                       iconClassName="size-6"
                     />
+
                     <div>
                       <span
                         className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-extrabold ${style.badge}`}
                       >
                         {getCategoryLabel(selectedTerm.category)}
                       </span>
+
                       <h2
                         id="glossary-modal-title"
                         className="mt-2 text-2xl font-extrabold leading-tight sm:text-3xl"
@@ -697,28 +813,38 @@ export default function GlossaryPage() {
 
               {selectedTerm.note && (
                 <div className="rounded-2xl bg-[#FFF7EE] p-4">
-                  <p className="text-sm font-extrabold text-[#7A4A1F]">Perlu diingat</p>
+                  <p className="text-sm font-extrabold text-[#7A4A1F]">
+                    Perlu diingat
+                  </p>
+
                   <p className="mt-1 text-sm leading-6 text-[#6E5236]">
                     {selectedTerm.note}
                   </p>
                 </div>
               )}
 
-              {selectedTerm.related?.some((id) => GLOSSARY.some((term) => term.id === id)) && (
+              {selectedTerm.related?.some((id) =>
+                GLOSSARY.some((term) => term.id === id)
+              ) && (
                 <div>
                   <h3 className="mb-2 text-sm font-extrabold text-[#514351]">
                     Istilah terkait
                   </h3>
+
                   <div className="flex flex-wrap gap-2">
                     {selectedTerm.related.map((id) => {
-                      const related = GLOSSARY.find((term) => term.id === id);
+                      const related = GLOSSARY.find(
+                        (term) => term.id === id
+                      );
+
                       if (!related) return null;
+
                       return (
                         <button
                           key={id}
                           type="button"
                           onClick={() => openRelatedTerm(id)}
-                          className="rounded-full border border-[#E7D5DE] bg-white px-3.5 py-1.5 text-sm font-bold text-[#984568] transition hover:bg-[#FFF4F8]"
+                          className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#E7D5DE] bg-white px-4 text-sm font-bold text-[#984568] transition-colors hover:border-[#D7A9BC] hover:bg-[#FFF4F8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
                         >
                           {related.term}
                         </button>
@@ -733,18 +859,22 @@ export default function GlossaryPage() {
                   <h3 className="mb-2 text-sm font-extrabold text-[#514351]">
                     Dipakai di artikel
                   </h3>
+
                   <ul className="space-y-2">
-                    {getArticlesUsingTerm(selectedTerm.id).map((article) => (
-                      <li key={article.slug}>
-                        <Link
-                          href={`/education/${article.slug}`}
-                          className="flex items-center justify-between gap-3 rounded-xl border border-[#E7D5DE] bg-white px-3.5 py-2.5 text-sm font-bold text-[#984568] transition hover:bg-[#FFF4F8]"
-                        >
-                          {article.title}
-                          <ChevronRight className="size-4 shrink-0" />
-                        </Link>
-                      </li>
-                    ))}
+                    {getArticlesUsingTerm(selectedTerm.id).map(
+                      (article) => (
+                        <li key={article.slug}>
+                          <Link
+                            href={`/education/${article.slug}`}
+                            className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-[#E7D5DE] bg-white px-4 py-2.5 text-sm font-bold text-[#984568] transition-colors hover:border-[#D7A9BC] hover:bg-[#FFF4F8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
+                          >
+                            {article.title}
+
+                            <ChevronRight className="size-4 shrink-0" />
+                          </Link>
+                        </li>
+                      )
+                    )}
                   </ul>
                 </div>
               )}
@@ -755,24 +885,31 @@ export default function GlossaryPage() {
                 </p>
               )}
 
+              {/* Aksi popup */}
               <div className="flex flex-wrap justify-end gap-2 border-t border-[#F0E3E9] pt-5">
                 <button
                   type="button"
-                  onClick={() => toggleUnderstood(selectedTerm.id)}
+                  onClick={() =>
+                    toggleUnderstood(selectedTerm.id)
+                  }
                   aria-pressed={understood.has(selectedTerm.id)}
-                  className={`inline-flex h-10 items-center gap-1.5 rounded-full px-5 text-sm font-extrabold transition ${
+                  className={`inline-flex h-11 items-center justify-center gap-2 rounded-full border px-5 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#52775B] focus-visible:ring-offset-2 ${
                     understood.has(selectedTerm.id)
-                      ? "bg-[#52775B] text-white"
-                      : "border border-[#B7D9BE] bg-white text-[#427D55] hover:bg-[#EDF6EE]"
+                      ? "border-[#52775B] bg-[#52775B] text-white"
+                      : "border-[#B7D9BE] bg-white text-[#427D55] hover:bg-[#EDF6EE]"
                   }`}
                 >
                   <CheckCircle2 className="size-4" />
-                  {understood.has(selectedTerm.id) ? "Sudah paham" : "Tandai sudah paham"}
+
+                  {understood.has(selectedTerm.id)
+                    ? "Sudah paham"
+                    : "Tandai sudah paham"}
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setSelectedTerm(null)}
-                  className="h-10 rounded-full bg-[#B84E73] px-5 text-sm font-extrabold text-white transition hover:bg-[#8E3E5E]"
+                  className={PRIMARY_BUTTON}
                 >
                   Selesai membaca
                 </button>
