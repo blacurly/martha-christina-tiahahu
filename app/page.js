@@ -6,6 +6,8 @@ import { useAssessment } from "@/context/AssessmentContext";
 import { MapPin, LocateFixed, Search } from "lucide-react";
 import HeroSection from "@/components/home/HeroSection";
 import WeatherCard from "@/components/home/WeatherCard";
+import { readLastLocation, rememberLocation } from "@/lib/location/lastLocation";
+import OnlineOnlyNotice from "@/components/pwa/OnlineOnlyNotice";
 import ActivitySelector from "@/components/home/ActivitySelector";
 
 export default function HomePage() {
@@ -30,13 +32,36 @@ export default function HomePage() {
   const [selectedAdm4, setSelectedAdm4] = useState(null);
   const [hasChosenActivity, setHasChosenActivity] = useState(false);
 
+  // Pulihkan lokasi terakhir yang dipilih di perangkat ini.
+  useEffect(() => {
+    const saved = readLastLocation();
+    if (!saved) return;
+
+    const frame = requestAnimationFrame(() => {
+      setSelectedAdm4(saved.adm4 ?? null);
+      setCoordinates(saved.coordinates ?? null);
+
+      if (saved.village) {
+        setSelectedLocation(saved.village);
+        setSearchText(saved.village);
+      }
+
+      if (saved.label) setLocation(saved.label);
+
+      setEnvironmentLocation({
+        adm4: saved.adm4 ?? null,
+        coordinates: saved.coordinates ?? null,
+      });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [setEnvironmentLocation, setLocation]);
+
   useEffect(() => {
     const query = searchText.trim();
 
-    if (query.length < 3 || selectedLocation === query) {
-      setLocationResults([]);
-      return;
-    }
+    // Hasil lama tidak perlu dikosongkan di sini; daftar disembunyikan lewat visibleLocationResults.
+    if (query.length < 3 || selectedLocation === query) return;
 
     const controller = new AbortController();
 
@@ -82,6 +107,12 @@ export default function HomePage() {
     };
   }, [searchText, selectedLocation]);
 
+  const searchQuery = searchText.trim();
+  const visibleLocationResults =
+    searchQuery.length >= 3 && selectedLocation !== searchQuery
+      ? locationResults
+      : [];
+
   const hasSelectedLocation = Boolean(
     selectedAdm4 || (coordinates && selectedLocation)
   );
@@ -120,6 +151,13 @@ export default function HomePage() {
           coordinates: { latitude, longitude },
         });
 
+        rememberLocation({
+          adm4: null,
+          coordinates: { latitude, longitude },
+          label: null,
+          village: null,
+        });
+
         setLocationStatus("GPS berhasil. Mencari nama wilayah...");
 
         try {
@@ -146,6 +184,13 @@ export default function HomePage() {
 
           setLocation(locationName);
           setSelectedLocation(locationName);
+
+          rememberLocation({
+            adm4: null,
+            coordinates: { latitude, longitude },
+            label: locationName,
+            village: locationName,
+          });
           setSearchText(locationName);
           setLocationResults([]);
 
@@ -273,6 +318,13 @@ export default function HomePage() {
       coordinates: null,
     });
 
+    rememberLocation({
+      adm4,
+      coordinates: null,
+      label: locationPath,
+      village,
+    });
+
     setLocationStatus(
       `Lokasi dipilih: ${label}. Kode wilayah BMKG: ${adm4}.`
     );
@@ -347,7 +399,7 @@ export default function HomePage() {
                 </button>
               </div>
 
-              {locationResults.length > 0 && (
+              {visibleLocationResults.length > 0 && (
                 <div
                   className="location-results"
                   role="listbox"
@@ -361,7 +413,7 @@ export default function HomePage() {
                     background: "#FFFFFF",
                   }}
                 >
-                  {locationResults.map((item, index) => {
+                  {visibleLocationResults.map((item, index) => {
                     const name =
                       item.village ??
                       item.name ??
@@ -444,6 +496,12 @@ export default function HomePage() {
                   {locationStatus}
                 </p>
               )}
+
+              <OnlineOnlyNotice
+                feature="Pencarian wilayah"
+                message="butuh internet. Lokasi terakhir yang kamu pilih tetap dipakai."
+                className="mt-3"
+              />
             </div>
 
             <WeatherCard

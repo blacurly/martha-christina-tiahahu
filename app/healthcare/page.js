@@ -21,6 +21,11 @@ import {
 } from "lucide-react";
 
 import { useAssessment } from "@/context/AssessmentContext";
+import { readLastLocation } from "@/lib/location/lastLocation";
+import {
+  findNearbyFacilitiesOffline,
+  rememberHealthcareLocation,
+} from "@/lib/healthcare/offlineNearby";
 
 const TYPE_FILTERS = [
   { value: "all", label: "Semua" },
@@ -80,6 +85,9 @@ function osmUrl(facility) {
 
 const OFFLINE_FACILITY_MESSAGE =
   "Kamu sedang offline. Daftar fasilitas kesehatan butuh koneksi internet. Sambungkan internet, lalu tekan Coba lagi.";
+
+const OFFLINE_NEEDS_GPS_MESSAGE =
+  "Kamu sedang offline. Gunakan lokasi perangkat (GPS) untuk mencari fasilitas terdekat dari data yang tersimpan di perangkat.";
 
 const OFFLINE_SEARCH_MESSAGE =
   "Kamu sedang offline. Pencarian lokasi butuh koneksi internet.";
@@ -145,15 +153,54 @@ export default function HealthcarePage() {
 
       setResult(data);
       setStatus("ready");
+      // Ingat titik lokasi desa/kelurahan agar bisa dipakai saat offline.
+      rememberHealthcareLocation(adm4, data.location);
     } catch (error) {
-      setErrorMessage(
-        isConnectionError(error)
-          ? OFFLINE_FACILITY_MESSAGE
-          : error.message
-      );
+      if (isConnectionError(error)) {
+        // Offline: cari faskes terdekat dari snapshot OSM yang tersimpan di perangkat.
+        const offlineResult = await findNearbyFacilitiesOffline({
+          adm4,
+          latitude,
+          longitude,
+        });
+
+        if (!offlineResult.error) {
+          setResult(offlineResult);
+          setStatus("ready");
+          return;
+        }
+
+        setErrorMessage(
+          offlineResult.error === "no_location"
+            ? OFFLINE_NEEDS_GPS_MESSAGE
+            : OFFLINE_FACILITY_MESSAGE
+        );
+        setStatus("error");
+        return;
+      }
+
+      setErrorMessage(error.message);
       setStatus("error");
     }
   }, [adm4, latitude, longitude]);
+
+  // Pulihkan lokasi terakhir dari perangkat bila halaman dibuka langsung (mis. saat offline).
+  useEffect(() => {
+    if (hasLocation) return;
+    const saved = readLastLocation();
+    if (!saved) return;
+
+    const frame = requestAnimationFrame(() => {
+      setEnvironmentLocation({
+        adm4: saved.adm4 ?? null,
+        coordinates: saved.coordinates ?? null,
+      });
+    });
+
+    return () => cancelAnimationFrame(frame);
+    // Hanya saat halaman pertama dibuka.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Muat fasilitas setiap kali lokasi berubah
   useEffect(() => {
@@ -678,6 +725,19 @@ export default function HealthcarePage() {
               </div>
             )}
 
+            {/* MODE OFFLINE */}
+            {status === "ready" && result?.offline && (
+              <p
+                role="status"
+                className="rounded-xl bg-[#FFF4E5] p-4 text-sm leading-6 text-[#7A4B00]"
+              >
+                <strong>Mode offline.</strong> Fasilitas dihitung di
+                perangkatmu dari data OpenStreetMap per{" "}
+                {result.snapshotDate}. Petunjuk arah dan peta butuh
+                internet, dan faskes mitra SYCLE belum ditampilkan.
+              </p>
+            )}
+
             {/* OSM TIDAK TERSEDIA */}
             {status === "ready" && !result.osmAvailable && (
               <p className="rounded-xl bg-[#FFF6EC] p-4 text-sm leading-6 text-[#6E5236]">
@@ -944,6 +1004,11 @@ export default function HealthcarePage() {
                   aria-hidden="true"
                 />
                 Petunjuk arah
+                {result?.offline && (
+                  <span className="text-xs font-semibold opacity-80">
+                    (butuh internet)
+                  </span>
+                )}
                 <span className="sr-only">
                   (buka Google Maps di tab baru)
                 </span>
@@ -960,6 +1025,11 @@ export default function HealthcarePage() {
                   aria-hidden="true"
                 />
                 Lihat di peta
+                {result?.offline && (
+                  <span className="text-xs font-semibold opacity-80">
+                    (butuh internet)
+                  </span>
+                )}
                 <span className="sr-only">
                   (buka OpenStreetMap di tab baru)
                 </span>

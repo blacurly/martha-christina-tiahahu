@@ -297,6 +297,8 @@ export default function WeatherCard({
   const [environment, setEnvironment] = useState(null);
   const [weatherStatus, setWeatherStatus] = useState("idle");
   const [environmentStatus, setEnvironmentStatus] = useState("idle");
+  // true bila data lingkungan berasal dari simpanan offline (service worker), bukan kondisi terkini.
+  const [environmentStored, setEnvironmentStored] = useState(false);
 
   const formattedLocation = formatLocation(location);
   const forecast = weather?.forecasts?.[0] ?? null;
@@ -456,6 +458,7 @@ export default function WeatherCard({
         if (!cancelled) {
           setEnvironment(result);
           setEnvironmentStatus("success");
+          setEnvironmentStored(response.headers.get("x-sycle-cache") === "stored");
         }
       } catch (error) {
         if (!cancelled) {
@@ -599,6 +602,15 @@ export default function WeatherCard({
         </div>
       </div>
 
+      {environmentStored && environmentStatus === "success" && (
+        <p
+          role="status"
+          className="mb-3 inline-flex rounded-full bg-[#FFF4E5] px-3 py-1 text-xs font-bold text-[#7A4B00]"
+        >
+          Data tersimpan — bukan kondisi terkini
+        </p>
+      )}
+
       <div className="weather-main">
         <div className="weather-temperature">
           <span className="weather-sun" aria-hidden="true">
@@ -688,6 +700,8 @@ export default function WeatherCard({
               ? "Data lingkungan gagal dimuat. Periksa koneksi atau lokasi yang dipilih."
               : environmentStatus === "unavailable"
                 ? "Pilih lokasi atau gunakan lokasi perangkat untuk memuat data lingkungan."
+                : environmentStatus === "success" && environmentStored
+                  ? "Kamu sedang offline. Ini data terakhir yang tersimpan; sambungkan internet untuk data terbaru."
                 : environmentStatus === "success"
                   ? "Waktu data mengikuti informasi dari masing-masing sumber."
                   : "Menunggu informasi data lingkungan."}

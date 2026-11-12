@@ -242,3 +242,45 @@
   top: 35px;
   right: 18px;
 }
+/* Mobile: aturan .hero di file ini dimuat setelah globals.css sehingga menimpa media query di sana.
+   Karena itu tata letak mobile hero ditulis ulang di sini. */
+@media (max-width: 800px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    min-height: auto;
+    padding: 40px 16px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 8vw, 2.8rem);
+  }
+
+  .hero-art {
+    min-height: auto;
+    padding-top: 64px;
+    border-radius: 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-art {
+    padding-top: 96px;
+  }
+
+  .float-card {
+    padding: 8px 12px;
+    font-size: 0.75rem;
+  }
+
+  /* Dua label disusun bertingkat agar tidak saling menumpuk di layar sempit. */
+  .float-top {
+    top: 14px;
+    left: 14px;
+  }
+
+  .float-bottom {
+    top: 54px;
+    right: 14px;
+  }
+}
