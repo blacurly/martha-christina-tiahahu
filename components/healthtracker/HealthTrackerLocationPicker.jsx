@@ -22,11 +22,8 @@ export default function HealthTrackerLocationPicker() {
   useEffect(() => {
     const query = searchText.trim();
 
-    if (query.length < 3) {
-      setResults([]);
-      setStatus("");
-      return;
-    }
+    // Hasil dikosongkan di handleSearchChange, bukan di sini (aturan react-hooks/set-state-in-effect).
+    if (query.length < 3) return;
 
     const timeout = setTimeout(async () => {
       setLoading(true);
@@ -69,6 +66,16 @@ export default function HealthTrackerLocationPicker() {
       environmentLocation?.coordinates?.longitude != null
     )
   );
+
+  function handleSearchChange(event) {
+    const value = event.target.value;
+    setSearchText(value);
+
+    if (value.trim().length < 3) {
+      setResults([]);
+      setStatus("");
+    }
+  }
 
   function handleSelectLocation(item) {
     const village =
@@ -228,16 +235,17 @@ export default function HealthTrackerLocationPicker() {
                 id="health-tracker-location"
                 type="text"
                 value={searchText}
-                onChange={(event) => setSearchText(event.target.value)}
+                onChange={handleSearchChange}
                 placeholder="Cari kota atau wilayah (minimal 3 huruf)"
                 autoComplete="off"
                 className="w-full min-w-0 bg-transparent px-2 py-3 text-sm text-[#332A35] outline-none"
               />
             </div>
 
-            {loading && (
-              <p className="mt-2 text-xs text-[#8A7B87]">
-                Sedang mencari lokasi...
+            {/* Status pencarian/GPS (mis. "Wilayah tidak ditemukan.") */}
+            {(loading || status) && (
+              <p role="status" className="mt-2 text-xs text-[#8A7B87]">
+                {status || "Sedang mencari lokasi..."}
               </p>
             )}
           </div>

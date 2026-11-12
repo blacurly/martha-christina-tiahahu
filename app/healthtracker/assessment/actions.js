@@ -34,7 +34,6 @@ export async function saveHealthTrackerAssessment({
     });
 
     const supabase = await createClient();
-    console.log("PAYLOAD simpan supabase: ",payload)
     const result = await saveHealthTracker(supabase, payload);
 
     if (!result.ok) {

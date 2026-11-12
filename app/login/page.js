@@ -57,8 +57,14 @@ function LoginForm() {
       });
 
       if (error) {
+        const notConfirmed =
+          error.code === "email_not_confirmed" ||
+          /email not confirmed/i.test(error.message ?? "");
+
         setErrorMessage(
-          "Email atau password tidak sesuai. Silakan periksa kembali."
+          notConfirmed
+            ? "Email kamu belum dikonfirmasi. Cek kotak masuk atau folder spam untuk link konfirmasi dari SYCLE, lalu coba masuk lagi."
+            : "Email atau password tidak sesuai. Silakan periksa kembali."
         );
         return;
       }

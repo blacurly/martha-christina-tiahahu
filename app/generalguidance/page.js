@@ -378,8 +378,14 @@ export default function GeneralGuidancePage() {
     }
   }, [adm4, coordinates]);
 
+  // Dijalankan di frame berikutnya agar setState tidak terjadi langsung di dalam effect
+  // (pola yang sama dengan halaman Healthcare).
   useEffect(() => {
-    fetchEnvironment();
+    const frame = requestAnimationFrame(() => {
+      fetchEnvironment();
+    });
+
+    return () => cancelAnimationFrame(frame);
   }, [fetchEnvironment]);
 
   const indicators = environment?.indicators;

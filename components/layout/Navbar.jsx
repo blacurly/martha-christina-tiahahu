@@ -43,11 +43,6 @@ export default function Navbar() {
     async function checkSession() {
       const { data, error } = await supabase.auth.getSession();
 
-      console.log(
-        "DATA USER SESSION:",
-        data.session?.user?.user_metadata
-      );
-
       if (mounted) {
         setUser(error ? null : data.session?.user ?? null);
         setIsCheckingAuth(false);
@@ -64,11 +59,6 @@ export default function Navbar() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log(
-        "DATA USER NAVBAR:",
-        session?.user?.user_metadata
-      );
-
       if (mounted) {
         setUser(session?.user ?? null);
         setIsCheckingAuth(false);
