@@ -11,7 +11,6 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Warna utama SYCLE */
   --background: #fff8fb;
   --foreground: #332a35;
 
@@ -41,7 +40,7 @@
 
   --radius: 0.625rem;
 
-  /* Pertahankan token SYCLE lainnya */
+  /* Token tambahan SYCLE */
   --primary-pressed: #8e3e5e;
   --blush: #f8e8ef;
   --white: #ffffff;
@@ -139,8 +138,6 @@ select:focus-visible {
   backdrop-filter: blur(12px);
 }
 
-/* Logo */
-
 .brand {
   display: inline-flex;
   align-items: center;
@@ -156,14 +153,11 @@ select:focus-visible {
   object-fit: contain;
 }
 
-/* Menu utama */
-
 .nav-menu {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
-
   min-width: 0;
 }
 
@@ -186,17 +180,11 @@ select:focus-visible {
     background 0.2s ease;
 }
 
-.nav-link:hover {
-  background: var(--blush);
-  color: var(--primary);
-}
-
+.nav-link:hover,
 .nav-link.nav-active {
   background: var(--blush);
   color: var(--primary);
 }
-
-/* Lokasi dan tombol masuk */
 
 .nav-actions {
   display: flex;
@@ -225,8 +213,6 @@ select:focus-visible {
   color: var(--primary);
 }
 
-/* Tombol masuk */
-
 .nav-button {
   display: inline-flex;
   align-items: center;
@@ -254,8 +240,6 @@ select:focus-visible {
   background: var(--primary-pressed);
 }
 
-/* Tombol masuk: garis tepi, supaya Daftar lebih menonjol */
-
 .nav-button.nav-button-outline {
   background: var(--white);
   color: var(--primary);
@@ -273,14 +257,18 @@ select:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 8px;
+
   min-height: 40px;
   padding: 8px 12px;
+
   border: 1px solid #f0e3e9;
   border-radius: 12px;
+
   color: #6f5968;
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
+
   transition:
     background-color 200ms ease,
     color 200ms ease,
@@ -298,89 +286,9 @@ select:focus-visible {
   outline-offset: 3px;
 }
 
-/* Tablet */
-
-@media (max-width: 1000px) {
-  .header {
-    gap: 12px;
-    padding-right: 3%;
-    padding-left: 3%;
-  }
-
-  .brand-logo {
-    width: 62px;
-  }
-
-  .nav-menu {
-    gap: 2px;
-  }
-
-  .nav-link {
-    padding: 8px 7px;
-    font-size: 0.79rem;
-  }
-
-  .nav-actions {
-    gap: 6px;
-  }
-
-  .nav-location {
-    padding: 7px;
-    font-size: 0.74rem;
-  }
-
-  .nav-button {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-  }
-}
-
-/* Mobile */
-
-@media (max-width: 700px) {
-  .header {
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 8px 12px;
-    padding: 9px 4%;
-  }
-
-  .brand-logo {
-    width: 64px;
-  }
-
-  .nav-actions {
-    justify-self: end;
-  }
-
-  .nav-menu {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-
-  .nav-link {
-    padding: 7px 9px;
-    font-size: 0.8rem;
-  }
-
-  .nav-location {
-    padding: 7px 8px;
-    font-size: 0.72rem;
-  }
-
-  .nav-button {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-  }
-}
-
 /* ==================================================
-   4. WEATHER + LOCATION + ACTIVITY
+   4. WEATHER, LOCATION & ACTIVITY DASHBOARD
 ================================================== */
-
-/* Dashboard: weather sekitar 60%, activity sekitar 40% */
 
 .home-dashboard {
   display: grid;
@@ -400,8 +308,6 @@ select:focus-visible {
   min-width: 0;
 }
 
-/* Kolom lokasi dan cuaca */
-
 .weather-wrapper {
   display: flex;
   flex-direction: column;
@@ -410,6 +316,11 @@ select:focus-visible {
   width: 100%;
   min-width: 0;
   height: 100%;
+}
+
+.weather-wrapper > .weather-card {
+  width: 100%;
+  min-width: 0;
 }
 
 /* ==================================================
@@ -430,8 +341,6 @@ select:focus-visible {
   background: var(--white);
   box-shadow: var(--shadow-soft);
 }
-
-/* JSX sederhana: label, input, small */
 
 .location-panel > label {
   display: block;
@@ -471,8 +380,6 @@ select:focus-visible {
   font-size: 11px;
   line-height: 1.6;
 }
-
-/* Versi lokasi dengan heading dan ikon */
 
 .location-heading {
   display: flex;
@@ -601,11 +508,6 @@ select:focus-visible {
 /* ==================================================
    6. WEATHER CARD
 ================================================== */
-
-.weather-wrapper > .weather-card {
-  width: 100%;
-  min-width: 0;
-}
 
 .weather-card {
   min-width: 0;
@@ -744,37 +646,41 @@ select:focus-visible {
 }
 
 .weather-feels {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+
   max-width: 48%;
   min-width: 0;
   padding: 8px 12px;
   margin-left: 12px;
 
-  border: 1px solid #EBCAD7;
+  border: 1px solid #ebcad7;
   border-radius: 15px;
-  background: #F8E8EF;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-self: center;
+  background: #f8e8ef;
 }
 
-.feels-label {
+.weather-feels .feels-label {
   display: block;
-  color: var(--muted-foreground);
-  font-size: 10px;
+  margin-bottom: 5px;
+
+  color: #716875;
+  font-size: 12px;
   font-weight: 700;
 }
 
-.weather-feels strong {
+.weather-feels strong,
+.weather-feels .feels-value {
   display: block;
   margin-top: 2px;
 
   color: var(--primary);
   font-family: "Nunito", sans-serif;
-  font-size: 24px;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
   font-weight: 900;
-  line-height: 1.4;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
 }
 
 .feels-description {
@@ -794,22 +700,25 @@ select:focus-visible {
   gap: 9px;
 }
 
-
-/* Warna dan interaksi setiap indikator */
 .weather-metric {
   display: flex;
   flex-direction: column;
   gap: 5px;
+
+  min-width: 0;
   padding: 16px;
+
   border: 1px solid transparent;
   border-radius: 20px;
+
   transition:
     transform 180ms ease,
     box-shadow 180ms ease,
     border-color 180ms ease;
 }
 
-/* Warna berbeda untuk setiap indikator */
+/* Warna setiap indikator */
+
 .metric-temperature {
   background: #fff0f4;
   border-color: #f6dce5;
@@ -835,32 +744,74 @@ select:focus-visible {
   border-color: #f7e3d0;
 }
 
-/* Efek interaktif saat diarahkan atau disentuh */
-@media (hover: hover) {
-  .weather-metric:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgb(80 55 75 / 9%);
-  }
+/* Ikon indikator */
+
+.metric-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+
+  width: 28px;
+  height: 28px;
+
+  border-radius: 9px;
+  background: var(--blush);
+  font-size: 14px;
 }
 
-/* Status lebih lembut dan tidak kaku */
+.metric-uv .metric-icon {
+  background: #fff0d8;
+}
+
+.metric-aqi .metric-icon {
+  background: var(--sage);
+}
+
+.metric-pm25 .metric-icon {
+  background: var(--lavender);
+}
+
+/* Nilai dan deskripsi indikator */
+
+.metric-value {
+  color: var(--foreground);
+  font-family: "Nunito", sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.metric-description {
+  margin-top: 4px;
+  color: var(--muted-foreground);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* Status indikator */
+
 .metric-status {
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
+
   width: fit-content;
   margin-top: 5px;
   padding: 5px 10px;
+
   border-radius: 999px;
+
   font-size: 11px;
   font-weight: 650;
   line-height: 1.4;
+
   transition: background-color 180ms ease;
 }
 
 .status-good {
   color: #356747;
-  background: #dcefe1;
+  background: #e9f2ea;
 }
 
 .status-moderate {
@@ -883,164 +834,17 @@ select:focus-visible {
   background: #eae6ed;
 }
 
-/* Sumber data lebih kecil, tetapi tetap terbaca */
+/* Sumber data */
+
 .temperature-source,
 .metric-source {
   display: block;
   margin-top: 4px;
+
   color: #827985;
   font-size: 9px;
   font-weight: 400;
   line-height: 1.4;
-}
-
-/* Suhu yang terasa lebih menonjol */
-.weather-feels .feels-value {
-  font-size: clamp(1.75rem, 3vw, 2.25rem);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.04em;
-}
-
-.weather-feels .feels-label {
-  display: block;
-  margin-bottom: 5px;
-  font-size: 12px;
-  color: #716875;
-}
-
-/* Deskripsi indikator lebih natural */
-.metric-description {
-  margin-top: 4px;
-  color: #716875;
-  font-size: 12px;
-  line-height: 1.6;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .weather-metric {
-    transition: none;
-  }
-}
-
-.weather-metric:hover {
-  transform: translateY(-2px);
-  border-color: #e8bfd0;
-  box-shadow: 0 5px 14px rgb(120 70 90 / 7%);
-}
-
-
-/* Status indikator pada setiap card */
-.metric-status {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  width: fit-content;
-  margin-top: 8px;
-  padding: 4px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.status-good {
-  color: #356747;
-  background: #E9F2EA;
-}
-
-.status-moderate {
-  color: #8A5A12;
-  background: #FFF2D9;
-}
-
-.status-high {
-  color: #A94D2B;
-  background: #FCE9DF;
-}
-
-.status-danger {
-  color: #A52F49;
-  background: #F8E4E9;
-}
-
-.status-unknown {
-  color: #766D78;
-  background: #F0EDF1;
-}
-
-/* Sumber di bawah informasi suhu */
-.temperature-source,
-.metric-source {
-  display: block;
-  margin-top: 5px;
-  color: #766D78;
-  font-size: 10px;
-  line-height: 1.5;
-  font-weight: 400;
-}
-
-.feels-label {
-  display: block;
-}
-
-.feels-description {
-  display: block;
-  margin-top: 4px;
-  color: #766D78;
-  font-size: 11px;
-  line-height: 1.5;
-}
-
-/* Pastikan elemen card tersusun rapi */
-.weather-metric {
-  display: flex;
-  flex-direction: column;
-}
-
-.metric-description {
-  margin-top: 7px;
-}
-
-
-.metric-icon {
-  display: grid;
-  flex-shrink: 0;
-  place-items: center;
-
-  width: 28px;
-  height: 28px;
-
-  border-radius: 9px;
-  background: var(--blush);
-  font-size: 14px;
-}
-
-.metric-value {
-  color: var(--foreground);
-  font-family: "Nunito", sans-serif;
-  font-size: 16px;
-  font-weight: 900;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-}
-
-.metric-description {
-  color: var(--muted-foreground);
-  font-size: 10px;
-  line-height: 1.5;
-}
-
-.metric-uv .metric-icon {
-  background: #fff0d8;
-}
-
-.metric-aqi .metric-icon {
-  background: var(--sage);
-}
-
-.metric-pm25 .metric-icon {
-  background: var(--lavender);
 }
 
 /* Peringatan lingkungan */
@@ -1095,7 +899,7 @@ select:focus-visible {
 }
 
 /* ==================================================
-   7. ACTIVITY SELECTOR
+   7. ACTIVITY SELECTOR & PANEL
 ================================================== */
 
 .activity-column {
@@ -1122,8 +926,6 @@ select:focus-visible {
   background: transparent;
   box-shadow: none;
 }
-
-/* Panel umum */
 
 .panel {
   min-width: 0;
@@ -1156,8 +958,6 @@ select:focus-visible {
   color: var(--muted-foreground);
 }
 
-/* Baris dan label */
-
 .row {
   display: flex;
   align-items: center;
@@ -1182,198 +982,7 @@ select:focus-visible {
 }
 
 /* ==================================================
-   8. HOW IT WORKS
-================================================== */
-
-.how-section {
-  width: 100%;
-  padding: 48px 24px 72px;
-
-  background: linear-gradient(
-    180deg,
-    var(--background) 0%,
-    #fff3f7 100%
-  );
-}
-
-.how-heading {
-  width: min(720px, 100%);
-  margin: 0 auto 32px;
-  text-align: center;
-}
-
-.how-heading .eyebrow {
-  display: block;
-  margin-bottom: 10px;
-}
-
-.how-heading h2 {
-  margin: 0;
-
-  font-family: "Nunito", sans-serif;
-  font-size: clamp(1.7rem, 3vw, 2.4rem);
-  font-weight: 900;
-  line-height: 1.25;
-}
-
-.how-heading p {
-  max-width: 560px;
-  margin: 14px auto 0;
-
-  color: var(--muted-foreground);
-  line-height: 1.8;
-}
-
-.three-steps {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
-
-  width: min(var(--content-width), 100%);
-  margin: 0 auto;
-}
-
-.step-card {
-  position: relative;
-
-  display: flex;
-  flex-direction: column;
-
-  min-width: 0;
-  min-height: 260px;
-  padding: 25px;
-  overflow: hidden;
-
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  background: var(--white);
-
-  box-shadow: 0 6px 20px rgb(100 58 82 / 4%);
-
-  transition:
-    transform 220ms ease,
-    box-shadow 220ms ease,
-    border-color 220ms ease;
-}
-
-.step-card::before {
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 4px;
-
-  background: #f3cfdd;
-  content: "";
-
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 220ms ease;
-}
-
-.step-card:hover {
-  transform: translateY(-5px);
-  border-color: #e8bfd0;
-  box-shadow: 0 16px 35px rgb(120 65 90 / 10%);
-}
-
-.step-card:hover::before {
-  transform: scaleX(1);
-}
-
-.step-card-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.step-number {
-  color: #b8a6b2;
-  font-family: "Nunito", sans-serif;
-  font-size: 0.9rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-}
-
-.step-icon {
-  display: grid;
-  flex-shrink: 0;
-  place-items: center;
-
-  width: 60px;
-  height: 60px;
-
-  border-radius: 18px;
-
-  transition:
-    transform 220ms ease,
-    background 220ms ease;
-}
-
-.step-icon.pink {
-  background: var(--blush);
-  color: var(--primary);
-}
-
-.step-icon.lavender {
-  background: var(--lavender);
-  color: #7965a7;
-}
-
-.step-icon.sage {
-  background: var(--sage);
-  color: #527b60;
-}
-
-.step-card:hover .step-icon {
-  transform: rotate(-6deg) scale(1.05);
-}
-
-.step-card h3 {
-  margin: 22px 0 8px;
-
-  font-family: "Nunito", sans-serif;
-  font-size: 1.35rem;
-  font-weight: 900;
-}
-
-.step-card > p {
-  margin: 0 0 22px;
-
-  color: var(--muted-foreground);
-  font-size: 0.93rem;
-  line-height: 1.75;
-}
-
-.step-detail {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-
-  margin-top: auto;
-  padding-top: 15px;
-
-  border-top: 1px solid #f3e8ed;
-  color: #8b7483;
-  font-size: 0.78rem;
-  line-height: 1.6;
-}
-
-.step-arrow {
-  flex-shrink: 0;
-  color: var(--primary);
-  transition: transform 220ms ease;
-}
-
-.step-card:hover .step-arrow {
-  transform: translate(3px, -3px);
-}
-
-/* ==================================================
-   9. FOOTER
+   8. FOOTER
 ================================================== */
 
 .footer {
@@ -1465,8 +1074,323 @@ select:focus-visible {
 }
 
 /* ==================================================
+   9. GENERAL ASSESSMENT
+================================================== */
+
+.assessment-page {
+  min-height: 100vh;
+  padding: 40px 20px 64px;
+  background: var(--background, #fff8fb);
+  color: var(--foreground, #332a35);
+}
+
+.assessment-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.assessment-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 32px;
+
+  color: #765b6b;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.assessment-back-link:hover {
+  color: #b84e73;
+}
+
+.assessment-heading {
+  max-width: 680px;
+  margin: 0 auto 28px;
+  text-align: center;
+}
+
+.assessment-icon {
+  display: grid;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 18px;
+  place-items: center;
+
+  border-radius: 20px;
+  background: #f8e8ef;
+  color: #b84e73;
+}
+
+.assessment-eyebrow {
+  margin-bottom: 10px;
+
+  color: #b84e73;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.assessment-heading h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+
+.assessment-heading h1 span {
+  color: #b84e73;
+}
+
+.assessment-description {
+  max-width: 600px;
+  margin: 16px auto 0;
+
+  color: #756875;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.activity-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 18px 20px;
+  margin: 0 auto 32px;
+
+  border: 1px solid #f0d9e3;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.activity-summary div {
+  display: grid;
+  gap: 5px;
+}
+
+.summary-label {
+  color: #847584;
+  font-size: 12px;
+}
+
+.activity-summary strong {
+  font-size: 15px;
+}
+
+.activity-summary-check {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+
+  border-radius: 50%;
+  background: #e9f2ea;
+  color: #497454;
+}
+
+.condition-section {
+  margin-bottom: 28px;
+}
+
+.section-heading {
+  margin-bottom: 16px;
+}
+
+.section-heading h2 {
+  margin: 0 0 6px;
+  font-size: 21px;
+}
+
+.section-heading p {
+  margin: 0;
+  color: #847584;
+  font-size: 14px;
+}
+
+.condition-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.condition-card {
+  position: relative;
+
+  display: flex;
+  min-height: 230px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+
+  padding: 22px;
+
+  border: 1.5px solid #f0e3eb;
+  border-radius: 20px;
+  background: #fff;
+  color: inherit;
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.condition-card:hover {
+  transform: translateY(-3px);
+  border-color: #dca5bb;
+  box-shadow: 0 10px 28px rgb(184 78 115 / 8%);
+}
+
+.condition-card.is-selected {
+  border-color: #b84e73;
+  box-shadow: 0 0 0 3px rgb(184 78 115 / 10%);
+}
+
+.condition-icon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  place-items: center;
+
+  border-radius: 17px;
+  color: #6e4c62;
+}
+
+.condition-card-content h3 {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+
+.condition-card-content p {
+  margin: 0;
+  color: #756875;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.condition-radio {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+
+  border: 1.5px solid #e4d4de;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.condition-card.is-selected .condition-radio {
+  border-color: #b84e73;
+  background: #b84e73;
+}
+
+.assessment-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding-top: 24px;
+  border-top: 1px solid #f0e3eb;
+}
+
+.assessment-navigation > p {
+  max-width: 390px;
+  margin: 0;
+
+  color: #847584;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.required-mark {
+  color: #b84e73;
+}
+
+.assessment-next-button {
+  display: inline-flex;
+  min-height: 48px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 0 22px;
+
+  border: none;
+  border-radius: 14px;
+  background: #b84e73;
+  color: #fff;
+
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+
+  transition: background 180ms ease;
+}
+
+.assessment-next-button:hover {
+  background: #8e3e5e;
+}
+
+.assessment-next-button.is-disabled {
+  background: #dfcbd5;
+  cursor: not-allowed;
+}
+
+/* ==================================================
    10. RESPONSIVE: TABLET
 ================================================== */
+
+@media (max-width: 1000px) {
+  .header {
+    gap: 12px;
+    padding-right: 3%;
+    padding-left: 3%;
+  }
+
+  .brand-logo {
+    width: 62px;
+  }
+
+  .nav-menu {
+    gap: 2px;
+  }
+
+  .nav-link {
+    padding: 8px 7px;
+    font-size: 0.79rem;
+  }
+
+  .nav-actions {
+    gap: 6px;
+  }
+
+  .nav-location {
+    padding: 7px;
+    font-size: 0.74rem;
+  }
+
+  .nav-button {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+}
 
 @media (max-width: 900px) {
   .hero {
@@ -1502,7 +1426,8 @@ select:focus-visible {
     padding: 10px;
   }
 
-  .weather-feels strong {
+  .weather-feels strong,
+  .weather-feels .feels-value {
     font-size: 21px;
   }
 
@@ -1512,14 +1437,6 @@ select:focus-visible {
 
   .panel h2 {
     font-size: 20px;
-  }
-
-  .three-steps {
-    gap: 16px;
-  }
-
-  .step-card {
-    padding: 21px;
   }
 }
 
@@ -1541,8 +1458,6 @@ select:focus-visible {
     min-height: 320px;
   }
 
-  /* Tablet kecil dan mobile: susun vertikal */
-
   .home-dashboard {
     grid-template-columns: minmax(0, 1fr);
     gap: 20px;
@@ -1563,20 +1478,88 @@ select:focus-visible {
   .activity-column {
     padding: 22px;
   }
-
-  .three-steps {
-    grid-template-columns: minmax(0, 1fr);
-    max-width: 560px;
-  }
-
-  .step-card {
-    min-height: 220px;
-  }
 }
 
 /* ==================================================
    12. RESPONSIVE: MOBILE
 ================================================== */
+
+@media (max-width: 700px) {
+  .header {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 12px;
+    padding: 9px 4%;
+  }
+
+  .brand-logo {
+    width: 64px;
+  }
+
+  .nav-actions {
+    justify-self: end;
+  }
+
+  .nav-menu {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .nav-link {
+    padding: 7px 9px;
+    font-size: 0.8rem;
+  }
+
+  .nav-location {
+    padding: 7px 8px;
+    font-size: 0.72rem;
+  }
+
+  .nav-button {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .assessment-page {
+    padding: 24px 16px 40px;
+  }
+
+  .assessment-back-link {
+    margin-bottom: 26px;
+  }
+
+  .condition-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .condition-card {
+    min-height: auto;
+    flex-direction: row;
+    align-items: center;
+    padding: 18px;
+  }
+
+  .condition-card-content {
+    padding-right: 18px;
+  }
+
+  .condition-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .assessment-navigation {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .assessment-next-button {
+    width: 100%;
+  }
+}
 
 @media (max-width: 640px) {
   /* Navbar */
@@ -1728,26 +1711,17 @@ select:focus-visible {
     min-width: 0;
     margin-left: 12px;
     padding: 8px 12px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-self: center;
-
-    border: 1px solid #EBCAD7;
-    border-radius: 15px;
-    background: #F8E8EF;
   }
 
-  .feels-label {
-    color: #8E3E5E;
+  .weather-feels .feels-label {
+    color: #8e3e5e;
     font-size: 11px;
     font-weight: 600;
   }
 
   .feels-description {
     margin-top: 4px;
-    color: #8E3E5E;
+    color: #8e3e5e;
     font-size: 14px;
     font-weight: 800;
     line-height: 1.4;
@@ -1777,21 +1751,6 @@ select:focus-visible {
   .weather-notice {
     gap: 8px;
     padding: 12px;
-  }
-
-  /* How It Works */
-
-  .how-section {
-    padding: 36px 16px 48px;
-  }
-
-  .how-heading {
-    margin-bottom: 24px;
-  }
-
-  .step-card {
-    padding: 21px;
-    border-radius: 18px;
   }
 
   /* Footer */
@@ -1869,7 +1828,8 @@ select:focus-visible {
     padding: 9px;
   }
 
-  .weather-feels strong {
+  .weather-feels strong,
+  .weather-feels .feels-value {
     font-size: 19px;
   }
 
@@ -1906,789 +1866,5 @@ select:focus-visible {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-/* ===== SYCLE Assessment ===== */
-
-.assessment-page {
-  min-height: 100vh;
-  padding: 40px 20px 64px;
-  background: var(--background, #fff8fb);
-  color: var(--foreground, #332a35);
-}
-
-.assessment-container {
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.assessment-back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 32px;
-  color: #765b6b;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.assessment-back-link:hover {
-  color: #b84e73;
-}
-
-.assessment-heading {
-  max-width: 680px;
-  margin: 0 auto 28px;
-  text-align: center;
-}
-
-.assessment-icon {
-  display: grid;
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 18px;
-  place-items: center;
-  border-radius: 20px;
-  background: #f8e8ef;
-  color: #b84e73;
-}
-
-.assessment-eyebrow {
-  margin-bottom: 10px;
-  color: #b84e73;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-}
-
-.assessment-heading h1 {
-  margin: 0;
-  font-size: clamp(28px, 4vw, 42px);
-  line-height: 1.2;
-  letter-spacing: -1px;
-}
-
-.assessment-heading h1 span {
-  color: #b84e73;
-}
-
-.assessment-description {
-  margin: 16px auto 0;
-  max-width: 600px;
-  color: #756875;
-  font-size: 15px;
-  line-height: 1.8;
-}
-
-.activity-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 20px;
-  margin: 0 auto 32px;
-  border: 1px solid #f0d9e3;
-  border-radius: 18px;
-  background: #fff;
-}
-
-.activity-summary div {
-  display: grid;
-  gap: 5px;
-}
-
-.summary-label {
-  color: #847584;
-  font-size: 12px;
-}
-
-.activity-summary strong {
-  font-size: 15px;
-}
-
-.activity-summary-check {
-  display: grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  border-radius: 50%;
-  background: #e9f2ea;
-  color: #497454;
-}
-
-.condition-section {
-  margin-bottom: 28px;
-}
-
-.section-heading {
-  margin-bottom: 16px;
-}
-
-.section-heading h2 {
-  margin: 0 0 6px;
-  font-size: 21px;
-}
-
-.section-heading p {
-  margin: 0;
-  color: #847584;
-  font-size: 14px;
-}
-
-.condition-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.condition-card {
-  position: relative;
-  display: flex;
-  min-height: 230px;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 22px;
-  border: 1.5px solid #f0e3eb;
-  border-radius: 20px;
-  background: #fff;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
-}
-
-.condition-card:hover {
-  transform: translateY(-3px);
-  border-color: #dca5bb;
-  box-shadow: 0 10px 28px rgb(184 78 115 / 8%);
-}
-
-.condition-card.is-selected {
-  border-color: #b84e73;
-  box-shadow: 0 0 0 3px rgb(184 78 115 / 10%);
-}
-
-.condition-icon {
-  display: grid;
-  width: 54px;
-  height: 54px;
-  flex-shrink: 0;
-  place-items: center;
-  border-radius: 17px;
-  color: #6e4c62;
-}
-
-.condition-card-content h3 {
-  margin: 0 0 8px;
-  font-size: 17px;
-}
-
-.condition-card-content p {
-  margin: 0;
-  color: #756875;
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-.condition-radio {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  display: grid;
-  width: 23px;
-  height: 23px;
-  place-items: center;
-  border: 1.5px solid #e4d4de;
-  border-radius: 50%;
-  color: #fff;
-}
-
-.condition-card.is-selected .condition-radio {
-  border-color: #b84e73;
-  background: #b84e73;
-}
-
-.assessment-navigation {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding-top: 24px;
-  border-top: 1px solid #f0e3eb;
-}
-
-.assessment-navigation > p {
-  max-width: 390px;
-  margin: 0;
-  color: #847584;
-  font-size: 12px;
-  line-height: 1.7;
-}
-
-.required-mark {
-  color: #b84e73;
-}
-
-.assessment-next-button {
-  display: inline-flex;
-  min-height: 48px;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 0 22px;
-  border: none;
-  border-radius: 14px;
-  background: #b84e73;
-  color: #fff;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 180ms ease;
-}
-
-.assessment-next-button:hover {
-  background: #8e3e5e;
-}
-
-.assessment-next-button.is-disabled {
-  background: #dfcbd5;
-  cursor: not-allowed;
-}
-
-@media (max-width: 700px) {
-  .assessment-page {
-    padding: 24px 16px 40px;
-  }
-
-  .assessment-back-link {
-    margin-bottom: 26px;
-  }
-
-  .condition-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .condition-card {
-    min-height: auto;
-    flex-direction: row;
-    align-items: center;
-    padding: 18px;
-  }
-
-  .condition-card-content {
-    padding-right: 18px;
-  }
-
-  .condition-icon {
-    width: 48px;
-    height: 48px;
-  }
-
-  .assessment-navigation {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .assessment-next-button {
-    width: 100%;
-  }
-}
-
-
-/* ==================================================
-   ASSESSMENT FLOW — REFINED
-   Khusus AssessmentLayout.jsx
-================================================== */
-
-/* 1. PAGE & LAYOUT */
-
-.assessment-flow {
-  width: 100%;
-  min-height: 100vh;
-  padding: 32px 24px 64px;
-  background: var(--background);
-  color: var(--foreground);
-}
-
-.assessment-flow__layout {
-  display: grid;
-  grid-template-columns: 270px minmax(0, 1fr);
-  align-items: start;
-  gap: 32px;
-
-  width: 100%;
-  max-width: 1240px;
-  margin: 0 auto;
-}
-
-.assessment-flow__sidebar,
-.assessment-flow__main {
-  min-width: 0;
-}
-
-/* 2. SIDEBAR */
-
-.assessment-flow__sidebar {
-  padding: 26px;
-  border: 1px solid #ded5ef;
-  border-radius: var(--radius-card);
-  background: var(--lavender);
-}
-
-.assessment-flow__sidebar .assessment-flow__eyebrow {
-  margin: 0 0 12px;
-  color: #78639a;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-}
-
-.assessment-flow__sidebar h2 {
-  margin: 0 0 12px;
-  color: #49365f;
-  font-family: "Nunito", sans-serif;
-  font-size: 24px;
-  font-weight: 900;
-  line-height: 1.3;
-}
-
-.assessment-flow__sidebar p {
-  margin: 0;
-  color: #6b6174;
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-/* Logo */
-
-.assessment-flow__logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 88px;
-  margin: 22px 0;
-
-  border: 1px solid #ded5ef;
-  border-radius: 16px;
-  background: rgb(255 255 255 / 75%);
-
-  color: var(--primary);
-  font-family: "Nunito", sans-serif;
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: 1px;
-}
-
-/* Konteks lingkungan */
-
-.assessment-flow__context {
-  margin-top: 20px;
-  padding: 16px 0;
-  border-top: 1px solid #ded5ef;
-  border-bottom: 1px solid #ded5ef;
-}
-
-.assessment-flow__context h3 {
-  margin: 0 0 8px;
-  color: #49365f;
-  font-size: 16px;
-  font-weight: 900;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
-
-.assessment-flow__context p {
-  margin: 6px 0;
-  color: #6b6174;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-/* Ringkasan perjalanan di sidebar */
-
-.assessment-flow__steps {
-  display: flex;
-  flex-direction: column;
-  margin: 20px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.assessment-flow__step {
-  padding: 12px 0;
-  border-top: 1px solid #ded5ef;
-  color: #6b6174;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.assessment-flow__step.is-active {
-  color: #49365f;
-  font-weight: 900;
-}
-
-/* 3. HERO */
-
-.assessment-flow__hero {
-  position: relative;
-  min-width: 0;
-  margin-bottom: 24px;
-  padding-top: 2px;
-}
-
-.assessment-flow__hero > .assessment-flow__eyebrow {
-  margin: 0 0 10px;
-}
-
-.assessment-flow__title {
-  margin: 0;
-  color: var(--foreground);
-  font-family: "Nunito", sans-serif;
-  font-size: 32px;
-  font-weight: 900;
-  line-height: 1.3;
-  letter-spacing: -0.6px;
-  overflow-wrap: anywhere;
-}
-
-.assessment-flow__hero > .assessment-flow__title {
-  max-width: 720px;
-  padding-right: 0;
-}
-
-.assessment-flow__description {
-  max-width: 680px;
-  margin: 12px 0 0;
-  color: var(--muted-foreground);
-  font-size: 14px;
-  line-height: 1.8;
-}
-
-/* Badge kondisi */
-
-.assessment-flow__condition-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  max-width: 100%;
-  margin-top: 14px;
-  padding: 8px 14px;
-
-  border: 1px solid #f0d4e0;
-  border-radius: 999px;
-  background: var(--blush);
-
-  color: var(--primary);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  line-height: 1.4;
-}
-
-/* 4. PANEL & CONTENT */
-
-.assessment-flow__panel {
-  min-width: 0;
-  padding: 32px;
-
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  background: var(--white);
-  box-shadow: var(--shadow-soft);
-}
-
-.assessment-content {
-  min-width: 0;
-}
-
-.assessment-content > :first-child {
-  margin-top: 0;
-}
-
-
-.assessment-flow__heading-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.assessment-flow__heading-row .assessment-flow__title {
-  flex: 1;
-  min-width: 0;
-}
-
-.assessment-flow__heading-row .assessment-flow__condition-badge {
-  flex-shrink: 0;
-  margin-top: 0;
-}
-
-@media (max-width: 520px) {
-  .assessment-flow__heading-row {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-}
-
-.assessment-flow__error {
-  margin: 20px 0 0;
-  color: #a52e50;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-/* 5. PROGRESS STEPS */
-
-.assessment-flow__hero .assessment-progress {
-  margin: 24px 0 0;
-}
-
-.assessment-flow__hero .progress-track {
-  width: 100%;
-  height: 6px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: var(--blush);
-}
-
-.assessment-flow__hero .progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: var(--primary);
-  transition: width 200ms ease;
-}
-
-.assessment-flow__hero .progress-steps {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 18px;
-}
-
-.assessment-flow__hero .progress-step {
-  min-width: 0;
-  color: var(--muted-foreground);
-  text-align: center;
-}
-
-.assessment-flow__hero .progress-step-circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 30px;
-  height: 30px;
-  margin: 0 auto 8px;
-
-  border: 1px solid #e8dce5;
-  border-radius: 50%;
-  background: var(--white);
-
-  color: var(--muted-foreground);
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.assessment-flow__hero .progress-step.active
-.progress-step-circle {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: var(--white);
-}
-
-.assessment-flow__hero .progress-step.completed
-.progress-step-circle {
-  border-color: var(--primary);
-  background: var(--blush);
-  color: var(--primary);
-}
-
-.assessment-flow__hero .progress-step-title {
-  display: block;
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-
-.assessment-flow__hero .progress-step-description {
-  display: none;
-}
-
-/* 6. NAVIGATION */
-
-.assessment-flow__navigation {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid #f0e3eb;
-}
-
-.assessment-flow__navigation button {
-  min-height: 44px;
-}
-
-.assessment-flow__navigation button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-/* 7. DISCLAIMER */
-
-.assessment-flow__disclaimer {
-  margin: 18px 0 0;
-  color: var(--muted-foreground);
-  font-size: 12px;
-  line-height: 1.7;
-}
-
-/* 8. TABLET */
-
-@media (max-width: 900px) {
-  .assessment-flow__layout {
-    grid-template-columns: 220px minmax(0, 1fr);
-    gap: 20px;
-  }
-
-  .assessment-flow__sidebar {
-    padding: 20px;
-  }
-
-  .assessment-flow__sidebar h2 {
-    font-size: 21px;
-  }
-
-  .assessment-flow__panel {
-    padding: 26px;
-  }
-
-  .assessment-flow__title {
-    font-size: 28px;
-  }
-
-  .assessment-flow__hero .progress-steps {
-    gap: 4px;
-  }
-
-  .assessment-flow__hero .progress-step-title {
-    font-size: 10px;
-  }
-}
-
-/* 9. MOBILE */
-
-@media (max-width: 700px) {
-  .assessment-flow {
-    padding: 20px 16px 40px;
-  }
-
-  .assessment-flow__layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 18px;
-  }
-
-  .assessment-flow__sidebar {
-    padding: 22px;
-  }
-
-  .assessment-flow__sidebar h2 {
-    font-size: 22px;
-  }
-
-  .assessment-flow__logo {
-    min-height: 68px;
-    margin: 16px 0;
-    font-size: 24px;
-  }
-
-  .assessment-flow__context {
-    margin-top: 16px;
-    padding: 12px 0;
-  }
-
-  .assessment-flow__steps {
-    margin-top: 16px;
-  }
-
-  .assessment-flow__step {
-    padding: 10px 0;
-  }
-
-  .assessment-flow__title {
-    font-size: 26px;
-  }
-
-  .assessment-flow__panel {
-    padding: 22px 18px;
-  }
-
-  .assessment-flow__hero .progress-steps {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    row-gap: 16px;
-  }
-
-  .assessment-flow__hero .progress-step-title {
-    font-size: 10px;
-  }
-
-  .assessment-flow__navigation {
-    align-items: stretch;
-    flex-direction: column-reverse;
-  }
-
-  .assessment-flow__navigation button,
-  .assessment-flow__navigation a {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-/* 10. VERY SMALL MOBILE */
-
-@media (max-width: 380px) {
-  .assessment-flow {
-    padding-right: 12px;
-    padding-left: 12px;
-  }
-
-  .assessment-flow__sidebar {
-    padding: 18px;
-  }
-
-  .assessment-flow__panel {
-    padding: 20px 14px;
-  }
-
-  .assessment-flow__title {
-    font-size: 23px;
-  }
-
-  .assessment-flow__hero .progress-step-title {
-    font-size: 9px;
-  }
-}
-
-/* 11. ACCESSIBILITY */
-
-@media (prefers-reduced-motion: reduce) {
-  .assessment-flow__hero .progress-fill {
-    transition: none;
   }
 }

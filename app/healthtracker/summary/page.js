@@ -1,12 +1,12 @@
 import Link from "next/link";
-
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
+
 import {
-  ArrowLeft,
   ArrowRight,
   CalendarDays,
+  ChevronRight,
   ClipboardList,
   Activity,
   Heart,
@@ -19,10 +19,15 @@ import {
 import { getCurrentUser } from "@/lib/auth/session";
 import { getMyTrackerEntries } from "@/lib/tracker/records";
 import StartNewCheckInButton from "@/components/healthtracker/StartNewCheckInButton";
+import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "Ringkasan Hari Ini | Health Tracker",
 };
+
+// --------------------------------------------------
+// FORMAT TANGGAL JAKARTA
+// --------------------------------------------------
 
 function getJakartaDateKey() {
   const parts = new Intl.DateTimeFormat("en-GB", {
@@ -49,9 +54,13 @@ function getTodayLabel() {
   }).format(new Date());
 }
 
+// --------------------------------------------------
+// KARTU CATATAN CHECK-IN
+// --------------------------------------------------
+
 function SummaryCard({ entry, index }) {
   return (
-    <article className="rounded-[22px] border border-[#F0E2E9] bg-white p-5 sm:p-6">
+    <article className="rounded-[22px] border border-[#F0E2E9] bg-white p-5 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-bold text-[#8E3E5E]">
           <Heart size={14} />
@@ -74,9 +83,9 @@ function SummaryCard({ entry, index }) {
             <Footprints size={19} />
           </div>
 
-          <div>
+          <div className="min-w-0">
             <p className="text-xs text-[#958995]">Aktivitas</p>
-            <p className="mt-1 text-sm font-semibold text-[#463C48]">
+            <p className="mt-1 break-words text-sm font-semibold text-[#463C48]">
               {entry.activity || "Belum dicatat"}
             </p>
           </div>
@@ -87,11 +96,11 @@ function SummaryCard({ entry, index }) {
             <Activity size={19} />
           </div>
 
-          <div>
+          <div className="min-w-0">
             <p className="text-xs text-[#958995]">
               Kenyamanan tubuh
             </p>
-            <p className="mt-1 text-sm font-semibold text-[#463C48]">
+            <p className="mt-1 break-words text-sm font-semibold text-[#463C48]">
               {entry.comfort || "Belum dicatat"}
             </p>
           </div>
@@ -105,7 +114,7 @@ function SummaryCard({ entry, index }) {
             Cerita hari ini
           </div>
 
-          <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-[#766D78]">
+          <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-7 text-[#766D78]">
             {entry.story}
           </p>
         </div>
@@ -114,11 +123,15 @@ function SummaryCard({ entry, index }) {
   );
 }
 
+// --------------------------------------------------
+// KARTU STATISTIK
+// --------------------------------------------------
+
 function SummaryStat({ icon: Icon, label, value, description }) {
   return (
-    <div className="rounded-[20px] border border-[#F0E2E9] bg-white p-5">
+    <div className="rounded-[20px] border border-[#F0E2E9] bg-white p-5 shadow-[0_5px_24px_rgb(120_70_90_/_6%)]">
       <div className="flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-xl bg-[#F8E8EF] text-[#B84E73]">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#F8E8EF] text-[#B84E73]">
           <Icon size={19} />
         </div>
 
@@ -138,11 +151,15 @@ function SummaryStat({ icon: Icon, label, value, description }) {
   );
 }
 
+// --------------------------------------------------
+// HALAMAN RINGKASAN
+// --------------------------------------------------
+
 export default function HealthTrackerSummaryPage() {
   return (
     <Suspense
       fallback={
-        <main className="mx-auto max-w-6xl px-5 py-10">
+        <main className="mx-auto min-h-[60vh] max-w-6xl px-5 py-10 sm:px-6">
           <p className="text-sm text-[#817681]">
             Memuat ringkasan hari ini...
           </p>
@@ -153,6 +170,10 @@ export default function HealthTrackerSummaryPage() {
     </Suspense>
   );
 }
+
+// --------------------------------------------------
+// KONTEN UTAMA
+// --------------------------------------------------
 
 async function Content() {
   await connection();
@@ -168,12 +189,10 @@ async function Content() {
   const todayKey = getJakartaDateKey();
   const todayLabel = getTodayLabel();
 
-  // Hanya mengambil catatan dengan tanggal hari ini.
+  // Hanya menampilkan catatan dengan tanggal hari ini.
   const todayEntries = entries.filter(
     (entry) => entry.dateKey === todayKey
   );
-
-  const latestEntry = todayEntries[0] ?? null;
 
   const totalToday = todayEntries.length;
 
@@ -186,14 +205,30 @@ async function Content() {
   return (
     <main className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-6 sm:py-10">
 
-      {/* BACK TO DASHBOARD */}
-      <Link
-        href="/healthtracker"
-        className="inline-flex items-center gap-2 text-sm font-bold text-[#8A6578] transition hover:text-[#B84E73]"
+      {/* BREADCRUMB */}
+      <nav
+        aria-label="Breadcrumb"
+        className="flex flex-wrap items-center gap-2 text-sm"
       >
-        <ArrowLeft size={17} />
-        Kembali ke Health Tracker
-      </Link>
+        <Link
+          href="/healthtracker"
+          className="font-semibold text-[#8E3E5E] transition-colors hover:text-[#B84E73]"
+        >
+          Health Tracker
+        </Link>
+
+        <ChevronRight
+          size={15}
+          className="text-[#B8AAB3]"
+        />
+
+        <span
+          aria-current="page"
+          className="font-bold text-[#332A35]"
+        >
+          Ringkasan
+        </span>
+      </nav>
 
       {/* PAGE HEADER */}
       <header className="mt-7">
@@ -218,7 +253,7 @@ async function Content() {
         </p>
       </header>
 
-      {/* TODAY OVERVIEW */}
+      {/* IKHTISAR HARI INI */}
       <section className="mt-8">
         <div className="mb-4">
           <h2 className="text-lg font-extrabold text-[#332A35]">
@@ -247,7 +282,7 @@ async function Content() {
         </div>
       </section>
 
-      {/* TODAY'S ENTRIES */}
+      {/* CATATAN HARI INI */}
       <section className="mt-9">
         <div className="mb-5">
           <h2 className="text-lg font-extrabold text-[#332A35]">
@@ -274,7 +309,10 @@ async function Content() {
         ) : (
           <div className="rounded-[24px] border border-dashed border-[#E8CBD7] bg-white px-5 py-10 text-center sm:px-8">
             <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-[#F8E8EF] text-[#B84E73]">
-              <CalendarDays size={28} strokeWidth={1.6} />
+              <CalendarDays
+                size={28}
+                strokeWidth={1.6}
+              />
             </div>
 
             <h3 className="mt-5 text-lg font-extrabold text-[#332A35]">
@@ -290,7 +328,7 @@ async function Content() {
         )}
       </section>
 
-      {/* NAVIGATION */}
+      {/* NAVIGASI */}
       <section className="mt-9 rounded-[24px] border border-[#F0DFE7] bg-[#F8E8EF] p-5 sm:p-7">
         <h2 className="text-lg font-extrabold text-[#332A35]">
           Lanjutkan Perjalananmu
@@ -302,16 +340,23 @@ async function Content() {
         </p>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <Link
-            href="/healthtracker/history"
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#DDBBC9] bg-white px-5 py-3 text-sm font-bold text-[#8E3E5E] transition hover:bg-[#FFF8FB]"
+
+          {/* TOMBOL RIWAYAT */}
+          <Button
+            nativeButton={false}
+            render={<Link href="/healthtracker/history" />}
+            variant="outline"
+            size="lg"
+            className="h-11 min-h-11 w-full rounded-full border-[#DDBBC9] px-5 text-sm font-bold !text-[#8E3E5E] hover:bg-[#FFF8FB] hover:!text-[#8E3E5E] sm:w-auto"
           >
             <CalendarDays size={17} />
             Lihat Riwayat
             <ArrowRight size={16} />
-          </Link>
+          </Button>
 
+          {/* TOMBOL CHECK-IN BARU */}
           <StartNewCheckInButton />
+
         </div>
       </section>
 

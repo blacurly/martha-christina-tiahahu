@@ -4,29 +4,31 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PERSONALIZATION_QUESTIONS } from "@/data/sycle";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
+
 import {
-    ArrowLeft,
-    ArrowRight,
-    Check,
-    CheckCircle2,
-    Clock3,
-    Droplets,
-    Umbrella,
-    CircleHelp,
-    Heart,
-    House,
-    Sun,
-    Footprints,
-    Navigation,
-    Sparkles,
-    RotateCcw,
-    Lightbulb,
-    CalendarHeart,
-    Baby,
-    HeartHandshake,
-    CircleMinus,
-    ClipboardCheck,
-    } from "lucide-react";
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  Clock3,
+  Droplets,
+  Umbrella,
+  CircleHelp,
+  Heart,
+  House,
+  Sun,
+  Footprints,
+  Navigation,
+  Sparkles,
+  RotateCcw,
+  Lightbulb,
+  CalendarHeart,
+  Baby,
+  HeartHandshake,
+  CircleMinus,
+  ClipboardCheck,
+} from "lucide-react";
 
 // --------------------------------------------------
 // KONFIGURASI
@@ -315,7 +317,9 @@ function ContextCard({ title, value, icon: Icon, variant = "sage" }) {
         </div>
 
         <div className="min-w-0">
-          <p className={`text-[10px] font-bold uppercase tracking-[0.12em] ${styles.label}`}>
+          <p
+            className={`text-[10px] font-bold uppercase tracking-[0.12em] ${styles.label}`}
+          >
             {title}
           </p>
 
@@ -332,11 +336,7 @@ function ContextCard({ title, value, icon: Icon, variant = "sage" }) {
 // KOMPONEN CARD PILIHAN
 // --------------------------------------------------
 
-function SelectionCard({
-  option,
-  selected,
-  onClick,
-}) {
+function SelectionCard({ option, selected, onClick }) {
   const Icon = option.icon;
 
   return (
@@ -476,20 +476,14 @@ function QuestionField({
     }
 
     if (isFollowUp) {
-      if (
-        normalized === "ya" ||
-        normalized.startsWith("ya,")
-      ) {
+      if (normalized === "ya" || normalized.startsWith("ya,")) {
         return {
           Icon: CheckCircle2,
           hint: "Ya, kondisi ini sesuai dengan keadaanmu.",
         };
       }
 
-      if (
-        normalized === "tidak" ||
-        normalized.startsWith("tidak,")
-      ) {
+      if (normalized === "tidak" || normalized.startsWith("tidak,")) {
         return {
           Icon: CircleMinus,
           hint: "Tidak, kondisi ini tidak sesuai dengan keadaanmu.",
@@ -636,12 +630,66 @@ export default function GeneralAssessmentContent() {
   const [showResult, setShowResult] = useState(false);
   const [error, setError] = useState("");
 
-    useEffect(() => {
-        window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-        });
-    }, [currentIndex, showResult]);
+  // Status autentikasi pengguna
+  const [isMember, setIsMember] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // Periksa sesi Supabase
+  useEffect(() => {
+    const supabase = createClient();
+    let mounted = true;
+
+    async function checkSession() {
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
+        if (!mounted) return;
+
+        if (error) {
+          setIsMember(false);
+        } else {
+          setIsMember(Boolean(session?.user));
+        }
+      } catch (error) {
+        console.error("Gagal memeriksa sesi pengguna:", error);
+
+        if (mounted) {
+          setIsMember(false);
+        }
+      } finally {
+        if (mounted) {
+          setAuthLoading(false);
+        }
+      }
+    }
+
+    checkSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setIsMember(Boolean(session?.user));
+        setAuthLoading(false);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Scroll ke atas setiap berpindah bagian
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [currentIndex, showResult]);
 
   const visibleSteps = useMemo(
     () => getVisibleSteps(answers),
@@ -785,19 +833,20 @@ export default function GeneralAssessmentContent() {
     }
   }
 
-    function handleContinueToPersonal() {
-        const dailyContext = {
-            answers,
-            completedAt: new Date().toISOString(),
-        };
+  // Simpan konteks assessment dan lanjut ke Health Tracker
+  function handleContinueToPersonal() {
+    const dailyContext = {
+      answers,
+      completedAt: new Date().toISOString(),
+    };
 
-        sessionStorage.setItem(
-            "sycleDailyContext",
-            JSON.stringify(dailyContext)
-        );
+    sessionStorage.setItem(
+      "sycleDailyContext",
+      JSON.stringify(dailyContext)
+    );
 
-        router.push("/healthtracker/assessment");
-    }
+    router.push("/healthtracker/assessment");
+  }
 
   function handleRestart() {
     // Ulangi selalu dimulai dari aktivitas,
@@ -808,18 +857,6 @@ export default function GeneralAssessmentContent() {
     setShowResult(false);
     setError("");
   }
-
-    function handleContinueToPersonal() {
-        sessionStorage.setItem(
-            "sycleDailyContext",
-            JSON.stringify({
-            answers,
-            completedAt: new Date().toISOString(),
-            })
-        );
-
-        router.push("/healthtracker/assessment");
-    }
 
   // ------------------------------------------------
   // RENDER PERTANYAAN
@@ -877,15 +914,15 @@ export default function GeneralAssessmentContent() {
     }
 
     return (
-        <QuestionField
-            key={code}
-            code={code}
-            question={question}
-            value={answers[code]}
-            onChange={(value) => handleAnswer(code, value)}
-            onMultiChange={(value) => handleMultiAnswer(code, value)}
-        />
-        );
+      <QuestionField
+        key={code}
+        code={code}
+        question={question}
+        value={answers[code]}
+        onChange={(value) => handleAnswer(code, value)}
+        onMultiChange={(value) => handleMultiAnswer(code, value)}
+      />
+    );
   }
 
   // ------------------------------------------------
@@ -995,7 +1032,7 @@ export default function GeneralAssessmentContent() {
             </div>
           </div>
 
-          {/* DUA TOMBOL RINGKASAN */}
+          {/* TOMBOL RINGKASAN */}
           <div className="flex flex-col gap-3 sm:flex-row">
             {isHealthTrackerFlow ? (
               <Button
@@ -1026,6 +1063,23 @@ export default function GeneralAssessmentContent() {
                 className="h-12 flex-1 rounded-xl bg-[#B84E73] text-white hover:bg-[#8E3E5E]"
               >
                 Lanjutkan Check-In Personal
+                <ArrowRight size={17} />
+              </Button>
+            ) : authLoading ? (
+              <Button
+                type="button"
+                disabled
+                className="h-12 flex-1 rounded-xl bg-[#B84E73] text-white opacity-60"
+              >
+                Memeriksa akun...
+              </Button>
+            ) : isMember ? (
+              <Button
+                type="button"
+                onClick={handleContinueToPersonal}
+                className="h-12 flex-1 rounded-xl bg-[#B84E73] text-white hover:bg-[#8E3E5E]"
+              >
+                Daily Check-In
                 <ArrowRight size={17} />
               </Button>
             ) : (
@@ -1230,9 +1284,7 @@ export default function GeneralAssessmentContent() {
           )}
 
           {currentScreen.questions.map((code) => (
-            <div key={code}>
-              {renderQuestion(code)}
-            </div>
+            <div key={code}>{renderQuestion(code)}</div>
           ))}
 
           {error && (

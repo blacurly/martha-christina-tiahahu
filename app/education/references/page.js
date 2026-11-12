@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
   BookOpen,
   CheckCircle2,
   ChevronLeft,
@@ -29,6 +28,18 @@ const TOPICS = [
 ];
 
 const CARDS_PER_PAGE = 4;
+
+// Tombol utama SYCLE
+const PRIMARY_BUTTON =
+  "inline-flex h-11 items-center justify-center rounded-full border-0 bg-[#B84E73] px-5 text-sm font-bold text-white shadow-sm transition-colors duration-200 hover:bg-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+
+// Tombol sekunder SYCLE
+const SECONDARY_BUTTON =
+  "inline-flex h-11 items-center justify-center rounded-full border border-[#E8D5DE] bg-white px-5 text-sm font-bold text-[#8E3E5E] transition-colors duration-200 hover:border-[#B84E73] hover:bg-[#FFF8FB] hover:text-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+
+// Tombol ikon pagination
+const ICON_BUTTON =
+  "flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#E7D5DE] bg-white text-[#70495D] transition-colors duration-200 hover:border-[#B84E73] hover:bg-[#FFF4F8] hover:text-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40";
 
 function getReferenceSummary(source) {
   if (source.usageNote?.trim()) {
@@ -65,6 +76,7 @@ export default function EducationReferencesPage() {
         .toLowerCase();
 
       const matchesSearch = searchableText.includes(keyword);
+
       const matchesTopic =
         selectedTopic === "Semua topik" ||
         (source.topics ?? []).includes(selectedTopic);
@@ -77,9 +89,14 @@ export default function EducationReferencesPage() {
     filteredSources.length / CARDS_PER_PAGE
   );
 
+  const safePage = Math.min(
+    currentPage,
+    Math.max(totalPages - 1, 0)
+  );
+
   const visibleSources = filteredSources.slice(
-    currentPage * CARDS_PER_PAGE,
-    (currentPage + 1) * CARDS_PER_PAGE
+    safePage * CARDS_PER_PAGE,
+    (safePage + 1) * CARDS_PER_PAGE
   );
 
   function resetFilters() {
@@ -100,37 +117,24 @@ export default function EducationReferencesPage() {
         {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"
-          className="mb-6 flex flex-wrap items-center gap-2 text-sm text-[#887986]"
+          className="mb-6 flex items-center gap-2 text-sm"
         >
           <Link
-            href="/"
-            className="transition-colors hover:text-[#B84E73]"
-          >
-            Beranda
-          </Link>
-
-          <span aria-hidden="true">/</span>
-
-          <Link
             href="/education"
-            className="transition-colors hover:text-[#B84E73]"
+            className="font-semibold text-[#8E3E5E] transition-colors hover:text-[#B84E73] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
           >
-            Info &amp; Edukasi
+            Info & Edukasi
           </Link>
 
-          <span aria-hidden="true">/</span>
+          <ChevronRight size={15} className="text-[#B8AAB3]" />
 
-          <span className="font-bold text-[#B84E73]">
+          <span
+            aria-current="page"
+            className="font-bold text-[#332A35]"
+          >
             Referensi
           </span>
         </nav>
-        <Link
-          href="/education"
-          className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-[#8E3E5E] transition hover:text-[#B84E73]"
-        >
-          <ArrowLeft size={18} />
-          Kembali ke Info & Edukasi
-        </Link>
 
         {/* Hero */}
         <section className="relative isolate overflow-hidden rounded-[28px] border border-[#F0DFE7] bg-white p-6 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] sm:p-9 lg:p-12">
@@ -174,6 +178,7 @@ export default function EducationReferencesPage() {
               </div>
             </div>
 
+            {/* Hero visual */}
             <div className="hidden justify-center lg:flex">
               <div className="relative flex size-[210px] items-center justify-center rounded-[34px] border border-white bg-white/70 shadow-[0_12px_40px_rgb(120_70_90_/_8%)] backdrop-blur-sm">
                 <div className="absolute inset-4 rounded-[27px] border border-[#D7E6D9] bg-[#F2F7F0]" />
@@ -204,7 +209,7 @@ export default function EducationReferencesPage() {
         {/* Status referensi */}
         <section
           role="note"
-          className="mt-8 mb-7 flex items-start gap-3 rounded-[20px] border border-[#E9D8A6] bg-[#FFF8E8] p-4 sm:p-5"
+          className="mb-7 mt-8 flex items-start gap-3 rounded-[20px] border border-[#E9D8A6] bg-[#FFF8E8] p-4 sm:p-5"
         >
           <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#F8EBCB] text-[#8A641E]">
             <ShieldAlert size={21} />
@@ -214,6 +219,7 @@ export default function EducationReferencesPage() {
             <h2 className="text-sm font-extrabold text-[#72551A]">
               Status peninjauan referensi
             </h2>
+
             <p className="mt-1 text-sm leading-6 text-[#725F3A]">
               Referensi di halaman ini masih menunggu persetujuan
               rilis. Pencantuman sumber tidak berarti sumber telah
@@ -230,7 +236,10 @@ export default function EducationReferencesPage() {
             </div>
 
             <div>
-              <h2 className="font-extrabold">Temukan referensi</h2>
+              <h2 className="font-extrabold">
+                Temukan referensi
+              </h2>
+
               <p className="mt-0.5 text-xs text-[#827382]">
                 Cari berdasarkan judul, penerbit, atau topik.
               </p>
@@ -246,7 +255,7 @@ export default function EducationReferencesPage() {
                 Kata kunci
               </label>
 
-              <div className="flex min-h-12 items-center gap-3 rounded-xl border border-[#E8DCE3] bg-[#FFFCFE] px-4 transition focus-within:border-[#B84E73] focus-within:ring-4 focus-within:ring-[#B84E73]/10">
+              <div className="flex h-12 items-center gap-3 rounded-xl border border-[#E8DCE3] bg-[#FFFCFE] px-4 transition focus-within:border-[#B84E73] focus-within:ring-4 focus-within:ring-[#B84E73]/10">
                 <Search
                   size={19}
                   className="shrink-0 text-[#9B8793]"
@@ -261,7 +270,7 @@ export default function EducationReferencesPage() {
                     setCurrentPage(0);
                   }}
                   placeholder="Cari referensi..."
-                  className="w-full bg-transparent py-3 text-sm outline-none placeholder:text-[#A99AA3]"
+                  className="h-full w-full bg-transparent text-sm outline-none placeholder:text-[#A99AA3]"
                 />
 
                 {search && (
@@ -272,7 +281,7 @@ export default function EducationReferencesPage() {
                       setCurrentPage(0);
                     }}
                     aria-label="Hapus pencarian"
-                    className="rounded-full p-1 text-[#9B8793] hover:bg-[#F8E8EF] hover:text-[#B84E73]"
+                    className="flex size-8 shrink-0 items-center justify-center rounded-full text-[#9B8793] transition-colors hover:bg-[#F8E8EF] hover:text-[#B84E73] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
                   >
                     <X size={17} />
                   </button>
@@ -295,7 +304,7 @@ export default function EducationReferencesPage() {
                   setSelectedTopic(event.target.value);
                   setCurrentPage(0);
                 }}
-                className="min-h-12 w-full rounded-xl border border-[#E8DCE3] bg-[#FFFCFE] px-4 text-sm outline-none transition focus:border-[#B84E73] focus:ring-4 focus:ring-[#B84E73]/10"
+                className="h-12 w-full rounded-xl border border-[#E8DCE3] bg-[#FFFCFE] px-4 text-sm text-[#332A35] outline-none transition focus:border-[#B84E73] focus:ring-4 focus:ring-[#B84E73]/10"
               >
                 {TOPICS.map((topic) => (
                   <option key={topic} value={topic}>
@@ -322,7 +331,7 @@ export default function EducationReferencesPage() {
               <button
                 type="button"
                 onClick={resetFilters}
-                className="text-sm font-bold text-[#B84E73] hover:text-[#8E3E5E]"
+                className="text-sm font-bold text-[#B84E73] transition-colors hover:text-[#8E3E5E] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
               >
                 Reset filter
               </button>
@@ -339,6 +348,7 @@ export default function EducationReferencesPage() {
                   <h2 className="text-xl font-extrabold text-[#332A35]">
                     Daftar referensi
                   </h2>
+
                   <p className="mt-1 max-w-2xl text-sm leading-6 text-[#786B77]">
                     Setiap kartu memuat ringkasan singkat mengenai
                     sumber dan relevansinya untuk edukasi Sycle.
@@ -349,24 +359,24 @@ export default function EducationReferencesPage() {
                   <div className="flex items-center gap-2 self-start sm:self-auto">
                     <button
                       type="button"
-                      onClick={() => changePage(currentPage - 1)}
-                      disabled={currentPage === 0}
+                      onClick={() => changePage(safePage - 1)}
+                      disabled={safePage === 0}
                       aria-label="Lihat empat referensi sebelumnya"
-                      className="flex size-10 items-center justify-center rounded-xl border border-[#E8DCE3] bg-white text-[#8E3E5E] transition hover:bg-[#FFF0F5] disabled:cursor-not-allowed disabled:opacity-40"
+                      className={ICON_BUTTON}
                     >
                       <ChevronLeft size={20} />
                     </button>
 
                     <span className="min-w-24 text-center text-xs font-bold text-[#786B77]">
-                      {currentPage + 1} / {totalPages} halaman
+                      {safePage + 1} / {totalPages} halaman
                     </span>
 
                     <button
                       type="button"
-                      onClick={() => changePage(currentPage + 1)}
-                      disabled={currentPage >= totalPages - 1}
+                      onClick={() => changePage(safePage + 1)}
+                      disabled={safePage >= totalPages - 1}
                       aria-label="Lihat empat referensi berikutnya"
-                      className="flex size-10 items-center justify-center rounded-xl border border-[#E8DCE3] bg-white text-[#8E3E5E] transition hover:bg-[#FFF0F5] disabled:cursor-not-allowed disabled:opacity-40"
+                      className={ICON_BUTTON}
                     >
                       <ChevronRight size={20} />
                     </button>
@@ -439,7 +449,7 @@ export default function EducationReferencesPage() {
                           href={source.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-sm font-extrabold text-[#B84E73] transition hover:text-[#8E3E5E]"
+                          className="inline-flex items-center gap-2 text-sm font-bold text-[#B84E73] transition-colors hover:text-[#8E3E5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E73] focus-visible:ring-offset-2"
                         >
                           Buka sumber asli
                           <ExternalLink size={15} />
@@ -455,6 +465,7 @@ export default function EducationReferencesPage() {
               </div>
             </>
           ) : (
+            /* Empty state */
             <div className="rounded-[22px] border border-dashed border-[#E4CBD7] bg-white px-6 py-14 text-center">
               <Search
                 size={28}
@@ -472,7 +483,7 @@ export default function EducationReferencesPage() {
               <button
                 type="button"
                 onClick={resetFilters}
-                className="mt-5 rounded-full bg-[#B84E73] px-5 py-2.5 text-sm font-extrabold text-white transition hover:bg-[#8E3E5E]"
+                className={`mt-6 ${PRIMARY_BUTTON}`}
               >
                 Tampilkan semua referensi
               </button>
@@ -480,6 +491,7 @@ export default function EducationReferencesPage() {
           )}
         </section>
 
+        {/* Footer */}
         <footer className="mt-10 border-t border-[#EEDFE7] py-6 text-center text-sm leading-6 text-[#8A7A85]">
           Referensi ditampilkan untuk peninjauan konten Sycle.
         </footer>

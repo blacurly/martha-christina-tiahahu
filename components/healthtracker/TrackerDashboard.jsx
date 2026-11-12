@@ -65,29 +65,6 @@ export default function TrackerDashboard({
 
   return (
     <main className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-6 sm:py-10">
-      {/* HEADER */}
-      <header className="mb-9">
-        <div className="flex items-center justify-between gap-5">
-          <div className="min-w-0">
-
-            {/* TITLE */}
-            <h1 className="text-3xl font-extrabold tracking-tight text-[#332A35] sm:text-4xl">
-              Health Tracker
-            </h1>
-
-            {/* DESCRIPTION */}
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-[#6F6570] sm:text-base">
-              Ruang personal untuk mencatat pengalaman tubuh,
-              aktivitas sehari-hari, dan kondisi lingkunganmu.
-            </p>
-          </div>
-
-          {/* ICON */}
-          <div className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#F8E8EF] text-[#B84E73] sm:flex">
-            <Heart size={28} strokeWidth={1.5} />
-          </div>
-        </div>
-      </header>
 
       {/* DAILY CHECK-IN */}
       <section className="relative isolate mb-9 overflow-hidden rounded-[28px] border border-[#F0DFE7] bg-white px-6 py-9 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] sm:px-9 sm:py-11 lg:px-12 lg:py-12">
@@ -127,8 +104,32 @@ export default function TrackerDashboard({
               memahami dirimu.
             </p>
 
-            <div className="mt-7">
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              {/* TOMBOL UTAMA */}
               <StartHealthTrackerButton />
+
+              {/* RIWAYAT */}
+              <Button
+                nativeButton={false}
+                render={<Link href="/healthtracker/history" />}
+                variant="outline"
+                size="lg"
+                className="h-11 min-h-11 rounded-full border-[#E8D5DE] bg-white px-5 text-sm font-bold !text-[#8E3E5E] hover:border-[#B84E73] hover:bg-[#FFF8FB]"
+              >
+                <CalendarDays size={16} />
+                Lihat Riwayat
+              </Button>
+
+              {/* RINGKASAN */}
+              <Button
+                nativeButton={false}
+                render={<Link href="/healthtracker/summary" />}
+                size="lg"
+                className="h-11 min-h-11 rounded-full border-0 bg-[#F8E8EF] px-5 text-sm font-bold !text-[#8E3E5E] hover:bg-[#F0DCE6]"
+              >
+                <ClipboardList size={16} />
+                Lihat Ringkasan
+              </Button>
             </div>
           </div>
 
@@ -297,29 +298,6 @@ export default function TrackerDashboard({
                 dan lingkungan dari waktu ke waktu.
               </p>
             </div>
-          </div>
-
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Button
-              nativeButton={false}
-              render={<Link href="/healthtracker/history" />}
-              variant="outline"
-              size="lg"
-              className="h-11 rounded-full border-[#B6CEB9] bg-white px-5 text-sm font-bold text-[#426B4A] hover:bg-[#DCEBDD]"
-            >
-              Lihat Riwayat
-              <ArrowRight size={16} />
-            </Button>
-
-            <Button
-              nativeButton={false}
-              render={<Link href="/healthtracker/summary" />}
-              size="lg"
-              className="h-11 rounded-full border-0 bg-[#B84E73] px-6 text-sm font-extrabold !text-white hover:bg-[#8E3E5E]"
-            >
-              Lihat Ringkasan
-              <ArrowRight size={16} />
-            </Button>
           </div>
         </div>
       </section>

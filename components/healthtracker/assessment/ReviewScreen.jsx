@@ -93,16 +93,16 @@ export default function ReviewScreen({
     <section className="space-y-6">
       {/* Header */}
       <div>
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-bold tracking-wide text-[#8E3E5E]">
-          <ClipboardCheck size={14} />
-          TINJAUAN CHECK-IN
+        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-extrabold tracking-wide text-[#8E3E5E]">
+          <ClipboardCheck size={15} />
+          TAHAP 06 · TINJAUAN CHECK-IN
         </div>
 
-        <h2 className="text-xl font-bold text-[#332A35]">
+        <h2 className="text-xl font-extrabold tracking-tight text-[#332A35] sm:text-2xl">
           Ringkasan Check-In Kamu
         </h2>
 
-        <p className="mt-2 text-sm leading-relaxed text-[#746875]">
+        <p className="mt-2 max-w-2xl text-sm leading-7 text-[#746875] sm:text-base">
           Berikut gambaran aktivitas dan kondisi yang kamu catat
           hari ini. Periksa kembali sebelum melanjutkan.
         </p>

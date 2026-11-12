@@ -62,8 +62,8 @@ export const HEALTH_TRACKER_QUESTIONS = {
   "HT-02": {
     code: "HT-02",
     type: "multiple",
-    question: "Apa yang kamu rasakan atau ingin catat hari ini?",
-    required: true,
+    question: "Apa yang kamu rasakan hari ini?",
+    required: false,
     exclusiveOptions: ["tidak_ada_yang_ingin_dicatat"],
     options: [
       { value: "lelah", label: "Lelah atau lemas" },
@@ -71,20 +71,20 @@ export const HEALTH_TRACKER_QUESTIONS = {
       { value: "sakit_kepala", label: "Sakit kepala" },
       { value: "mual", label: "Mual" },
       { value: "kram_otot", label: "Kram otot" },
-      { value: "merasa_kepanasan", label: "Merasa kepanasan atau berkeringat berlebihan" },
-      { value: "batuk_tenggorokan_gatal", label: "Batuk atau tenggorokan gatal" },
+      {
+        value: "merasa_kepanasan",
+        label: "Merasa kepanasan atau berkeringat berlebihan",
+      },
+      {
+        value: "batuk_tenggorokan_gatal",
+        label: "Batuk atau tenggorokan gatal",
+      },
       { value: "mata_perih", label: "Mata perih" },
-      { value: "lainnya", label: "Lainnya" },
       {
         value: "tidak_ada_yang_ingin_dicatat",
-        label: "Tidak ada yang ingin dicatat",
+        label: "Tidak Ada Gejala",
       },
     ],
-    otherText: {
-      key: "HT-02_OTHER",
-      maxLength: 200,
-      showIf: { includes: "lainnya" },
-    },
   },
 
   "HT-03": {
@@ -94,7 +94,8 @@ export const HEALTH_TRACKER_QUESTIONS = {
     required: false,
     scale: HEALTH_TRACKER_SCALE,
     dependsOn: "HT-02",
-    description: "Skala ditampilkan untuk setiap pilihan HT-02 yang dipilih, kecuali Lainnya dan Tidak ada.",
+    description:
+      "Skala ditampilkan di samping setiap gejala yang dipilih.",
   },
 
   "HT-04": {
@@ -116,7 +117,7 @@ export const HEALTH_TRACKER_QUESTIONS = {
     question: "Berapa lama kamu berada di luar ruangan hari ini?",
     required: true,
     options: [
-      { value: "tidak", label: "Tidak" },
+      { value: "tidak", label: "Tidak berada di luar ruangan" },
       { value: "kurang_30", label: "Kurang dari 30 menit" },
       { value: "30_60", label: "30–60 menit" },
       { value: "1_2_jam", label: "1–2 jam" },
@@ -138,7 +139,6 @@ export const HEALTH_TRACKER_QUESTIONS = {
     options: [
       { value: "ya", label: "Ya" },
       { value: "tidak", label: "Tidak" },
-      { value: "tidak_yakin", label: "Tidak yakin" },
       { value: "tidak_ingin_menjawab", label: "Tidak ingin menjawab" },
     ],
   },
@@ -158,7 +158,13 @@ export const HEALTH_TRACKER_QUESTIONS = {
       { value: "hari_5", label: "Hari 5" },
       { value: "hari_6", label: "Hari 6" },
       { value: "hari_7", label: "Hari 7" },
-      { value: "lebih_7", label: "Lebih dari 7 hari" },
+      { value: "hari_8", label: "Hari 8" },
+      { value: "hari_9", label: "Hari 9" },
+      { value: "hari_10", label: "Hari 10" },
+      { value: "hari_11", label: "Hari 11" },
+      { value: "hari_12", label: "Hari 12" },
+      { value: "hari_13", label: "Hari 13" },
+      { value: "hari_14", label: "Hari 14" },
       { value: "tidak_yakin", label: "Tidak yakin" },
     ],
   },

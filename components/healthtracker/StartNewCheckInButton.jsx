@@ -11,11 +11,12 @@ export default function StartNewCheckInButton() {
     <Link
       href="/healthtracker/assessment"
       onClick={startNewHealthTrackerCheckIn}
-      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#B84E73] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#8E3E5E]"
+      className="inline-flex h-11 min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#B84E73] px-5 text-sm font-bold !text-white transition hover:bg-[#8E3E5E] sm:w-auto"
+      style={{ color: "#ffffff" }}
     >
-      <Heart size={17} />
-      Mulai Check-In
-      <ArrowRight size={16} />
+      <Heart size={17} className="text-white" />
+      <span className="text-white">Mulai Check-In</span>
+      <ArrowRight size={16} className="text-white" />
     </Link>
   );
 }

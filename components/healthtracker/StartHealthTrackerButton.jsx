@@ -18,7 +18,7 @@ export default function StartHealthTrackerButton() {
       onClick={handleStart}
       variant="default"
       size="lg"
-      className="mt-6 h-12 rounded-full border-transparent !bg-[#B84E73] !text-white px-7 text-sm font-extrabold hover:!bg-[#8E3E5E]"
+      className="h-11 min-h-11 w-full rounded-full border-transparent !bg-[#B84E73] px-5 text-sm font-bold text-white hover:!bg-[#8E3E5E] sm:w-auto"
     >
       <span>+</span>
       Mulai Daily Check-In

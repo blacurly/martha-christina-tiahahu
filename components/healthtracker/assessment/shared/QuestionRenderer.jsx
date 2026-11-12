@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import SpecialAnswerOption from "./SpecialAnswerOption";
+
 import {
   Heart,
   Activity,
@@ -9,6 +12,7 @@ import {
   Utensils,
   Smile,
   Frown,
+  Meh,
   Baby,
   CalendarDays,
   Thermometer,
@@ -17,6 +21,7 @@ import {
   House,
   Car,
   CheckCircle2,
+  Clock,
 } from "lucide-react";
 
 import {
@@ -28,6 +33,8 @@ import {
   getLabel,
   getValue,
 } from "@/lib/healthtracker/questionHelpers";
+
+const OPTION_LABEL_CLASS = "text-sm font-semibold leading-relaxed";
 
 // Ikon pilihan jawaban
 function getOptionIcon(label = "") {
@@ -51,45 +58,60 @@ function getOptionIcon(label = "") {
   return <Icon size={24} strokeWidth={1.8} color="#B84E73" />;
 }
 
-function getActivityVisual(label = "") {
-  const text = String(label).toLowerCase();
+function getActivityVisual(label) {
+  const normalized = label.toLowerCase();
 
-  if (/dalam ruangan|indoor/.test(text)) {
+  if (normalized.includes("dalam ruangan")) {
     return {
       Icon: House,
       description: "Beraktivitas di dalam ruangan",
       animation: "activity-float",
+      color: "bg-[#F8E8EF]",
+      iconColor: "text-[#B84E73]",
+      border: "border-[#F0D3DF]",
     };
   }
 
-  if (/luar ruangan|outdoor/.test(text)) {
+  if (normalized.includes("luar ruangan")) {
     return {
       Icon: Sun,
       description: "Beraktivitas di luar ruangan",
       animation: "activity-sun",
+      color: "bg-[#E9F2EA]",
+      iconColor: "text-[#64866B]",
+      border: "border-[#D7E6D9]",
     };
   }
 
-  if (/berpindah|moving/.test(text)) {
+  if (normalized.includes("berpindah")) {
     return {
       Icon: Footprints,
       description: "Beraktivitas di beberapa lokasi",
       animation: "activity-walk",
+      color: "bg-[#EEEAF8]",
+      iconColor: "text-[#8272A8]",
+      border: "border-[#DDD5EF]",
     };
   }
 
-  if (/perjalanan|travel/.test(text)) {
+  if (normalized.includes("perjalanan")) {
     return {
       Icon: Car,
       description: "Beraktivitas selama perjalanan",
       animation: "activity-drive",
+      color: "bg-[#E8F1F7]",
+      iconColor: "text-[#6489A5]",
+      border: "border-[#D4E4EF]",
     };
   }
 
   return {
-    Icon: Sparkles,
-    description: "Pilih aktivitas yang sesuai",
-    animation: "activity-float",
+    Icon: Activity,
+    description: "Aktivitas hari ini",
+    animation: "",
+    color: "bg-[#F8F5F7]",
+    iconColor: "text-[#746875]",
+    border: "border-[#EAE2E7]",
   };
 }
 
@@ -124,6 +146,191 @@ function ScaleOptions({ value, onChange }) {
   );
 }
 
+function HT02Renderer({ question, answers, scores, updateAnswer, updateScore }) {
+  const NO_SYMPTOMS = "tidak_ada_yang_ingin_dicatat";
+
+  const symptoms = question.options.filter(
+    (option) => option.value !== NO_SYMPTOMS
+  );
+
+  const selectedValues = Array.isArray(answers?.["HT-02"])
+    ? answers["HT-02"]
+    : [];
+
+  const hasNoSymptoms = selectedValues.includes(NO_SYMPTOMS);
+
+  const [showSymptoms, setShowSymptoms] = useState(
+    selectedValues.some((value) => value !== NO_SYMPTOMS)
+  );
+
+  function handleSelectSymptoms() {
+    if (hasNoSymptoms) {
+      updateAnswer?.("HT-02", []);
+    }
+
+    setShowSymptoms(true);
+  }
+
+  function handleNoSymptoms() {
+    updateAnswer?.("HT-02", [NO_SYMPTOMS]);
+
+    symptoms.forEach((symptom) => {
+      updateScore?.(symptom.value, null);
+    });
+
+    setShowSymptoms(false);
+  }
+
+  function handleScore(symptomValue, score) {
+    const nextValues = [
+      ...selectedValues.filter(
+        (value) => value !== NO_SYMPTOMS && value !== symptomValue
+      ),
+      symptomValue,
+    ];
+
+    updateAnswer?.("HT-02", nextValues);
+    updateScore?.(symptomValue, score);
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Pilihan kondisi awal */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={handleSelectSymptoms}
+          aria-pressed={showSymptoms && !hasNoSymptoms}
+          className={`rounded-xl border p-4 text-left transition-all ${
+            showSymptoms && !hasNoSymptoms
+              ? "border-[#B84E73] bg-[#F8E8EF] text-[#8E3E5E]"
+              : "border-[#F0E3E9] bg-white text-[#332A35] hover:border-[#D9A5B8]"
+          }`}
+        >
+          <span className="block font-bold">Ada Gejala</span>
+          <span className="mt-1 block text-xs text-[#746875]">
+            Saya merasakan gejala tertentu.
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleNoSymptoms}
+          aria-pressed={hasNoSymptoms}
+          className={`rounded-xl border p-4 text-left transition-all ${
+            hasNoSymptoms
+              ? "border-[#8EAA91] bg-[#E9F2EA] text-[#477454]"
+              : "border-[#F0E3E9] bg-white text-[#332A35] hover:border-[#B8CEBB]"
+          }`}
+        >
+          <span className="block font-bold">Tidak Ada Gejala</span>
+          <span className="mt-1 block text-xs text-[#746875]">
+            Saya tidak merasakan gejala.
+          </span>
+        </button>
+      </div>
+
+      {/* Daftar gejala dan skala */}
+      {showSymptoms && !hasNoSymptoms && (
+        <div className="space-y-4">
+          {/* Panduan skala khusus HT-02 */}
+          <div className="rounded-xl bg-[#FFF8FB] p-3 sm:p-4">
+            <p className="mb-3 text-xs font-bold text-[#8E3E5E]">
+              Panduan skala gangguan aktivitas
+            </p>
+
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+              {HEALTH_TRACKER_SCALE.map((item) => (
+                <div
+                  key={item.value}
+                  className="flex items-start gap-2 rounded-lg bg-white px-2 py-2"
+                >
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[#F8E8EF] text-xs font-bold text-[#B84E73]">
+                    {item.value}
+                  </span>
+
+                  <span className="pt-0.5 text-[11px] leading-4 text-[#746875]">
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-3 text-[11px] leading-relaxed text-[#8A7D89]">
+              Nilai 0 berarti keluhan tidak mengganggu aktivitas,
+              sedangkan nilai 4 berarti keluhan sangat mengganggu
+              aktivitas. Skala ini bukan ukuran keparahan penyakit
+              atau diagnosis.
+            </p>
+          </div>
+
+          {/* Setiap gejala satu baris */}
+          <div className="divide-y divide-[#F0E3E9]">
+            {symptoms.map((symptom) => {
+              const isSelected = selectedValues.includes(symptom.value);
+              const selectedScore = scores?.[symptom.value];
+
+              return (
+                <div
+                  key={symptom.value}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-4"
+                >
+                  <span className="text-sm font-medium leading-relaxed text-[#332A35]">
+                    {symptom.label}
+                  </span>
+
+                  <div
+                    role="radiogroup"
+                    aria-label={`Tingkat gangguan ${symptom.label}`}
+                    className="flex items-center gap-2 sm:gap-3"
+                  >
+                    {HEALTH_TRACKER_SCALE.map((scaleOption) => {
+                      const checked =
+                        isSelected &&
+                        Number(selectedScore) === Number(scaleOption.value);
+
+                      return (
+                        <label
+                          key={scaleOption.value}
+                          className="flex min-w-5 cursor-pointer flex-col items-center gap-1.5"
+                          title={scaleOption.label}
+                        >
+                          <input
+                            type="radio"
+                            name={`HT-02-${symptom.value}`}
+                            value={scaleOption.value}
+                            checked={checked}
+                            onChange={() =>
+                              handleScore(
+                                symptom.value,
+                                Number(scaleOption.value)
+                              )
+                            }
+                            className="size-4 cursor-pointer accent-[#B84E73]"
+                            aria-label={`${scaleOption.value} - ${scaleOption.label}`}
+                          />
+                          <span className="text-xs font-semibold text-[#746875]">
+                            {scaleOption.value}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <p className="text-xs leading-relaxed text-[#746875]">
+            Nilai 0 berarti gejala tidak mengganggu aktivitas, bukan berarti
+            kamu tidak mengalami gejala tersebut.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Renderer pertanyaan Health Tracker
 export default function QuestionRenderer({
   question,
@@ -135,6 +342,536 @@ export default function QuestionRenderer({
   if (!question) return null;
 
   const value = answers[question.code];
+
+  // HM-02: Stepper hari menstruasi
+  if (question.code === "HM-02") {
+    const selectedDay = /^hari_\d+$/.test(String(value ?? ""))
+      ? Number(String(value).replace("hari_", ""))
+      : null;
+
+    const isUncertain = value === "tidak_yakin";
+
+    const changeDay = (direction) => {
+      const currentDay = selectedDay ?? 0;
+      const nextDay = currentDay === 0
+        ? 1
+        : Math.min(14, Math.max(1, currentDay + direction));
+
+      updateAnswer("HM-02", `hari_${nextDay}`);
+    };
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-center gap-6 rounded-2xl border border-[#EADDE3] bg-white p-5">
+          <button
+            type="button"
+            onClick={() => changeDay(-1)}
+            disabled={selectedDay === null || selectedDay <= 1 || isUncertain}
+            aria-label="Kurangi hari"
+            className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#EADDE3] text-[#8E3E5E] transition hover:bg-[#F8E8EF] disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <span className="text-2xl font-bold">−</span>
+          </button>
+
+          <div className="min-w-[110px] text-center">
+            <p className="text-xs font-semibold text-[#8A7B87]">
+              Hari menstruasi
+            </p>
+            <p className="mt-1 text-3xl font-extrabold text-[#B84E73]">
+              {selectedDay ?? "—"}
+            </p>
+            <p className="text-xs text-[#8A7B87]">
+              dari 14 hari
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => changeDay(1)}
+            disabled={selectedDay === 14 || isUncertain}
+            aria-label="Tambah hari"
+            className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#EADDE3] text-[#8E3E5E] transition hover:bg-[#F8E8EF] disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <span className="text-2xl font-bold">+</span>
+          </button>
+        </div>
+
+        <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#EADDE3] bg-[#FFF8FB] p-4">
+          <input
+            type="checkbox"
+            checked={isUncertain}
+            onChange={(event) => {
+              updateAnswer(
+                "HM-02",
+                event.target.checked ? "tidak_yakin" : null
+              );
+            }}
+            className="h-5 w-5 accent-[#B84E73]"
+          />
+
+          <span className="text-sm font-semibold text-[#5F5360]">
+            Tidak yakin
+          </span>
+        </label>
+
+        {isUncertain && (
+          <p className="text-xs text-[#8A7B87]">
+            Kamu tidak perlu menentukan hari menstruasi jika belum yakin.
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // HT-02 menggunakan tampilan khusus.
+  if (question.code === "HT-02") {
+    return (
+      <HT02Renderer
+        question={question}
+        answers={answers}
+        scores={scores}
+        updateAnswer={updateAnswer}
+        updateScore={updateScore}
+      />
+    );
+  }
+
+  // HT-03 hanya digunakan sebagai konfigurasi skala.
+  // Tidak ditampilkan sebagai kartu pertanyaan tersendiri.
+  if (question.code === "HT-03") {
+    return null;
+  }
+
+  // HK-01: Situasi selama kehamilan dengan skala aktivitas
+  if (question.code === "HK-01") {
+    const options = question.options ?? [];
+
+    const isNoneOption = (option) => {
+      const optionValue = String(getValue(option)).toLowerCase();
+      const label = String(getLabel(option)).toLowerCase();
+
+      return (
+        ["tidak_ada", "tidak_ada_situasi"].includes(optionValue) ||
+        label === "tidak ada"
+      );
+    };
+
+    const isOtherOption = (option) => {
+      const optionValue = String(getValue(option)).toLowerCase();
+      const label = String(getLabel(option)).toLowerCase();
+
+      return optionValue === "lainnya" || label === "lainnya";
+    };
+
+    const noneOption = options.find(isNoneOption);
+    const noneValue = noneOption ? getValue(noneOption) : "tidak_ada";
+
+    const situations = options.filter(
+      (option) => !isNoneOption(option) && !isOtherOption(option)
+    );
+
+    const selectedValues = Array.isArray(value) ? value : [];
+    const hasNoSituation = selectedValues.includes(noneValue);
+
+    const handleNoSituation = (checked) => {
+      if (checked) {
+        situations.forEach((option) => {
+          updateScore?.(getValue(option), null);
+        });
+
+        updateAnswer(question.code, [noneValue]);
+      } else {
+        updateAnswer(question.code, []);
+      }
+    };
+
+    const handleSituationScore = (optionValue, score) => {
+      const nextValues = [
+        ...selectedValues.filter(
+          (item) => item !== noneValue && item !== optionValue
+        ),
+        optionValue,
+      ];
+
+      updateAnswer(question.code, nextValues);
+      updateScore?.(optionValue, score);
+    };
+
+    return (
+      <div className="space-y-4">
+        {/* Panduan skala */}
+        <div className="rounded-xl bg-[#FFF8FB] p-3 sm:p-4">
+          <p className="mb-3 text-xs font-bold text-[#8E3E5E]">
+            Panduan skala gangguan aktivitas
+          </p>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+            {HEALTH_TRACKER_SCALE.map((item) => (
+              <div
+                key={item.value}
+                className="flex items-start gap-2 rounded-lg bg-white px-2 py-2"
+              >
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[#F8E8EF] text-xs font-bold text-[#B84E73]">
+                  {item.value}
+                </span>
+
+                <span className="pt-0.5 text-[11px] leading-4 text-[#746875]">
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-3 text-[11px] leading-relaxed text-[#8A7D89]">
+            Nilai 0 berarti situasi tidak mengganggu aktivitas,
+            sedangkan nilai 4 berarti situasi sangat mengganggu
+            aktivitas. Skala ini bukan ukuran keparahan penyakit
+            atau diagnosis.
+          </p>
+        </div>
+
+        {/* Daftar situasi dan radio button */}
+        <div className="divide-y divide-[#F0E3E9]">
+          {situations.map((option) => {
+            const optionValue = getValue(option);
+            const label = getLabel(option);
+            const isSelected = selectedValues.includes(optionValue);
+            const selectedScore = scores?.[optionValue];
+
+            return (
+              <div
+                key={optionValue}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-4"
+              >
+                <span className="text-sm font-medium leading-relaxed text-[#332A35]">
+                  {label}
+                </span>
+
+                <div
+                  role="radiogroup"
+                  aria-label={`Tingkat gangguan ${label}`}
+                  className="flex items-center gap-2 sm:gap-3"
+                >
+                  {HEALTH_TRACKER_SCALE.map((scaleOption) => {
+                    const checked =
+                      isSelected &&
+                      Number(selectedScore) === Number(scaleOption.value);
+
+                    return (
+                      <label
+                        key={scaleOption.value}
+                        className="flex min-w-5 cursor-pointer flex-col items-center gap-1.5"
+                        title={scaleOption.label}
+                      >
+                        <input
+                          type="radio"
+                          name={`HK-01-${optionValue}`}
+                          value={scaleOption.value}
+                          checked={checked}
+                          onChange={() =>
+                            handleSituationScore(
+                              optionValue,
+                              Number(scaleOption.value)
+                            )
+                          }
+                          className="size-4 cursor-pointer accent-[#B84E73]"
+                          aria-label={`${scaleOption.value} - ${scaleOption.label}`}
+                        />
+
+                        <span className="text-xs font-semibold text-[#746875]">
+                          {scaleOption.value}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <SpecialAnswerOption
+          label="Tidak ada"
+          description="Saya tidak mengalami situasi tersebut hari ini."
+          checked={hasNoSituation}
+          onChange={handleNoSituation}
+        />
+      </div>
+    );
+  }
+
+  // HM-01: Status menstruasi
+  if (question.code === "HM-01") {
+    const skipValue = "tidak_ingin_menjawab";
+
+    const options = question.options?.filter(
+      (option) => getValue(option) !== skipValue
+    ) ?? [];
+
+    const skipSelected = value === skipValue;
+
+    return (
+      <div className="space-y-5">
+        {/* Pilihan Ya dan Tidak */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {options.map((option) => {
+            const optionValue = getValue(option);
+            const label = getLabel(option);
+            const selected = value === optionValue;
+
+            return (
+              <button
+                key={optionValue}
+                type="button"
+                onClick={() =>
+                  updateAnswer(question.code, optionValue)
+                }
+                aria-pressed={selected}
+                className={`flex min-h-[64px] w-full items-center justify-between rounded-2xl border px-5 py-4 text-left transition-all duration-200 ${
+                  selected
+                    ? "border-[#B84E73] bg-[#F8E8EF] shadow-sm ring-2 ring-[#B84E73]/15"
+                    : "border-[#EADDE3] bg-white hover:border-[#D9A5B8] hover:bg-[#FFF8FB]"
+                }`}
+              >
+                <span
+                  className={`text-sm font-bold leading-relaxed ${
+                    selected
+                      ? "text-[#8E3E5E]"
+                      : "text-[#5F5360]"
+                  }`}
+                >
+                  {label}
+                </span>
+
+                {selected && (
+                  <CheckCircle2
+                    size={20}
+                    className="shrink-0 text-[#B84E73]"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <SpecialAnswerOption
+          label="Tidak ingin menjawab"
+          description="Saya memilih untuk tidak menjawab pertanyaan ini."
+          checked={skipSelected}
+          onChange={(checked) =>
+            updateAnswer(
+              question.code,
+              checked ? skipValue : null
+            )
+          }
+        />
+      </div>
+    );
+  }
+
+  // HM-04 dan HM-06: pilihan kartu + checkbox
+  if (["HM-04", "HM-06"].includes(question.code)) {
+    const skipValue = "tidak_ingin_menjawab";
+
+    const options = question.options?.filter(
+      (option) => getValue(option) !== skipValue
+    ) ?? [];
+
+    const skipSelected = value === skipValue;
+
+    return (
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {options.map((option) => {
+            const optionValue = getValue(option);
+            const label = getLabel(option);
+            const selected = value === optionValue;
+
+            return (
+              <button
+                key={optionValue}
+                type="button"
+                onClick={() =>
+                  updateAnswer(question.code, optionValue)
+                }
+                aria-pressed={selected}
+                className={`flex min-h-[64px] w-full items-center justify-between rounded-2xl border px-5 py-4 text-left transition-all duration-200 ${
+                  selected
+                    ? "border-[#B84E73] bg-[#F8E8EF] shadow-sm ring-2 ring-[#B84E73]/15"
+                    : "border-[#EADDE3] bg-white hover:border-[#D9A5B8] hover:bg-[#FFF8FB]"
+                }`}
+              >
+                <span
+                  className={`text-sm font-bold leading-relaxed ${
+                    selected
+                      ? "text-[#8E3E5E]"
+                      : "text-[#5F5360]"
+                  }`}
+                >
+                  {label}
+                </span>
+
+                {selected && (
+                  <CheckCircle2
+                    size={20}
+                    className="shrink-0 text-[#B84E73]"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <SpecialAnswerOption
+          label="Tidak ingin menjawab"
+          description="Saya memilih untuk tidak menjawab pertanyaan ini."
+          checked={skipSelected}
+          onChange={(checked) =>
+            updateAnswer(
+              question.code,
+              checked ? skipValue : null
+            )
+          }
+        />
+      </div>
+    );
+  }
+
+  // HM-03: Jumlah darah menstruasi
+  if (question.code === "HM-03") {
+    const skipValue = "tidak_ingin_menjawab";
+
+    const options = question.options?.filter(
+      (option) => getValue(option) !== skipValue
+    ) ?? [];
+
+    const skipSelected = value === skipValue;
+
+    return (
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {options.map((option) => {
+            const optionValue = getValue(option);
+            const label = getLabel(option);
+            const selected = value === optionValue;
+
+            return (
+              <button
+                key={optionValue}
+                type="button"
+                onClick={() =>
+                  updateAnswer(question.code, optionValue)
+                }
+                aria-pressed={selected}
+                className={`flex min-h-[64px] w-full items-center justify-between rounded-2xl border px-5 py-4 text-left transition-all duration-200 ${
+                  selected
+                    ? "border-[#B84E73] bg-[#F8E8EF] shadow-sm ring-2 ring-[#B84E73]/15"
+                    : "border-[#EADDE3] bg-white hover:border-[#D9A5B8] hover:bg-[#FFF8FB]"
+                }`}
+              >
+                <span
+                  className={`text-sm font-bold leading-relaxed ${
+                    selected
+                      ? "text-[#8E3E5E]"
+                      : "text-[#5F5360]"
+                  }`}
+                >
+                  {label}
+                </span>
+
+                {selected && (
+                  <CheckCircle2
+                    size={20}
+                    className="shrink-0 text-[#B84E73]"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <SpecialAnswerOption
+          label="Tidak ingin menjawab"
+          description="Saya memilih untuk tidak menjawab pertanyaan ini."
+          checked={skipSelected}
+          onChange={(checked) =>
+            updateAnswer(
+              question.code,
+              checked ? skipValue : null
+            )
+          }
+        />
+      </div>
+    );
+  }
+
+  // HS-01 dan HS-02: Ya/Tidak + checkbox
+  if (["HS-01", "HS-02"].includes(question.code)) {
+    const skipValue = "tidak_ingin_menjawab";
+
+    const options = question.options?.filter(
+      (option) => getValue(option) !== skipValue
+    ) ?? [];
+
+    const skipSelected = value === skipValue;
+
+    return (
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {options.map((option) => {
+            const optionValue = getValue(option);
+            const label = getLabel(option);
+            const selected = value === optionValue;
+
+            return (
+              <button
+                key={optionValue}
+                type="button"
+                onClick={() =>
+                  updateAnswer(question.code, optionValue)
+                }
+                aria-pressed={selected}
+                className={`flex min-h-[64px] w-full items-center justify-between rounded-2xl border px-5 py-4 text-left transition-all ${
+                  selected
+                    ? "border-[#B84E73] bg-[#F8E8EF] shadow-sm ring-2 ring-[#B84E73]/15"
+                    : "border-[#EADDE3] bg-white hover:border-[#D9A5B8] hover:bg-[#FFF8FB]"
+                }`}
+              >
+                <span
+                  className={`text-sm font-bold leading-relaxed ${
+                    selected
+                      ? "text-[#8E3E5E]"
+                      : "text-[#5F5360]"
+                  }`}
+                >
+                  {label}
+                </span>
+
+                {selected && (
+                  <CheckCircle2
+                    size={20}
+                    className="shrink-0 text-[#B84E73]"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <SpecialAnswerOption
+          label="Tidak ingin menjawab"
+          description="Saya memilih untuk tidak menjawab pertanyaan ini."
+          checked={skipSelected}
+          onChange={(checked) =>
+            updateAnswer(
+              question.code,
+              checked ? skipValue : null
+            )
+          }
+        />
+      </div>
+    );
+  }
 
   // SINGLE
   if (question.type === "single") {
@@ -155,9 +892,16 @@ export default function QuestionRenderer({
                 <button
                   key={optionValue}
                   type="button"
-                  onClick={() =>
-                    updateAnswer(question.code, optionValue)
-                  }
+                  onClick={() => {
+                    updateAnswer(question.code, optionValue);
+
+                    if (
+                      question.code === "HM-01" &&
+                      optionValue !== "ya"
+                    ) {
+                      updateAnswer("HM-02", null);
+                    }
+                  }}
                   aria-pressed={selected}
                   className={`group relative flex min-h-[170px] flex-col items-center justify-center overflow-hidden rounded-2xl border p-4 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg active:scale-[0.97] ${
                     selected
@@ -174,8 +918,8 @@ export default function QuestionRenderer({
                     }`}
                   >
                     <Icon
-                      size={34}
-                      strokeWidth={1.7}
+                      size={32}
+                      strokeWidth={1.8}
                       className={visual.animation}
                     />
                   </span>
@@ -278,7 +1022,140 @@ export default function QuestionRenderer({
       );
     }
 
-    // SINGLE untuk pertanyaan lainnya tetap menggunakan tampilan lama
+    // HT-01: Kartu kenyamanan tubuh
+    if (question.code === "HT-01") {
+      const skipValue = "tidak_ingin_menjawab";
+
+      const comfortOptions = question.options?.filter(
+        (option) => getValue(option) !== skipValue
+      ) ?? [];
+
+      const skipSelected = value === skipValue;
+
+      return (
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {comfortOptions.map((option) => {
+              const optionValue = getValue(option);
+              const label = getLabel(option);
+              const selected = value === optionValue;
+
+              return (
+                <button
+                  key={optionValue}
+                  type="button"
+                  onClick={() =>
+                    updateAnswer(question.code, optionValue)
+                  }
+                  aria-pressed={selected}
+                  className={`flex min-h-[64px] w-full items-center justify-between rounded-2xl border px-5 py-4 text-left transition-all duration-200 ${
+                    selected
+                      ? "border-[#B84E73] bg-[#F8E8EF] shadow-sm ring-2 ring-[#B84E73]/15"
+                      : "border-[#EADDE3] bg-white hover:border-[#D9A5B8] hover:bg-[#FFF8FB]"
+                  }`}
+                >
+                  <span
+                    className={`text-sm font-bold leading-relaxed ${
+                      selected ? "text-[#8E3E5E]" : "text-[#5F5360]"
+                    }`}
+                  >
+                    {label}
+                  </span>
+
+                  {selected && (
+                    <CheckCircle2
+                      size={20}
+                      className="shrink-0 text-[#B84E73]"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          <SpecialAnswerOption
+            label="Tidak ingin menjawab"
+            description="Saya memilih untuk tidak menjawab pertanyaan ini."
+            checked={skipSelected}
+            onChange={(checked) =>
+              updateAnswer(
+                question.code,
+                checked ? skipValue : null
+              )
+            }
+          />
+        </div>
+      );
+    }
+
+    // HT-05: Durasi berada di luar ruangan
+    if (question.code === "HT-05") {
+      const skipValue = "tidak_yakin";
+
+      const durationOptions = question.options?.filter(
+        (option) => getValue(option) !== skipValue
+      ) ?? [];
+
+      const skipSelected = value === skipValue;
+
+      return (
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {durationOptions.map((option) => {
+              const optionValue = getValue(option);
+              const label = getLabel(option);
+              const selected = value === optionValue;
+
+              return (
+                <button
+                  key={optionValue}
+                  type="button"
+                  onClick={() =>
+                    updateAnswer(question.code, optionValue)
+                  }
+                  aria-pressed={selected}
+                  className={`flex min-h-[64px] w-full items-center justify-between rounded-2xl border px-5 py-4 text-left transition-all duration-200 ${
+                    selected
+                      ? "border-[#B84E73] bg-[#F8E8EF] shadow-sm ring-2 ring-[#B84E73]/15"
+                      : "border-[#EADDE3] bg-white hover:border-[#D9A5B8] hover:bg-[#FFF8FB]"
+                  }`}
+                >
+                  <span
+                    className={`text-sm font-bold leading-relaxed ${
+                      selected
+                        ? "text-[#8E3E5E]"
+                        : "text-[#5F5360]"
+                    }`}
+                  >
+                    {label}
+                  </span>
+
+                  {selected && (
+                    <CheckCircle2
+                      size={20}
+                      className="shrink-0 text-[#B84E73]"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          <SpecialAnswerOption
+            label="Tidak yakin"
+            description="Saya tidak yakin berapa lama berada di luar ruangan hari ini."
+            checked={skipSelected}
+            onChange={(checked) =>
+              updateAnswer(
+                question.code,
+                checked ? skipValue : null
+              )
+            }
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {question.options?.map((option) => {
@@ -306,11 +1183,24 @@ export default function QuestionRenderer({
                 }`}
                 aria-hidden="true"
               >
-                {getOptionIcon(label)}
+                {(() => {
+                const icons = [
+                  Heart,
+                  Activity,
+                  Moon,
+                  Sun,
+                  Smile,
+                  Sparkles,
+                ];
+
+                const Icon = icons[question.options.indexOf(option)] || Heart;
+
+                return <Icon size={28} className="text-[#B84E73]" />;
+              })()}
               </span>
 
               <span
-                className={`flex-1 text-sm font-semibold ${
+                className={`flex-1 text-sm font-bold leading-relaxed ${
                   selected ? "text-[#8E3E5E]" : "text-[#5F5360]"
                 }`}
               >
@@ -329,6 +1219,95 @@ export default function QuestionRenderer({
             </button>
           );
         })}
+      </div>
+    );
+  }
+
+  if (question.code === "HS-04") {
+    const selectedValues = Array.isArray(value) ? value : [];
+
+    const noneOption = question.options?.find((option) => {
+      const optionValue = getValue(option);
+      const label = getLabel(option).toLowerCase();
+
+      return (
+        ["tidak_ada", "tidak_ada_kondisi"].includes(optionValue) ||
+        label === "tidak ada"
+      );
+    });
+
+    const noneValue = noneOption ? getValue(noneOption) : "tidak_ada";
+
+    const options = (question.options ?? []).filter((option) => {
+      const label = getLabel(option).toLowerCase();
+      const optionValue = getValue(option);
+
+      return (
+        label !== "lainnya" &&
+        optionValue !== "lainnya" &&
+        optionValue !== noneValue
+      );
+    });
+
+    const noneSelected = selectedValues.includes(noneValue);
+
+    const toggleOption = (optionValue, checked) => {
+      if (checked) {
+        updateAnswer(
+          question.code,
+          [...selectedValues.filter((item) => item !== noneValue), optionValue]
+        );
+      } else {
+        updateAnswer(
+          question.code,
+          selectedValues.filter((item) => item !== optionValue)
+        );
+      }
+    };
+
+    return (
+      <div className="space-y-3">
+        <div className="space-y-2">
+          {options.map((option) => {
+            const optionValue = getValue(option);
+            const label = getLabel(option);
+            const checked = selectedValues.includes(optionValue);
+
+            return (
+              <label
+                key={optionValue}
+                className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition-all ${
+                  checked
+                    ? "border-[#B84E73] bg-[#F8E8EF]"
+                    : "border-[#EADDE3] bg-white hover:border-[#D9A5B8]"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(event) =>
+                    toggleOption(optionValue, event.target.checked)
+                  }
+                  className="size-4 shrink-0 cursor-pointer accent-[#B84E73]"
+                />
+                <span className="text-sm font-bold text-[#332A35]">
+                  {label}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+        <SpecialAnswerOption
+          label="Tidak ada"
+          description="Saya tidak mengalami kondisi tersebut hari ini."
+          checked={noneSelected}
+          onChange={(checked) =>
+            updateAnswer(
+              question.code,
+              checked ? [noneValue] : []
+            )
+          }
+        />
       </div>
     );
   }

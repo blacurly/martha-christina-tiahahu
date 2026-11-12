@@ -20,16 +20,16 @@ export default function StoryScreen({
     <section className="space-y-6">
       {/* Header */}
       <div>
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-bold tracking-wide text-[#8E3E5E]">
+        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-extrabold tracking-wide text-[#8E3E5E]">
           <MessageCircleHeart size={15} />
-          CERITA HARI INI
+          TAHAP 05 · CERITA HARI INI
         </div>
 
-        <h2 className="text-xl font-bold leading-snug text-[#332A35]">
+        <h2 className="text-xl font-extrabold tracking-tight text-[#332A35] sm:text-2xl">
           Ada cerita lain yang ingin kamu sampaikan?
         </h2>
 
-        <p className="mt-2 text-sm leading-relaxed text-[#746875]">
+        <p className="mt-2 max-w-2xl text-sm leading-7 text-[#746875] sm:text-base">
           Setiap pengalaman tubuh punya cerita. Kamu bisa
           menceritakan perubahan yang dirasakan, pengalaman
           sehari-hari, atau hal lain yang menurutmu penting.

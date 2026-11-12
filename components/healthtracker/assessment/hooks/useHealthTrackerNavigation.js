@@ -74,36 +74,59 @@ export default function useHealthTrackerNavigation({
   }
 
   async function handleContinueWithAI() {
-    if (isAILoading) return
-    setIsAILoading(true)
+    if (isAILoading) return;
 
-    const gejala = answers?.['HT-02']
+    setError("");
+    setAiNotice(null);
+    setIsAILoading(true);
+
+    const gejala = answers?.["HT-02"];
+
     const catatan = {
       kondisi: condition,
-      gejala: Array.isArray(gejala) ? gejala : gejala ? [gejala] : [],
-      cerita: (story ?? '').trim(),
+      gejala: Array.isArray(gejala)
+        ? gejala
+        : gejala
+          ? [gejala]
+          : [],
+      cerita: (story ?? "").trim(),
       iklim: Object.values(snapshot?.indicators ?? {})
-        .filter((i) => i.status === 'ok' && i.value != null)
-        .map(({ label, value, unit }) => ({ label, value, unit })),
-    }
+        .filter((item) => item.status === "ok" && item.value != null)
+        .map(({ label, value, unit }) => ({
+          label,
+          value,
+          unit,
+        })),
+    };
 
     try {
-      const response = await fetch('/api/refleksi-ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/refleksi-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ catatan }),
-      })
-      const data = await response.json().catch(() => ({}))
-      if (!response.ok) throw new Error(data.error || 'Permintaan gagal')
+        signal: AbortSignal.timeout(50000),
+      });
 
-      setAiNotice(data)
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Refleksi AI gagal diproses."
+        );
+      }
+
+      setAiNotice(data);
+      setCurrentStep(aiSummaryStep);
     } catch (error) {
-      setAiNotice(
-        { data: `Maaf, terjadi kendala: ${error.message}` },
-      )
+      console.error("Gagal memproses refleksi AI:", error);
+
+      setError(
+        error.name === "TimeoutError"
+          ? "Proses refleksi AI terlalu lama. Silakan coba kembali."
+          : error.message || "Refleksi AI belum dapat diproses."
+      );
     } finally {
       setIsAILoading(false);
-      setCurrentStep(aiSummaryStep);
     }
   }
 
