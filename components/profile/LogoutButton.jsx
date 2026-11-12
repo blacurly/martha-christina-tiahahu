@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
+import { clearTrackerQueue } from "@/lib/healthtracker/offlineQueue";
 import { Button } from "@/components/ui/button";
 
 export default function LogoutButton({ compact = false }) {
@@ -24,6 +25,9 @@ export default function LogoutButton({ compact = false }) {
       setIsLoading(false);
       return;
     }
+
+    // Catatan offline yang belum terkirim ikut dihapus dari perangkat saat keluar.
+    await clearTrackerQueue();
 
     router.replace("/login");
     router.refresh();

@@ -120,8 +120,14 @@ export default function useHealthTrackerNavigation({
     } catch (error) {
       console.error("Gagal memproses refleksi AI:", error);
 
+      const offline =
+        (typeof navigator !== "undefined" && navigator.onLine === false) ||
+        error.name === "TypeError";
+
       setError(
-        error.name === "TimeoutError"
+        offline
+          ? "Kamu sedang offline. Refleksi AI butuh internet. Kamu tetap bisa lanjut tanpa AI, dan catatanmu disimpan di perangkat sampai kamu online."
+          : error.name === "TimeoutError"
           ? "Proses refleksi AI terlalu lama. Silakan coba kembali."
           : error.message || "Refleksi AI belum dapat diproses."
       );

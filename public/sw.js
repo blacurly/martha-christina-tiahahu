@@ -2,15 +2,15 @@
 //
 // Aturan (Panduan Proyek §7–8, Master Draft 6.4.8, wireframe screen 11):
 // * Halaman PUBLIK saja yang disimpan untuk dibaca offline (Beranda, Info & Edukasi, panduan umum,
-//   Healthcare). Health Tracker, Riwayat, Profil, PDF, autentikasi, dan semua permintaan non-GET
-//   TIDAK PERNAH disimpan — data Tracker tidak masuk cache offline.
+//   Healthcare, dan formulir check-in Health Tracker yang statis). Riwayat, Profil, PDF, autentikasi,
+//   dan semua permintaan non-GET TIDAK PERNAH disimpan — data catatan tidak masuk cache.
 // * Halaman selalu diambil dari jaringan lebih dulu; cache hanya dipakai bila offline.
 // * Data lingkungan terakhir (/api/environment) disimpan agar Beranda dapat menampilkan
 //   "Data tersimpan — bukan kondisi terkini" saat offline. Respons dari cache diberi header x-sycle-cache: stored.
 // * Bila status login berubah (Guest ↔ Member, mis. logout atau hapus akun), cache halaman dikosongkan agar nama
 //   Member tidak tertinggal di halaman tersimpan.
 
-const VERSION = "sycle-v2-2026-11-10b";
+const VERSION = "sycle-v2-2026-11-12b";
 const PAGES = `${VERSION}-pages`;
 const STATIC = `${VERSION}-static`;
 const ENVIRONMENT = `${VERSION}-environment`;
@@ -23,6 +23,9 @@ const PUBLIC_PAGES = [
   /^\/generalguidance$/,
   /^\/healthcare$/,
   /^\/assessment(\/.*)?$/, // Kenali Aktivitasmu → Personalisasi → Panduan Personal (hardcode, bisa offline)
+  // Formulir check-in Health Tracker: halaman statis tanpa data pengguna. Catatan yang dibuat saat
+  // offline disimpan di IndexedDB (lib/healthtracker/offlineQueue.js), bukan di cache ini.
+  /^\/healthtracker\/assessment$/,
 ];
 // Daftar halaman publik yang disimpan otomatis saat service worker dipasang (lihat app/api/offline-pages).
 const OFFLINE_PAGES_URL = "/api/offline-pages";
@@ -90,6 +93,7 @@ self.addEventListener("fetch", (event) => {
 // Gambar dari /_next/image dikirim dengan header "Vary: Accept". Permintaan <img> dan permintaan
 // precache memakai header Accept berbeda, jadi pencocokan cache harus mengabaikan Vary.
 const MATCH_OPTIONS = { ignoreVary: true };
+const IMAGE_ACCEPT = "image/avif,image/webp,image/apng,image/*,*/*;q=0.8";
 
 async function cacheFirst(request) {
   const cached = await caches.match(request, MATCH_OPTIONS);
@@ -222,7 +226,9 @@ async function runPrecache() {
   await Promise.allSettled(
     [...assets].map(async (asset) => {
       if (await staticCache.match(asset, MATCH_OPTIONS)) return;
-      const response = await fetch(asset);
+      // Gambar /_next/image harus diminta sebagai WebP/AVIF seperti permintaan <img>. Tanpa header ini
+      // server mengirim JPEG, yang tidak punya latar transparan (latar ilustrasi berubah hitam).
+      const response = await fetch(asset, asset.startsWith("/_next/image") ? { headers: { Accept: IMAGE_ACCEPT } } : undefined);
       if (response.ok) await staticCache.put(asset, response);
     })
   );

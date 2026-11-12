@@ -6,13 +6,27 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { saveHealthTracker } from "@/lib/repositories/trackerRepository";
 import { mapHealthTrackerToTable } from "@/lib/healthtracker/trackerMapper";
 
+// Waktu pencatatan dari perangkat hanya diterima bila masuk akal: tidak di masa depan
+// dan tidak lebih dari 30 hari lalu. Selain itu dipakai waktu server.
+const MAX_OFFLINE_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+function validRecordedAt(value) {
+  if (typeof value !== "string") return null;
+  const time = Date.parse(value);
+  if (Number.isNaN(time)) return null;
+  const now = Date.now();
+  if (time > now + 5 * 60 * 1000 || time < now - MAX_OFFLINE_AGE_MS) return null;
+  return new Date(time).toISOString();
+}
+
 export async function saveHealthTrackerAssessment({
   condition,
   answers,
   scores,
   story = "",
   snapshot = null,
-  aiNotice
+  aiNotice,
+  recordedAt = null,
 }) {
   const user = await getCurrentUser();
 
@@ -32,6 +46,10 @@ export async function saveHealthTrackerAssessment({
       snapshot,
       aiNotice
     });
+
+    // Catatan offline membawa waktu pencatatan aslinya (lihat lib/healthtracker/offlineQueue.js).
+    const recordedAtIso = validRecordedAt(recordedAt);
+    if (recordedAtIso) payload.health_tracker.recorded_at = recordedAtIso;
 
     const supabase = await createClient();
     const result = await saveHealthTracker(supabase, payload);

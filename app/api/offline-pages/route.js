@@ -9,6 +9,7 @@ const CORE_PAGES = [
   "/",
   "/generalguidance",
   "/healthcare",
+  "/healthtracker/assessment", // formulir check-in statis; catatan offline disimpan di IndexedDB
   "/assessment", // Kenali Aktivitasmu → Personalisasi → Panduan Personal (satu halaman, tanpa data server)
   "/education",
   "/education/glossary",
