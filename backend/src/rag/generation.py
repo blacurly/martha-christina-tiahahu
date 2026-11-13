@@ -2,8 +2,6 @@ from google import genai
 import re
 import requests
 import os
-import logging
-logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """
 Kamu adalah Tanya SYCLE, asisten edukasi tentang kondisi lingkungan dan iklim
