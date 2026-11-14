@@ -132,16 +132,15 @@ function getSourceName(indicator, fallback = null) {
   return fallback || "Belum tersedia";
 }
 
-function getIndicatorDescription(indicator, fallback) {
-  if (!indicator || indicator.status === "unavailable") {
-    return fallback;
+// Satu baris keterangan kecil per kartu: sumber data, ditambah detail singkat bila perlu.
+// Bila sumber belum ada (data belum tersedia), baris ini tidak ditampilkan.
+function sourceNote(indicator, fallbackSource = null, detail = null) {
+  const source = indicator?.source?.name || fallbackSource;
+  if (!source || indicator?.status === "unavailable") return null;
+  if (indicator?.status === "stale") {
+    return `Sumber: ${source} · data sudah melewati batas kesegaran`;
   }
-
-  if (indicator.status === "stale") {
-    return "Data pengamatan sudah melewati batas kesegaran.";
-  }
-
-  return indicator.category?.label || indicator.timeNote || fallback;
+  return detail ? `Sumber: ${source} · ${detail}` : `Sumber: ${source}`;
 }
 
 function getUvStatus(value, indicator) {
@@ -511,13 +510,12 @@ export default function WeatherCard({
           ? `${formatNumber(humidityValue)}%`
           : "Belum tersedia",
       status: humidityStatus,
-      source: getSourceName(
+      note: sourceNote(
         humidityIndicator,
-        forecast?.humidity != null ? "BMKG" : null
-      ),
-      description: getIndicatorDescription(
-        humidityIndicator,
-        "Kadar uap air relatif"
+        forecast?.humidity != null ? "BMKG" : null,
+        humidityIndicator?.dataType === "model"
+          ? "model per 15 menit"
+          : "prakiraan per 3 jam"
       ),
       type: "humidity",
     },
@@ -526,11 +524,7 @@ export default function WeatherCard({
       label: "Indeks UV",
       value: uvValue !== null ? formatNumber(uvValue) : "Belum tersedia",
       status: uvStatus,
-      source: getSourceName(uvIndicator),
-      description: getIndicatorDescription(
-        uvIndicator,
-        "Indikator paparan ultraviolet"
-      ),
+      note: sourceNote(uvIndicator),
       type: "uv",
     },
     {
@@ -541,13 +535,13 @@ export default function WeatherCard({
           ? `${formatNumber(airQualityValue)} ${airQualityIndicator?.unit || ""}`.trim()
           : "Belum tersedia",
       status: airQualityStatus,
-      source: getSourceName(airQualityIndicator),
-      description: [
-        airQualityIndicator?.station?.name,
-        airQualityIndicator?.standard,
-      ]
-        .filter(Boolean)
-        .join(" · ") || "Indeks kualitas udara",
+      note: sourceNote(
+        airQualityIndicator,
+        null,
+        airQualityIndicator?.station?.name
+          ? `Stasiun ${airQualityIndicator.station.name}`
+          : null
+      ),
       type: "aqi",
     },
     {
@@ -558,10 +552,11 @@ export default function WeatherCard({
           ? `${formatNumber(heatIndexValue)} °C`
           : "Belum tersedia",
       status: heatIndexStatus,
-      source: getSourceName(heatIndexIndicator),
-      description: heatIndexIndicator?.method
-        ? `Perhitungan Sycle · ${heatIndexIndicator.method}`
-        : "Indeks panas berdasarkan suhu dan kelembapan",
+      note:
+        heatIndexValue !== null
+          ? heatIndexIndicator?.source?.attribution ||
+            sourceNote(heatIndexIndicator)
+          : null,
       type: "heatIndex",
     },
   ];
@@ -668,13 +663,9 @@ export default function WeatherCard({
 
             <StatusBadge status={metric.status} />
 
-            <span className="metric-description">
-              {metric.description}
-            </span>
-
-            <span className="metric-source">
-              Sumber: {metric.source}
-            </span>
+            {metric.note && (
+              <span className="metric-source">{metric.note}</span>
+            )}
           </div>
         ))}
       </div>
