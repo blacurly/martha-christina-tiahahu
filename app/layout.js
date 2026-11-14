@@ -31,6 +31,7 @@ export const metadata = {
 // Warna bilah status/judul browser saat SYCLE dibuka sebagai aplikasi.
 export const viewport = {
   themeColor: "#FFF8FB",
+  colorScheme: "only light",
 };
 
 export default function RootLayout({ children }) {
