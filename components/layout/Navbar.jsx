@@ -73,7 +73,7 @@ export default function Navbar() {
 
   return (
     <header className="header">
-      <Link className="brand" href="/" aria-label="SYCLE Beranda">
+      <Link className="brand" href="/" aria-label="SYCLE Beranda" translate="no">
         <Image
           src="/images/sycle-logo.png"
           alt="SYCLE"

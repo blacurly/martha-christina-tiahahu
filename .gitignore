@@ -80,3 +80,5 @@ tmp/
 .idea/
 .DS_Store
 Thumbs.db
+.env*
+!.env.example

@@ -8,6 +8,7 @@ import Footer from "@/components/layout/Footer";
 import ChatWidget from "@/components/home/ChatWidget";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import { TrackerOfflineSync } from "@/components/pwa/TrackerOfflineSync";
+import { BrandTitleGuard } from "@/components/pwa/BrandTitleGuard";
 
 export const metadata = {
   title: "Sycle — Lingkungan, tubuh, dan cerita harianmu",
@@ -50,6 +51,8 @@ export default function RootLayout({ children }) {
           <ServiceWorkerRegister />
 
           <TrackerOfflineSync />
+
+          <BrandTitleGuard />
         </AssessmentProvider>
       </body>
     </html>

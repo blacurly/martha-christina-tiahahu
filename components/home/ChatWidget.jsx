@@ -35,6 +35,16 @@ export default function ChatWidget () {
   // true jika batas Guest habis; pengguna diarahkan ke Masuk/Daftar.
   const [needsAccount, setNeedsAccount] = useState(false)
   const nextPath = encodeURIComponent(pathname || '/')
+  // Saat halaman membuka jendela/sheet (aria-modal), tombol mengambang disembunyikan
+  // agar tidak menutupi tombol di jendela tersebut (mis. detail Glosarium, detail faskes).
+  const [pageModalOpen, setPageModalOpen] = useState(false)
+
+  useEffect(() => {
+    const check = () => setPageModalOpen(Boolean(document.querySelector('[aria-modal="true"]')))
+    const observer = new MutationObserver(check)
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-modal'] })
+    return () => observer.disconnect()
+  }, [])
 
   // Membuka chat dari halaman lain (misalnya tombol "Tanya Sycle" di artikel edukasi)
   // dengan pertanyaan yang sudah terisi di kolom input. Pengguna tetap menekan Kirim sendiri.
@@ -122,7 +132,9 @@ export default function ChatWidget () {
   }
 
   return (
-    <div className='fixed bottom-5 right-5 z-[100] flex flex-col items-end gap-3'>
+    <div
+      className={`fixed bottom-5 right-5 z-[100] flex flex-col items-end gap-3 ${pageModalOpen && !isOpen ? 'hidden' : ''}`}
+    >
       {isOpen && (
         <section
           className='flex h-[min(700px,80dvh)] w-[calc(100vw-2rem)] max-w-[480px] flex-col overflow-hidden rounded-[24px] border border-[#F0D4DF] bg-[#FFF8FB] shadow-[0_12px_45px_rgba(120,70,90,0.20)] sm:h-[500px]'
@@ -135,7 +147,7 @@ export default function ChatWidget () {
             </div>
 
             <div className='min-w-0 flex-1'>
-              <h2 className='font-bold text-[#332A35]'>Tanya Sycle</h2>
+              <h2 className='font-bold text-[#332A35]'>Tanya <span translate="no">Sycle</span></h2>
               <p className='text-xs text-[#765866]'>
                 Teman memahami lingkungan dan kesehatan perempuan
               </p>
@@ -159,7 +171,7 @@ export default function ChatWidget () {
               </div>
 
               <div className='max-w-[85%] rounded-2xl rounded-tl-sm bg-white p-3 text-sm leading-relaxed text-[#493D49] shadow-sm'>
-                Hai! 💗 Aku Tanya Sycle.
+                Hai! 💗 Aku Tanya <span translate="no">Sycle</span>.
                 <p className='mt-2'>
                   Aku akan membantumu memahami hubungan lingkungan dengan
                   kesehatan perempuan. Apa yang ingin kamu ketahui hari ini?
@@ -316,7 +328,7 @@ export default function ChatWidget () {
         )}
 
         <span className='text-sm font-bold'>
-          {isOpen ? 'Tutup Chat' : 'Tanya Sycle'}
+          {isOpen ? 'Tutup Chat' : <>Tanya <span translate="no">Sycle</span></>}
         </span>
       </button>
     </div>
