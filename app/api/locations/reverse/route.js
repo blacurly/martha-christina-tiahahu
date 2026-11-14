@@ -1,4 +1,18 @@
 import { NextResponse } from "next/server";
+import { searchVillages } from "@/lib/repositories/regionRepository";
+
+const normalize = (value) =>
+  String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\b(kabupaten|kab\.|kota|kec\.|kecamatan)\b/g, "")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const getFirstValue = (...values) =>
+  values.find((value) => typeof value === "string" && value.trim()) ?? "";
 
 export async function GET(request) {
   const params = request.nextUrl.searchParams;
@@ -29,6 +43,7 @@ export async function GET(request) {
   url.searchParams.set("lat", String(lat));
   url.searchParams.set("lon", String(lon));
   url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("zoom", "14");
   url.searchParams.set("accept-language", "id");
 
   try {
@@ -50,32 +65,32 @@ export async function GET(request) {
     const result = await response.json();
     const address = result.address ?? {};
 
-    const village =
-      address.village ??
-      address.suburb ??
-      address.neighbourhood ??
-      address.quarter ??
-      address.hamlet ??
-      "";
+    const village = getFirstValue(
+      address.village,
+      address.suburb,
+      address.neighbourhood,
+      address.quarter,
+      address.hamlet
+    );
 
-    const district =
-      address.city_district ??
-      address.district ??
-      address.county ??
-      "";
+    const district = getFirstValue(
+      address.city_district,
+      address.district
+    );
 
-    const city =
-      address.city ??
-      address.town ??
-      address.municipality ??
-      "";
+    const regency = getFirstValue(
+      address.city,
+      address.town,
+      address.municipality,
+      address.county
+    );
 
-    const province = address.state ?? "";
+    const province = getFirstValue(address.state);
 
     const location = [
       village,
       district,
-      city,
+      regency,
       province,
     ]
       .filter(Boolean)
@@ -83,13 +98,66 @@ export async function GET(request) {
         array.indexOf(value) === index
       )
       .join(", ");
+    
+    // Pencocokan wilayah menggunakan dataset lokal.
+    let matchedRegion = null;
+
+    if (village && regency && province) {
+      const query = [
+        village,
+        regency,
+        province,
+      ].join(" ");
+
+      const { items } = searchVillages(query, 100);
+
+      const matches = items.filter((item) => {
+        const sameVillage =
+          normalize(item.village) === normalize(village);
+
+        const sameRegency =
+          normalize(item.regency) === normalize(regency);
+
+        const sameProvince =
+          normalize(item.province) === normalize(province);
+
+        const sameDistrict =
+          !district ||
+          normalize(item.district) === normalize(district);
+
+        return (
+          sameVillage &&
+          sameRegency &&
+          sameProvince &&
+          sameDistrict
+        );
+      });
+
+      // ADM4 hanya diberikan jika hasil pencocokan unik.
+      if (matches.length === 1) {
+        matchedRegion = matches[0];
+      }
+    }
 
     return NextResponse.json({
       location: location || result.display_name || "",
+      adm4: matchedRegion?.code ?? null,
+      matched: Boolean(matchedRegion),
+      region: matchedRegion
+        ? {
+            village: matchedRegion.village,
+            district: matchedRegion.district,
+            regency: matchedRegion.regency,
+            province: matchedRegion.province,
+            label: matchedRegion.label,
+          }
+        : null,
       address,
       attribution: "© OpenStreetMap contributors",
     });
-  } catch {
+  } catch (error) {
+    console.error("Reverse geocoding gagal:", error);
+
     return NextResponse.json(
       { message: "Layanan reverse geocoding tidak dapat diakses." },
       { status: 502 }

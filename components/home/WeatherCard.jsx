@@ -3,6 +3,12 @@
 import { useEffect, useState } from "react";
 import {
   Sun,
+  Cloud,
+  Cloudy,
+  CloudSun,
+  CloudRain,
+  CloudDrizzle,
+  CloudLightning,
   Droplets,
   Wind,
   ThermometerSun,
@@ -90,8 +96,12 @@ function formatLocation(location) {
     };
   }
 
+  const separator = String(location).includes(">")
+    ? ">"
+    : ",";
+
   const parts = String(location)
-    .split(">")
+    .split(separator)
     .map((part) => part.trim())
     .filter(Boolean);
 
@@ -99,11 +109,25 @@ function formatLocation(location) {
     return { city: parts[0], region: "" };
   }
 
-  const [province, regency, district, village] = parts;
+  if (separator === ">") {
+    const [province, regency, district, village] = parts;
+
+    return {
+      city: village || regency || parts[parts.length - 1],
+      region: [district, regency, province]
+        .filter(Boolean)
+        .join(", "),
+    };
+  }
+
+  // Format GPS: Kelurahan, Kecamatan, Kota/Kabupaten, Provinsi
+  const [village, district, regency, province] = parts;
 
   return {
-    city: village || regency || parts[parts.length - 1],
-    region: [district, regency, province].filter(Boolean).join(", "),
+    city: village,
+    region: [district, regency, province]
+      .filter(Boolean)
+      .join(", "),
   };
 }
 
@@ -135,12 +159,18 @@ function getSourceName(indicator, fallback = null) {
 // Satu baris keterangan kecil per kartu: sumber data, ditambah detail singkat bila perlu.
 // Bila sumber belum ada (data belum tersedia), baris ini tidak ditampilkan.
 function sourceNote(indicator, fallbackSource = null, detail = null) {
-  const source = indicator?.source?.name || fallbackSource;
-  if (!source || indicator?.status === "unavailable") return null;
-  if (indicator?.status === "stale") {
+  if (!indicator || indicator.status === "unavailable") return null;
+
+  const source = indicator.source?.name || fallbackSource;
+  if (!source) return null;
+
+  if (indicator.status === "stale") {
     return `Sumber: ${source} · data sudah melewati batas kesegaran`;
   }
-  return detail ? `Sumber: ${source} · ${detail}` : `Sumber: ${source}`;
+
+  return detail
+    ? `Sumber: ${source} · ${detail}`
+    : `Sumber: ${source}`;
 }
 
 function getUvStatus(value, indicator) {
@@ -275,6 +305,65 @@ function getHeatIndexStatus(value) {
   return { label: "Bahaya ekstrem", level: "danger" };
 }
 
+function WeatherConditionIcon({ condition }) {
+  const normalized = (condition || "").toLowerCase();
+
+  if (
+    normalized.includes("petir") ||
+    normalized.includes("thunder") ||
+    normalized.includes("badai")
+  ) {
+    return <CloudLightning size={36} strokeWidth={1.6} color="#E6A23C" />;
+  }
+
+  if (
+    normalized.includes("hujan lebat") ||
+    normalized.includes("heavy rain")
+  ) {
+    return <CloudRain size={36} strokeWidth={1.6} color="#4A90C2" />;
+  }
+
+  if (
+    normalized.includes("hujan ringan") ||
+    normalized.includes("gerimis") ||
+    normalized.includes("drizzle")
+  ) {
+    return <CloudDrizzle size={36} strokeWidth={1.6} color="#4A90C2" />;
+  }
+
+  if (
+    normalized.includes("hujan") ||
+    normalized.includes("rain")
+  ) {
+    return <CloudRain size={36} strokeWidth={1.6} color="#4A90C2" />;
+  }
+
+  if (
+    normalized.includes("berawan") ||
+    normalized.includes("overcast")
+  ) {
+    return <Cloudy size={36} strokeWidth={1.6} color="#8A9BAA" />;
+  }
+
+  if (
+    normalized.includes("cerah berawan") ||
+    normalized.includes("partly cloudy") ||
+    normalized.includes("sebagian berawan")
+  ) {
+    return <CloudSun size={36} strokeWidth={1.6} color="#E6A23C" />;
+  }
+
+  if (
+    normalized.includes("berawan tebal") ||
+    normalized.includes("mendung") ||
+    normalized.includes("cloudy")
+  ) {
+    return <Cloud size={36} strokeWidth={1.6} color="#8A9BAA" />;
+  }
+
+  return <Sun size={36} strokeWidth={1.6} color="#E6A23C" />;
+}
+
 function StatusBadge({ status }) {
   return (
     <span
@@ -311,16 +400,14 @@ export default function WeatherCard({
   const uvIndicator = indicators?.uv;
 
   const temperatureValue =
-    temperatureIndicator?.status !== "unavailable"
-      ? toFiniteNumber(temperatureIndicator?.value) ??
-        toFiniteNumber(forecast?.temperature)
-      : toFiniteNumber(forecast?.temperature);
+    ["ok", "stale"].includes(temperatureIndicator?.status)
+      ? toFiniteNumber(temperatureIndicator.value)
+      : null;
 
   const humidityValue =
-    humidityIndicator?.status !== "unavailable"
-      ? toFiniteNumber(humidityIndicator?.value) ??
-        toFiniteNumber(forecast?.humidity)
-      : toFiniteNumber(forecast?.humidity);
+    ["ok", "stale"].includes(humidityIndicator?.status)
+      ? toFiniteNumber(humidityIndicator.value)
+      : null;
 
   const heatIndexValue =
     heatIndexIndicator?.status !== "unavailable"
@@ -485,10 +572,11 @@ export default function WeatherCard({
     weather?.location?.lon,
   ]);
 
-  const temperatureSource = getSourceName(
-    temperatureIndicator,
-    forecast ? "BMKG" : null
-  );
+  const temperatureSource =
+    temperatureIndicator?.source?.name ?? "Belum tersedia";
+
+  const humiditySource =
+    humidityIndicator?.source?.name ?? "Belum tersedia";
 
   const temperatureDescription =
     temperatureIndicator?.fallbackReason ||
@@ -512,10 +600,12 @@ export default function WeatherCard({
       status: humidityStatus,
       note: sourceNote(
         humidityIndicator,
-        forecast?.humidity != null ? "BMKG" : null,
+        null,
         humidityIndicator?.dataType === "model"
-          ? "model per 15 menit"
-          : "prakiraan per 3 jam"
+          ? "model Open-Meteo"
+          : humidityIndicator?.dataType === "prakiraan"
+            ? "prakiraan BMKG"
+            : null
       ),
       type: "humidity",
     },
@@ -609,7 +699,7 @@ export default function WeatherCard({
       <div className="weather-main">
         <div className="weather-temperature">
           <span className="weather-sun" aria-hidden="true">
-            <Sun size={36} strokeWidth={1.6} color="#E6A23C" />
+            <WeatherConditionIcon condition={forecast?.condition} />
           </span>
 
           <div className="temperature-reading">
@@ -629,9 +719,12 @@ export default function WeatherCard({
 
           <StatusBadge status={temperatureStatus} />
 
-          <span className="temperature-source">
-            Sumber: {temperatureSource}
-          </span>
+          {temperatureValue !== null && (
+            <span className="temperature-source">
+              Sumber: {temperatureSource}
+              {temperatureIndicator?.status === "stale" && " · Data tersimpan"}
+            </span>
+          )}
         </div>
 
         <div className="weather-feels">

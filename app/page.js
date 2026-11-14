@@ -43,7 +43,7 @@ export default function HomePage() {
 
       if (saved.village) {
         setSelectedLocation(saved.village);
-        setSearchText(saved.village);
+        setSearchText("");
       }
 
       if (saved.label) setLocation(saved.label);
@@ -91,7 +91,7 @@ export default function HomePage() {
         );
       } catch (error) {
         if (error.name !== "AbortError") {
-          setLocationResults([]);
+          setLocationResults("");
           setLocationStatus(error.message || "Pencarian wilayah gagal.");
         }
       } finally {
@@ -180,22 +180,43 @@ export default function HomePage() {
             return;
           }
 
-          const locationName = result.location;
+          const locationName =
+            result.region?.village
+              ? [
+                  result.region.village,
+                  result.region.district,
+                  result.region.regency,
+                  result.region.province,
+                ]
+                  .filter(Boolean)
+                  .join(", ")
+              : result.location;
+
+          const adm4 = result.adm4 ?? null;
 
           setLocation(locationName);
           setSelectedLocation(locationName);
+          setSelectedAdm4(adm4);
+
+          setEnvironmentLocation({
+            adm4,
+            coordinates: { latitude, longitude },
+          });
 
           rememberLocation({
-            adm4: null,
+            adm4,
             coordinates: { latitude, longitude },
             label: locationName,
-            village: locationName,
+            village: result.region?.village ?? locationName,
           });
-          setSearchText(locationName);
+
+          setSearchText("");
           setLocationResults([]);
 
           setLocationStatus(
-            `Lokasi ditemukan: ${locationName}. Periksa nama wilayah dan koreksi jika kurang tepat.`
+            adm4
+              ? `Lokasi ditemukan: ${locationName}.`
+              : `Lokasi ditemukan: ${locationName}, tetapi kode ADM4 belum cocok. Data alternatif akan digunakan.`
           );
         } catch (error) {
           setLocationStatus(
@@ -307,7 +328,7 @@ export default function HomePage() {
       .join(" > ");
 
     setSelectedLocation(village);
-    setSearchText(village);
+    setSearchText("");
     setLocation(locationPath);
     setLocationResults([]);
     setCoordinates(null);
@@ -326,7 +347,7 @@ export default function HomePage() {
     });
 
     setLocationStatus(
-      `Lokasi dipilih: ${label}. Kode wilayah BMKG: ${adm4}.`
+      `Lokasi dipilih: ${label}.`
     );
   }
 
