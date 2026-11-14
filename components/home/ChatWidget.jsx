@@ -135,7 +135,7 @@ export default function ChatWidget () {
             </div>
 
             <div className='min-w-0 flex-1'>
-              <h2 className='font-bold text-[#332A35]'>Tanya Sycle</h2>
+              <h2 className='font-bold text-[#332A35]'>Tanya <span translate="no">Sycle</span></h2>
               <p className='text-xs text-[#765866]'>
                 Teman memahami lingkungan dan kesehatan perempuan
               </p>
@@ -159,7 +159,7 @@ export default function ChatWidget () {
               </div>
 
               <div className='max-w-[85%] rounded-2xl rounded-tl-sm bg-white p-3 text-sm leading-relaxed text-[#493D49] shadow-sm'>
-                Hai! 💗 Aku Tanya Sycle.
+                Hai! 💗 Aku Tanya <span translate="no">Sycle</span>.
                 <p className='mt-2'>
                   Aku akan membantumu memahami hubungan lingkungan dengan
                   kesehatan perempuan. Apa yang ingin kamu ketahui hari ini?
@@ -316,7 +316,7 @@ export default function ChatWidget () {
         )}
 
         <span className='text-sm font-bold'>
-          {isOpen ? 'Tutup Chat' : 'Tanya Sycle'}
+          {isOpen ? 'Tutup Chat' : <>Tanya <span translate="no">Sycle</span></>}
         </span>
       </button>
     </div>
