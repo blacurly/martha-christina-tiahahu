@@ -91,7 +91,7 @@ export default function HomePage() {
         );
       } catch (error) {
         if (error.name !== "AbortError") {
-          setLocationResults("");
+          setLocationResults([]);
           setLocationStatus(error.message || "Pencarian wilayah gagal.");
         }
       } finally {

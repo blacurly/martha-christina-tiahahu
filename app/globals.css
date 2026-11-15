@@ -768,7 +768,7 @@ select:focus-visible {
   background: #fff0d8;
 }
 
-.metric-aqi .metric-icon {
+.metric-air-quality .metric-icon {
   background: var(--sage);
 }
 
