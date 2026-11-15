@@ -765,9 +765,9 @@ export default function HealthcarePage() {
                           : "border-[#E8D5DE] bg-white text-[#8E3E5E] hover:border-[#B84E73] hover:bg-[#FFF8FB]"
                       }`}
                     >
-                      {type.label}
+                      {type.label}{" "}
                       <span className={active ? "text-white/90" : "text-[#A38C9A]"}>
-                        {typeCounts[type.value] ?? 0}
+                        ({typeCounts[type.value] ?? 0})
                       </span>
                     </button>
                   );

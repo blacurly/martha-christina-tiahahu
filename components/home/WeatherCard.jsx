@@ -640,7 +640,7 @@ export default function WeatherCard({
           ? `Stasiun ${airQualityIndicator.station.name}`
           : null
       ),
-      type: "aqi",
+      type: "air-quality",
     },
     {
       icon: <ThermometerSun size={18} strokeWidth={1.8} />,
@@ -655,7 +655,7 @@ export default function WeatherCard({
           ? heatIndexIndicator?.source?.attribution ||
             sourceNote(heatIndexIndicator)
           : null,
-      type: "heatIndex",
+      type: "heat-index",
     },
   ];
 
