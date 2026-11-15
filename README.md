@@ -1,7 +1,6 @@
 # martha-christina-tiahahu
 Project repository dedicated to martha christina tiahahu
 
-#SYCLE
 ## Capstone Project **Perempuan Inovasi GENerasi AI - AI Full Stack Web Development 2026**
 
 ## Our Warriors
