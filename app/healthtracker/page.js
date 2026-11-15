@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { LogIn, UserPlus } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { connection } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { Suspense } from "react";
@@ -62,28 +63,34 @@ async function HealthTrackerContent({ searchParams }) {
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link
-              href="/login?next=/healthtracker"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#B84E73] px-6 py-3 font-extrabold text-white transition hover:bg-[#8E3E5E]"
+            <Button
+              render={<Link href="/login?next=/healthtracker" />}
+              nativeButton={false}
+              variant="syclePrimary"
+              size="pill"
             >
               <LogIn size={18} />
               Masuk
-            </Link>
+            </Button>
 
-            <Link
-              href="/signup?next=/healthtracker"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-[#B84E73] px-6 py-3 font-extrabold text-[#8E3E5E] transition hover:bg-white"
+            <Button
+              render={<Link href="/signup?next=/healthtracker" />}
+              nativeButton={false}
+              variant="sycleOutline"
+              size="pill"
             >
               <UserPlus size={18} />
               Daftar akun
-            </Link>
+            </Button>
 
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center rounded-full px-6 py-3 font-bold text-[#6F6570] transition hover:bg-white/60"
+            <Button
+              render={<Link href="/" />}
+              nativeButton={false}
+              variant="sycleGhost"
+              size="pill"
             >
               Kembali ke Beranda
-            </Link>
+            </Button>
           </div>
         </section>
 

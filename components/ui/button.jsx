@@ -17,7 +17,15 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
-      },
+        syclePrimary:
+          "rounded-full !bg-[#B84E73] !text-white hover:!bg-[#8E3E5E]",
+
+        sycleOutline:
+          "rounded-full border border-[#B84E73] bg-transparent !text-[#8E3E5E] hover:bg-white",
+
+        sycleGhost:
+          "rounded-full !bg-transparent !px-6 !py-3 !text-[#6F6570] hover:!bg-white/60",
+              },
       size: {
         default:
           "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
@@ -30,6 +38,7 @@ const buttonVariants = cva(
         "icon-sm":
           "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
         "icon-lg": "size-9",
+        pill: "h-auto min-h-11 gap-2 px-6 py-3",
       },
     },
     defaultVariants: {

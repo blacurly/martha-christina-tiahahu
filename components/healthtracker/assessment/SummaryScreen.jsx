@@ -7,31 +7,12 @@ import {
   HeartPulse,
   MapPin,
   MessageCircle,
-  ShieldCheck,
 } from "lucide-react";
 
-import { HEALTH_TRACKER_SCALE } from "@/data/healthTrackerQuestions";
-
 import {
-  getAnswerLabel,
-  getInlineScaleQuestion,
-  getLabel,
-  getValue,
+  getSummaryQuestionData,
+  isAnswered,
 } from "./utils/healthTrackerSummary";
-
-function isAnswered(value) {
-  return Array.isArray(value)
-    ? value.length > 0
-    : value !== undefined && value !== null && value !== "";
-}
-
-function getScaleLabel(value) {
-  const option = HEALTH_TRACKER_SCALE.find(
-    (item) => String(getValue(item)) === String(value)
-  );
-
-  return option ? getLabel(option) : "Belum diisi";
-}
 
 function formatCapturedAt(value) {
   if (!value) return "Waktu tidak tersedia";
@@ -46,80 +27,6 @@ function formatCapturedAt(value) {
     dateStyle: "long",
     timeStyle: "short",
   });
-}
-
-function EnvironmentIndicator({ item }) {
-  if (!item) return null;
-
-  const sourceName =
-    typeof item.source === "string"
-      ? item.source
-      : item.source?.name;
-
-  const isUnavailable = item.status === "unavailable";
-
-  return (
-    <div className="rounded-xl border border-[#E9F2EA] bg-white p-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <p className="font-semibold text-[#365541]">
-            {item.label}
-          </p>
-
-          {isUnavailable ? (
-            <p className="mt-1 text-xs text-[#8A7B87]">
-              {item.message || "Data belum tersedia."}
-            </p>
-          ) : (
-            <>
-              <p className="mt-1 text-lg font-bold text-[#332A35]">
-                {typeof item.value === "number"
-                  ? item.value.toLocaleString("id-ID", {
-                      maximumFractionDigits: 1,
-                    })
-                  : item.value}{" "}
-                {item.unit}
-              </p>
-
-              {item.category?.label && (
-                <p className="mt-1 text-xs font-medium text-[#52745A]">
-                  {item.category.label}
-                </p>
-              )}
-            </>
-          )}
-        </div>
-
-        {item.status === "stale" && (
-          <span className="rounded-full bg-[#FFF3DF] px-2 py-1 text-xs text-[#946B2D]">
-            Data lama
-          </span>
-        )}
-      </div>
-
-      {!isUnavailable && (
-        <div className="mt-2 space-y-1 text-xs text-[#8A7B87]">
-          {sourceName && (
-            <p>Sumber: {sourceName}</p>
-          )}
-
-          {item.dataType && (
-            <p>Jenis data: {item.dataType}</p>
-          )}
-
-          {item.timeNote && (
-            <p>{item.timeNote}</p>
-          )}
-        </div>
-      )}
-
-      {item.isFallback && item.fallbackReason && (
-        <p className="mt-2 rounded-lg bg-[#FFF8FB] p-2 text-xs leading-5 text-[#746875]">
-          {item.fallbackReason}
-        </p>
-      )}
-    </div>
-  );
 }
 
 function SummaryCard({
@@ -178,31 +85,21 @@ function SummaryItem({
   scores,
   condition,
 }) {
-  const value = answers[question.code];
-
-  if (!isAnswered(value)) return null;
-
-  const scaleQuestion = getInlineScaleQuestion(
+  const summary = getSummaryQuestionData(
     question,
+    answers,
+    scores,
     condition
   );
 
-  const selectedOptions =
-    scaleQuestion && Array.isArray(value)
-      ? value.filter(
-          (item) =>
-            ![
-              "lainnya",
-              "tidak_ada",
-              "tidak_ada_yang_ingin_dicatat",
-            ].includes(item)
-        )
-      : [];
+  if (!summary || !summary.isAnswered) return null;
 
-  const hasOther =
-    question.otherText &&
-    Array.isArray(value) &&
-    value.includes("lainnya");
+  const {
+    answerLabel,
+    hasOther,
+    otherText,
+    scoredOptions,
+  } = summary;
 
   return (
     <div>
@@ -210,51 +107,35 @@ function SummaryItem({
         {question.question}
       </p>
 
-      {question.type === "scale" ? (
-        <p className="mt-1 font-semibold text-[#8E3E5E]">
-          {getScaleLabel(value)}
-        </p>
-      ) : (
-        <p className="mt-1">
-          {getAnswerLabel(question, answers)}
-        </p>
-      )}
+      <p className="mt-1">
+        {answerLabel}
+      </p>
 
       {/* Keterangan lainnya */}
       {hasOther && (
         <p className="mt-2 rounded-lg bg-[#FFF8FB] p-3">
           <span className="font-semibold">Keterangan:</span>{" "}
-          {answers[question.otherText.key] || "Belum diisi"}
+          {otherText}
         </p>
       )}
 
       {/* Tingkat gangguan per pilihan */}
-      {selectedOptions.length > 0 && (
+      {scoredOptions.length > 0 && (
         <div className="mt-3 space-y-2 rounded-lg bg-[#FFF8FB] p-3">
-          {selectedOptions.map((optionCode) => {
-            const option = question.options?.find(
-              (item) => getValue(item) === optionCode
-            );
+          {scoredOptions.map((option) => (
+            <div
+              key={option.code}
+              className="flex flex-wrap justify-between gap-2"
+            >
+              <span>{option.label}</span>
 
-            const score = scores?.[optionCode];
-
-            return (
-              <div
-                key={optionCode}
-                className="flex flex-wrap justify-between gap-2"
-              >
-                <span>
-                  {getLabel(option) || optionCode}
-                </span>
-
-                <span className="font-semibold text-[#8E3E5E]">
-                  {isAnswered(score)
-                    ? getScaleLabel(score)
-                    : "Tingkat gangguan belum diisi"}
-                </span>
-              </div>
-            );
-          })}
+              <span className="font-semibold text-[#8E3E5E]">
+                {option.scoreAnswered
+                  ? option.scoreLabel
+                  : "Tingkat gangguan belum diisi"}
+              </span>
+            </div>
+          ))}
         </div>
       )}
     </div>

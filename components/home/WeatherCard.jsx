@@ -306,8 +306,9 @@ function getHeatIndexStatus(value) {
 }
 
 function WeatherConditionIcon({ condition }) {
-  const normalized = (condition || "").toLowerCase();
+  const normalized = (condition || "").toLowerCase().trim();
 
+  // Petir
   if (
     normalized.includes("petir") ||
     normalized.includes("thunder") ||
@@ -316,6 +317,7 @@ function WeatherConditionIcon({ condition }) {
     return <CloudLightning size={36} strokeWidth={1.6} color="#E6A23C" />;
   }
 
+  // Hujan lebat
   if (
     normalized.includes("hujan lebat") ||
     normalized.includes("heavy rain")
@@ -323,6 +325,7 @@ function WeatherConditionIcon({ condition }) {
     return <CloudRain size={36} strokeWidth={1.6} color="#4A90C2" />;
   }
 
+  // Hujan ringan
   if (
     normalized.includes("hujan ringan") ||
     normalized.includes("gerimis") ||
@@ -331,6 +334,7 @@ function WeatherConditionIcon({ condition }) {
     return <CloudDrizzle size={36} strokeWidth={1.6} color="#4A90C2" />;
   }
 
+  // Hujan
   if (
     normalized.includes("hujan") ||
     normalized.includes("rain")
@@ -338,13 +342,7 @@ function WeatherConditionIcon({ condition }) {
     return <CloudRain size={36} strokeWidth={1.6} color="#4A90C2" />;
   }
 
-  if (
-    normalized.includes("berawan") ||
-    normalized.includes("overcast")
-  ) {
-    return <Cloudy size={36} strokeWidth={1.6} color="#8A9BAA" />;
-  }
-
+  // Cerah berawan — harus sebelum pemeriksaan berawan
   if (
     normalized.includes("cerah berawan") ||
     normalized.includes("partly cloudy") ||
@@ -353,14 +351,24 @@ function WeatherConditionIcon({ condition }) {
     return <CloudSun size={36} strokeWidth={1.6} color="#E6A23C" />;
   }
 
+  // Berawan tebal atau mendung
   if (
     normalized.includes("berawan tebal") ||
     normalized.includes("mendung") ||
+    normalized.includes("overcast")
+  ) {
+    return <Cloudy size={36} strokeWidth={1.6} color="#8A9BAA" />;
+  }
+
+  // Berawan biasa
+  if (
+    normalized.includes("berawan") ||
     normalized.includes("cloudy")
   ) {
     return <Cloud size={36} strokeWidth={1.6} color="#8A9BAA" />;
   }
 
+  // Cerah
   return <Sun size={36} strokeWidth={1.6} color="#E6A23C" />;
 }
 

@@ -5,13 +5,8 @@ import {
   CardContent,
 } from "@/components/ui/card";
 
-import { HEALTH_TRACKER_SCALE } from "@/data/healthTrackerQuestions";
-
 import {
-  getLabel,
-  getValue,
-  getInlineScaleQuestion,
-  getAnswerLabel,
+  getSummaryQuestionData,
 } from "../utils/healthTrackerSummary";
 
 export default function SummaryQuestionCard({
@@ -20,50 +15,21 @@ export default function SummaryQuestionCard({
   scores,
   condition,
 }) {
-  if (!question || !answers) return null;
-
-  const value = answers[question.code];
-
-  const answerLabel =
-  question.type === "scale"
-    ? getLabel(
-        HEALTH_TRACKER_SCALE.find(
-          (option) =>
-            String(getValue(option)) === String(value)
-        )
-      ) || "Belum diisi"
-    : getAnswerLabel(question, answers);
-
-  const isAnswered =
-    Array.isArray(value)
-      ? value.length > 0
-      : value !== undefined && value !== null && value !== "";
-
-  if (!isAnswered) return null;
-
-  const otherTextKey = question.otherText?.key;
-
-  const hasOther =
-    otherTextKey &&
-    Array.isArray(value) &&
-    value.includes("lainnya");
-
-  const scaleQuestion = getInlineScaleQuestion(
+  const summary = getSummaryQuestionData(
     question,
+    answers,
+    scores,
     condition
   );
 
-  const scoredOptions =
-    scaleQuestion && Array.isArray(value)
-      ? value.filter(
-          (optionCode) =>
-            ![
-              "lainnya",
-              "tidak_ada",
-              "tidak_ada_yang_ingin_dicatat",
-            ].includes(optionCode)
-        )
-      : [];
+  if (!summary || !summary.isAnswered) return null;
+
+  const {
+    answerLabel,
+    hasOther,
+    otherText,
+    scoredOptions,
+  } = summary;
 
   return (
     <Card className="rounded-xl border border-[#F0E3E9] bg-white py-0 shadow-none">
@@ -84,7 +50,7 @@ export default function SummaryQuestionCard({
             </p>
 
             <p className="mt-1 text-sm text-[#5F5360]">
-              {answers[otherTextKey] || "Belum diisi"}
+              {otherText}
             </p>
           </div>
         )}
@@ -97,51 +63,26 @@ export default function SummaryQuestionCard({
             </p>
 
             <div className="space-y-3">
-              {scoredOptions.map((optionCode) => {
-                const selectedOption = question.options?.find(
-                  (option) => getValue(option) === optionCode
-                );
+              {scoredOptions.map((option) => (
+                <div
+                  key={option.code}
+                  className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <span className="text-sm text-[#5F5360]">
+                    {option.label}
+                  </span>
 
-                const optionLabel =
-                  getLabel(selectedOption) || optionCode;
-
-                const score = scores?.[optionCode];
-
-                const scaleOption = HEALTH_TRACKER_SCALE.find(
-                  (option) =>
-                    String(getValue(option)) === String(score)
-                );
-
-                const scoreLabel =
-                  score !== undefined &&
-                  score !== null &&
-                  score !== ""
-                    ? getLabel(scaleOption) || `Skor ${score}`
-                    : "Belum diisi";
-
-                return (
-                  <div
-                    key={optionCode}
-                    className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
+                  <span
+                    className={`text-sm font-semibold ${
+                      option.scoreAnswered
+                        ? "text-[#8E3E5E]"
+                        : "text-[#9A8E99]"
+                    }`}
                   >
-                    <span className="text-sm text-[#5F5360]">
-                      {optionLabel}
-                    </span>
-
-                    <span
-                      className={`text-sm font-semibold ${
-                        score !== undefined &&
-                        score !== null &&
-                        score !== ""
-                          ? "text-[#8E3E5E]"
-                          : "text-[#9A8E99]"
-                      }`}
-                    >
-                      {scoreLabel}
-                    </span>
-                  </div>
-                );
-              })}
+                    {option.scoreLabel}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         )}

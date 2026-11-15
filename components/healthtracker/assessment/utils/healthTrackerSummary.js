@@ -1,6 +1,7 @@
 import {
   HEALTH_TRACKER_BASE_STEPS,
   HEALTH_TRACKER_BRANCH_STEPS,
+  HEALTH_TRACKER_SCALE,
   getHealthTrackerQuestion,
   isHealthTrackerQuestionVisible,
 } from "@/data/healthTrackerQuestions";
@@ -113,4 +114,92 @@ export function getConditionQuestions(condition, answers) {
       question.type !== "per_option_scale" &&
       isHealthTrackerQuestionVisible(question, answers)
   );
+}
+
+// Memeriksa apakah jawaban sudah diisi.
+export function isAnswered(value) {
+  return Array.isArray(value)
+    ? value.length > 0
+    : value !== undefined && value !== null && value !== "";
+}
+
+// Mengambil label dari skala Health Tracker.
+export function getScaleLabel(value) {
+  const option = HEALTH_TRACKER_SCALE.find(
+    (item) => String(getValue(item)) === String(value)
+  );
+
+  return option ? getLabel(option) : "Belum diisi";
+}
+
+// Mengolah seluruh informasi jawaban untuk ringkasan.
+export function getSummaryQuestionData(
+  question,
+  answers = {},
+  scores = {},
+  condition
+) {
+  if (!question || !answers) return null;
+
+  const value = answers[question.code];
+
+  const answerLabel =
+    question.type === "scale"
+      ? getScaleLabel(value)
+      : getAnswerLabel(question, answers);
+
+  const otherTextKey = question.otherText?.key;
+
+  const hasOther =
+    Boolean(otherTextKey) &&
+    Array.isArray(value) &&
+    value.includes("lainnya");
+
+  const scaleQuestion = getInlineScaleQuestion(
+    question,
+    condition
+  );
+
+  const scoredOptions =
+    scaleQuestion && Array.isArray(value)
+      ? value
+          .filter(
+            (optionCode) =>
+              ![
+                "lainnya",
+                "tidak_ada",
+                "tidak_ada_yang_ingin_dicatat",
+              ].includes(optionCode)
+          )
+          .map((optionCode) => {
+            const option = question.options?.find(
+              (item) => getValue(item) === optionCode
+            );
+
+            const score = scores?.[optionCode];
+            const scoreAnswered = isAnswered(score);
+
+            return {
+              code: optionCode,
+              label: getLabel(option) || optionCode,
+              score,
+              scoreAnswered,
+              scoreLabel: scoreAnswered
+                ? getScaleLabel(score)
+                : "Belum diisi",
+            };
+          })
+      : [];
+
+  return {
+    value,
+    isAnswered: isAnswered(value),
+    answerLabel,
+    otherTextKey,
+    hasOther,
+    otherText: otherTextKey
+      ? answers[otherTextKey] || "Belum diisi"
+      : "",
+    scoredOptions,
+  };
 }
