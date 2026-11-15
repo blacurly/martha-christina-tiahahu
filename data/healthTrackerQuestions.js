@@ -130,26 +130,12 @@ export const HEALTH_TRACKER_QUESTIONS = {
   // KONTEKS MENSTRUASI
   // ==========================================
 
-  "HM-01": {
-    code: "HM-01",
-    type: "single",
-    question: "Apakah kamu sedang menstruasi hari ini?",
-    required: true,
-    condition: "menstruasi",
-    options: [
-      { value: "ya", label: "Ya" },
-      { value: "tidak", label: "Tidak" },
-      { value: "tidak_ingin_menjawab", label: "Tidak ingin menjawab" },
-    ],
-  },
-
   "HM-02": {
     code: "HM-02",
     type: "single",
     question: "Hari keberapa menstruasimu saat ini?",
     required: true,
     condition: "menstruasi",
-    showIf: { question: "HM-01", equals: "ya" },
     options: [
       { value: "hari_1", label: "Hari 1" },
       { value: "hari_2", label: "Hari 2" },
@@ -175,7 +161,6 @@ export const HEALTH_TRACKER_QUESTIONS = {
     question: "Bagaimana kamu menggambarkan jumlah darah menstruasimu hari ini?",
     required: true,
     condition: "menstruasi",
-    showIf: { question: "HM-01", equals: "ya" },
     options: [
       { value: "sedikit", label: "Sedikit" },
       { value: "sedang", label: "Sedang" },
@@ -337,7 +322,6 @@ export const HEALTH_TRACKER_BASE_STEPS = [
 
 export const HEALTH_TRACKER_BRANCH_STEPS = {
   menstruasi: [
-    "HM-01",
     "HM-02",
     "HM-03",
     "HM-04",

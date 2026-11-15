@@ -342,16 +342,17 @@ export default function QuestionRenderer({
 }) {
   if (!question) return null;
 
-  const value = answers[question.code];
+  const value = answers?.[question.code];
 
+  // HM-02: Hari keberapa menstruasi
   if (question.code === "HM-02") {
-  return (
-    <MenstruasiRenderer
-      value={value}
-      updateAnswer={updateAnswer}
-    />
-  );
-}
+    return (
+      <MenstruasiRenderer
+        value={value}
+        updateAnswer={updateAnswer}
+      />
+    );
+  }
 
   // HT-02 menggunakan tampilan khusus.
   if (question.code === "HT-02") {
@@ -525,79 +526,6 @@ export default function QuestionRenderer({
           description="Saya tidak mengalami situasi tersebut hari ini."
           checked={hasNoSituation}
           onChange={handleNoSituation}
-        />
-      </div>
-    );
-  }
-
-  // HM-01: Status menstruasi
-  if (question.code === "HM-01") {
-    const skipValue = "tidak_ingin_menjawab";
-
-    const options = question.options?.filter(
-      (option) => getValue(option) !== skipValue
-    ) ?? [];
-
-    const skipSelected = value === skipValue;
-
-    return (
-      <div className="space-y-5">
-        {/* Pilihan Ya dan Tidak */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {options.map((option) => {
-            const optionValue = getValue(option);
-            const label = getLabel(option);
-            const selected = value === optionValue;
-
-            return (
-              <button
-                key={optionValue}
-                type="button"
-                onClick={() => {
-                  updateAnswer(question.code, optionValue);
-
-                  if (optionValue !== "ya") {
-                    updateAnswer("HM-02", null);
-                  }
-                }}
-                aria-pressed={selected}
-                className={`flex min-h-64px w-full items-center justify-between rounded-2xl border px-5 py-4 text-left transition-all duration-200 ${
-                  selected
-                    ? "border-[#B84E73] bg-[#F8E8EF] shadow-sm ring-2 ring-[#B84E73]/15"
-                    : "border-[#EADDE3] bg-white hover:border-[#D9A5B8] hover:bg-[#FFF8FB]"
-                }`}
-              >
-                <span
-                  className={`text-sm font-bold leading-relaxed ${
-                    selected
-                      ? "text-[#8E3E5E]"
-                      : "text-[#5F5360]"
-                  }`}
-                >
-                  {label}
-                </span>
-
-                {selected && (
-                  <CheckCircle2
-                    size={20}
-                    className="shrink-0 text-[#B84E73]"
-                  />
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        <SpecialAnswerOption
-          label="Tidak ingin menjawab"
-          description="Saya memilih untuk tidak menjawab pertanyaan ini."
-          checked={skipSelected}
-          onChange={(checked) =>
-            updateAnswer(
-              question.code,
-              checked ? skipValue : null
-            )
-          }
         />
       </div>
     );
@@ -826,16 +754,7 @@ export default function QuestionRenderer({
                 <button
                   key={optionValue}
                   type="button"
-                  onClick={() => {
-                    updateAnswer(question.code, optionValue);
-
-                    if (
-                      question.code === "HM-01" &&
-                      optionValue !== "ya"
-                    ) {
-                      updateAnswer("HM-02", null);
-                    }
-                  }}
+                  onClick={() => updateAnswer(question.code, optionValue)}
                   aria-pressed={selected}
                   className={`group relative flex min-h-[170px] flex-col items-center justify-center overflow-hidden rounded-2xl border p-4 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg active:scale-[0.97] ${
                     selected

@@ -29,7 +29,7 @@ const CONDITION_LABELS = {
 const GENERAL_QUESTIONS = ["HT-01", "HT-02", "HT-04", "HT-05"];
 
 const CONDITION_QUESTIONS = {
-  menstruasi: ["HM-01", "HM-02", "HM-03", "HM-04", "HM-05", "HM-06"],
+  menstruasi: ["HM-02", "HM-03", "HM-04", "HM-05", "HM-06"],
   kehamilan: ["HK-01"],
   menyusui: ["HS-01", "HS-02", "HS-03", "HS-04"],
   lewati: [],
@@ -86,11 +86,26 @@ function getQuestion(code) {
 }
 
 function getQuestionLabel(code) {
+  if (code === "HM-01") {
+    return "Apakah kamu sedang menstruasi hari ini?";
+  }
+
   return getQuestion(code)?.question ?? "Informasi Check-In";
 }
 
 function getOptionLabel(code, value) {
   if (!hasValue(value)) return "";
+
+  // Label khusus untuk data HM-01 dari check-in lama.
+  if (code === "HM-01") {
+    const legacyOptions = {
+      ya: "Ya",
+      tidak: "Tidak",
+      tidak_ingin_menjawab: "Tidak ingin menjawab",
+    };
+
+    return legacyOptions[String(value)] ?? safeText(value);
+  }
 
   const question = getQuestion(code);
 
@@ -323,7 +338,19 @@ function AnswerSection({ record, answers = [] }) {
     GENERAL_QUESTIONS.includes(item.code_question)
   );
 
-  const conditionCodes = CONDITION_QUESTIONS[condition] ?? [];
+  const conditionCodes = [...(CONDITION_QUESTIONS[condition] ?? [])];
+
+  // HM-01 hanya ditampilkan jika jawabannya memang tersimpan
+  // pada check-in menstruasi lama.
+  const hasLegacyHM01 = answers.some(
+    (item) =>
+      item.code_question === "HM-01" &&
+      (hasValue(item.answer) || hasValue(item.scale))
+  );
+
+  if (condition === "menstruasi" && hasLegacyHM01) {
+    conditionCodes.unshift("HM-01");
+  }
 
   const conditionAnswers = answers.filter((item) =>
     conditionCodes.includes(item.code_question)
