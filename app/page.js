@@ -407,7 +407,7 @@ export default function HomePage() {
                       handleLocationSearch();
                     }
                   }}
-                  placeholder="Cari kota atau wilayah..."
+                  placeholder="Cari kelurahan/desa, mis. Ancol Jakarta"
                 />
 
                 <button

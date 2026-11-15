@@ -1,15 +1,5 @@
 import { NextResponse } from "next/server";
-import { searchVillages } from "@/lib/repositories/regionRepository";
-
-const normalize = (value) =>
-  String(value ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/\b(kabupaten|kab\.|kota|kec\.|kecamatan)\b/g, "")
-    .replace(/[^a-z0-9\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+import { matchVillageFromAddress } from "@/lib/repositories/regionRepository";
 
 const getFirstValue = (...values) =>
   values.find((value) => typeof value === "string" && value.trim()) ?? "";
@@ -99,45 +89,21 @@ export async function GET(request) {
       )
       .join(", ");
     
-    // Pencocokan wilayah menggunakan dataset lokal.
-    let matchedRegion = null;
-
-    if (village && regency && province) {
-      const query = [
-        village,
-        regency,
-        province,
-      ].join(" ");
-
-      const { items } = searchVillages(query, 100);
-
-      const matches = items.filter((item) => {
-        const sameVillage =
-          normalize(item.village) === normalize(village);
-
-        const sameRegency =
-          normalize(item.regency) === normalize(regency);
-
-        const sameProvince =
-          normalize(item.province) === normalize(province);
-
-        const sameDistrict =
-          !district ||
-          normalize(item.district) === normalize(district);
-
-        return (
-          sameVillage &&
-          sameRegency &&
-          sameProvince &&
-          sameDistrict
-        );
-      });
-
-      // ADM4 hanya diberikan jika hasil pencocokan unik.
-      if (matches.length === 1) {
-        matchedRegion = matches[0];
-      }
-    }
+    // Pencocokan wilayah menggunakan dataset lokal (kode desa BMKG).
+    // OSM tidak konsisten antarkota, jadi beberapa kandidat dicoba sekaligus.
+    const isUnitLabel = (value) => /^(RW|RT|Dusun|Lingkungan)\b/i.test(String(value ?? "").trim());
+    const matchedRegion = matchVillageFromAddress({
+      villageNames: [
+        address.village,
+        address.neighbourhood,
+        address.quarter,
+        address.suburb,
+        address.hamlet,
+      ].filter((value) => value && !isUnitLabel(value)),
+      districtNames: [address.city_district, address.district, address.suburb, address.municipality],
+      regencyNames: [address.city, address.town, address.municipality, address.county, address.city_district],
+      provinceNames: [address.state],
+    });
 
     return NextResponse.json({
       location: location || result.display_name || "",

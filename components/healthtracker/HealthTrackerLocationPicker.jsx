@@ -236,7 +236,7 @@ export default function HealthTrackerLocationPicker() {
                 type="text"
                 value={searchText}
                 onChange={handleSearchChange}
-                placeholder="Cari kota atau wilayah (minimal 3 huruf)"
+                placeholder="Cari kelurahan/desa, mis. Ancol Jakarta"
                 autoComplete="off"
                 className="w-full min-w-0 bg-transparent px-2 py-3 text-sm text-[#332A35] outline-none"
               />
