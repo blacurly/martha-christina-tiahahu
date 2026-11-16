@@ -20,6 +20,30 @@ def tokenize(text):
         if t not in STOPWORDS
     ]
 
+def normalize_peran(value):
+    return re.sub(
+        r"\s+",
+        " ",
+        str(value or "").strip().lower().replace(" dan ", " & ")
+    )
+
+def matches_peran(metadata, peran):
+    if not peran:
+        return True
+
+    metadata = metadata or {}
+
+    return (
+        normalize_peran(metadata.get("peran"))
+        == normalize_peran(peran)
+    )
+
+def matches_topik(metadata, topics=None):
+    if not topics:
+        return True
+
+    metadata = metadata or {}
+    return metadata.get("topik") in topics
 
 class HybridRetriever:
 
@@ -86,19 +110,25 @@ class HybridRetriever:
 
         print(f"BM25 index: {len(self.records)} chunks")
 
-    def vector_search(self, query, where=None):
+    def vector_search(self, query, where=None, topics=None):
 
         query_embedding = self.embedding_model.encode(
-            query,
+            f"query: {query}",
             normalize_embeddings=True
         ).tolist()
+
+        metadata_filter = {}
+
+        if topics:
+            metadata_filter["topik_any"] = topics
 
         response = self.supabase.rpc(
             "match_evidence_chunks",
             {
                 "query_embedding": query_embedding,
                 "match_count": self.candidate_k,
-                "filter": where or {}
+                "peran": where or None,
+                "filter": metadata_filter
             }
         ).execute()
 
@@ -110,7 +140,7 @@ class HybridRetriever:
             and float(r["distance"]) <= self.max_distance
         ]
 
-    def hybrid_retrieve(self, query, top_k=None, where=None):
+    def hybrid_retrieve(self, query, top_k=None, where=None, topics=None):
 
         if not query or not query.strip():
             return []
@@ -138,13 +168,19 @@ class HybridRetriever:
                 if scores[i] <= 0:
                     continue
 
-                bm25_ids.append(self.records[i]["id"])
+                record = self.records[i]
+
+                # Samakan filter kategori dengan vector search.
+                if not matches_topik(record.get("metadata"), topics):
+                    continue
+
+                bm25_ids.append(record["id"])
 
                 if len(bm25_ids) >= self.candidate_k:
                     break
 
         # 2. Vector search
-        vector_rows = self.vector_search(query, where)
+        vector_rows = self.vector_search(query, where, topics)
 
         vector_ids = [r["id"] for r in vector_rows]
 

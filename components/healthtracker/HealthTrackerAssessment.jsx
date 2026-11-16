@@ -193,6 +193,8 @@ export default function HealthTrackerAssessment() {
     setAiNotice,
     condition,
     answers,
+    scores,
+    generatedSummary,
     snapshot,
   });
 

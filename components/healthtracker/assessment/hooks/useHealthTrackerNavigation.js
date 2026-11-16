@@ -17,6 +17,8 @@ export default function useHealthTrackerNavigation({
   setAiNotice,
   condition,
   answers,
+  scores,
+  generatedSummary,
   snapshot,
 }) {
   const [isAILoading, setIsAILoading] = useState(false);
@@ -97,6 +99,11 @@ export default function useHealthTrackerNavigation({
           value,
           unit,
         })),
+
+      // Data tambahan untuk personalisasi refleksi AI
+      generatedSummary,
+      answers,
+      scores,
     };
 
     try {
@@ -110,6 +117,11 @@ export default function useHealthTrackerNavigation({
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
+        console.error("REFLEKSI AI ERROR:", {
+          status: response.status,
+          response: data,
+        });
+
         throw new Error(
           data.error || "Refleksi AI gagal diproses."
         );

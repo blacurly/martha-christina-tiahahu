@@ -258,7 +258,7 @@ def generate_embeddings(
     model_name: str = EMBEDDING_MODEL_NAME,
     batch_size: int = EMBEDDING_BATCH_SIZE
 ) -> list[dict]:
-    """Membuat embedding untuk kolom vector(384)."""
+    """Membuat embedding E5 untuk kolom vector(384)."""
     if not records:
         return records
 
@@ -273,7 +273,11 @@ def generate_embeddings(
             "sedangkan kolom Supabase menggunakan vector(384)."
         )
 
-    texts = [record["content"] for record in records]
+    # Prefix passage wajib untuk dokumen E5.
+    texts = [
+        f"passage: {record['content']}"
+        for record in records
+    ]
 
     embeddings = model.encode(
         texts,
@@ -288,7 +292,6 @@ def generate_embeddings(
     print("Embedding berhasil dibuat:", len(records))
 
     return records
-
 
 # ============================================================
 # SAVE TO SUPABASE
