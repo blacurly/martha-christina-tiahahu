@@ -34,13 +34,14 @@ async function saveOnDevice(input) {
 }
 
 export default function useHealthTrackerSubmission({
-  router,
   condition,
   answers,
   scores,
   story,
   snapshot,
   aiNotice,
+  generatedSummary,
+  router,
   setError,
   setSaving,
 }) {
@@ -55,6 +56,7 @@ export default function useHealthTrackerSubmission({
       story,
       snapshot: snapshot ?? null,
       aiNotice,
+      generatedSummary,
     };
 
     try {

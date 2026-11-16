@@ -151,6 +151,7 @@ export default function SummaryScreen({
   story = "",
   snapshot = null,
   showHeader = true,
+  generatedSummary = null,
 }) {
   const activityQuestions = summaryQuestions.filter(
     (question) =>
@@ -200,6 +201,51 @@ export default function SummaryScreen({
             yang kamu catat hari ini.
           </p>
         </div>
+      )}
+
+      {generatedSummary && (
+        <section className="mb-6 rounded-2xl border border-[#EAD8E0] bg-[#FFF8FB] p-5 sm:p-6">
+          <h2 className="text-lg font-bold text-[#332A35]">
+            {generatedSummary.title}
+          </h2>
+
+          <div className="mt-3 space-y-5">
+            {/* Kalimat pembuka */}
+            {generatedSummary?.intro && (
+              <p className="text-sm leading-7 text-[#746875]">
+                {generatedSummary.intro}
+              </p>
+            )}
+
+            {/* Bagian ringkasan */}
+            {generatedSummary?.sections?.map((section, index) => (
+              <div
+                key={`${section.title}-${index}`}
+                className="space-y-2"
+              >
+                <h4 className="text-xs font-extrabold tracking-wide text-[#B84E73]">
+                  {section.title}
+                </h4>
+
+                {section.content?.map((paragraph, paragraphIndex) => (
+                  <p
+                    key={paragraphIndex}
+                    className="text-sm leading-7 text-[#746875]"
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            ))}
+
+            {/* Disclaimer */}
+            {generatedSummary?.disclaimer && (
+              <p className="border-t border-[#E9F2EA] pt-4 text-xs leading-6 text-[#8A7D89]">
+                {generatedSummary.disclaimer}
+              </p>
+            )}
+          </div>
+        </section>
       )}
 
       {/* Konteks lingkungan */}

@@ -26,6 +26,7 @@ export async function saveHealthTrackerAssessment({
   story = "",
   snapshot = null,
   aiNotice,
+  generatedSummary = null,
   recordedAt = null,
 }) {
   const user = await getCurrentUser();
@@ -44,7 +45,8 @@ export async function saveHealthTrackerAssessment({
       scores,
       story,
       snapshot,
-      aiNotice
+      aiNotice,
+      generatedSummary,
     });
 
     // Catatan offline membawa waktu pencatatan aslinya (lihat lib/healthtracker/offlineQueue.js).

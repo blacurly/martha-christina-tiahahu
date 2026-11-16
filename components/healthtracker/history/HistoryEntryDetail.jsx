@@ -561,6 +561,82 @@ function EnvironmentSection({ snapshot }) {
   );
 }
 
+function parseCheckInSummary(value) {
+  if (!value || typeof value !== "string") {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      Array.isArray(parsed.sections)
+    ) {
+      return {
+        title:
+          typeof parsed.title === "string" &&
+          parsed.title.trim()
+            ? parsed.title.trim()
+            : "Ringkasan Check-In",
+
+        intro:
+          typeof parsed.intro === "string"
+            ? parsed.intro.trim()
+            : "",
+
+        sections: parsed.sections
+          .filter(
+            (section) =>
+              section &&
+              typeof section.title === "string" &&
+              Array.isArray(section.content)
+          )
+          .map((section) => ({
+            title: section.title.trim(),
+            content: section.content
+              .filter(
+                (item) =>
+                  typeof item === "string" && item.trim()
+              )
+              .map((item) => item.trim()),
+          }))
+          .filter(
+            (section) =>
+              section.title && section.content.length > 0
+          ),
+
+        disclaimer:
+          typeof parsed.disclaimer === "string"
+            ? parsed.disclaimer.trim()
+            : "",
+      };
+    }
+  } catch {
+    // Data lama masih berupa teks biasa.
+  }
+
+  // Menangani ringkasan lama yang belum menggunakan format JSON.
+  // Judul lama di awal teks dihapus agar tidak muncul dua kali.
+  const legacyText = value
+    .replace(
+      /^\s*(Gambaran Check-In Kamu|Ringkasan Check-In)\s*/i,
+      ""
+    )
+    .trim();
+
+  if (!legacyText) return null;
+
+  return {
+    title: "Ringkasan Check-In",
+    intro: "",
+    sections: [],
+    legacyText,
+    disclaimer: "",
+  };
+}
+
 export default function HistoryEntryDetail({
   recordId,
   open,
@@ -569,6 +645,10 @@ export default function HistoryEntryDetail({
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const checkInSummary = parseCheckInSummary(
+    detail?.record?.ringkasan_checkin
+  );
 
   const loadDetail = useCallback(async () => {
     if (!recordId) return;
@@ -726,6 +806,62 @@ export default function HistoryEntryDetail({
                   {formatDate(detail.record.recorded_at)}
                 </p>
               </section>
+
+              {checkInSummary && (
+                <section className="rounded-2xl border border-[#F0DFE7] bg-white p-4 sm:p-5">
+                  {/* JUDUL RINGKASAN */}
+                  <h3 className="text-base font-bold text-[#332A35]">
+                    {checkInSummary.title}
+                  </h3>
+
+                  {/* KALIMAT PEMBUKA */}
+                  {checkInSummary.intro && (
+                    <p className="mt-3 text-sm leading-7 text-[#514653]">
+                      {checkInSummary.intro}
+                    </p>
+                  )}
+
+                  {/* BAGIAN-BAGIAN RINGKASAN */}
+                  {checkInSummary.sections.length > 0 && (
+                    <div className="mt-5 space-y-5">
+                      {checkInSummary.sections.map((section, index) => (
+                        <div
+                          key={`${section.title}-${index}`}
+                          className="space-y-2"
+                        >
+                          <h4 className="text-xs font-extrabold tracking-wide text-[#B84E73]">
+                            {section.title}
+                          </h4>
+
+                          <div className="space-y-2">
+                            {section.content.map((paragraph, paragraphIndex) => (
+                              <p
+                                key={paragraphIndex}
+                                className="text-sm leading-7 text-[#514653]"
+                              >
+                                {paragraph}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* DATA RINGKASAN LAMA */}
+                  {checkInSummary.legacyText && (
+                    <p className="mt-3 whitespace-pre-line text-sm leading-7 text-[#514653]">
+                      {checkInSummary.legacyText}
+                    </p>
+                  )}
+                  {/* DISCLAIMER RINGKASAN */}
+                  {checkInSummary.disclaimer && (
+                    <p className="mt-5 border-t border-[#F0DFE7] pt-4 text-xs leading-6 text-[#817582]">
+                      {checkInSummary.disclaimer}
+                    </p>
+                  )}
+                </section>
+              )}
 
               <AnswerSection
                 record={detail.record}

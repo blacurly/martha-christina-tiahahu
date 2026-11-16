@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAssessment } from "@/context/AssessmentContext";
+import { generateHealthTrackerSummary } from "./assessment/utils/generateHealthTrackerSummary";
 
 import ActivityScreen from "./assessment/ActivityScreen";
 import ConditionScreen from "./assessment/ConditionScreen";
@@ -82,6 +83,18 @@ export default function HealthTrackerAssessment() {
     environmentError,
   } = useHealthTrackerEnvironment(environmentLocation);
 
+  const generatedSummary = useMemo(
+    () =>
+      generateHealthTrackerSummary({
+        condition,
+        answers,
+        scores,
+        story,
+        snapshot,
+      }),
+    [condition, answers, scores, story, snapshot]
+  );
+
   const { handleSubmit } = useHealthTrackerSubmission({
     router,
     condition,
@@ -90,6 +103,7 @@ export default function HealthTrackerAssessment() {
     story,
     snapshot,
     aiNotice,
+    generatedSummary,
     setError,
     setSaving,
   });
@@ -348,6 +362,7 @@ export default function HealthTrackerAssessment() {
               condition={condition}
               story={story}
               snapshot={snapshot}
+              generatedSummary={generatedSummary}
             />
           )}
 
