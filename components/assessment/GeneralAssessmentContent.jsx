@@ -28,6 +28,8 @@ import {
   HeartHandshake,
   CircleMinus,
   ClipboardCheck,
+  CalendarDays,
+  SkipForward,
 } from "lucide-react";
 
 // --------------------------------------------------
@@ -387,6 +389,240 @@ function SelectionCard({ option, selected, onClick }) {
 // --------------------------------------------------
 // KOMPONEN PERTANYAAN UMUM
 // --------------------------------------------------
+
+function getConditionVisual(value) {
+  const visuals = {
+    menstruasi: {
+      icon: CalendarDays,
+      description: "Catat pengalaman tubuh selama siklus menstruasi.",
+      animation: "condition-calendar",
+      background: "bg-[#F8E8EF]",
+      iconBackground: "bg-[#F3DCE5]",
+      iconColor: "text-[#A94C70]",
+      border: "border-[#EED5DF]",
+    },
+    kehamilan: {
+      icon: Heart,
+      description: "Catat kondisi tubuh selama masa kehamilan.",
+      animation: "condition-heart",
+      background: "bg-[#E9F2EA]",
+      iconBackground: "bg-[#DDEBDD]",
+      iconColor: "text-[#64866B]",
+      border: "border-[#D7E6D9]",
+    },
+    menyusui: {
+      icon: Baby,
+      description: "Catat pengalaman tubuh selama masa menyusui.",
+      animation: "condition-baby",
+      background: "bg-[#E8F1F7]",
+      iconBackground: "bg-[#DCEAF3]",
+      iconColor: "text-[#6489A5]",
+      border: "border-[#D4E4EF]",
+    },
+  };
+
+  return (
+    visuals[value] || {
+      icon: SkipForward,
+      description: "Lanjutkan tanpa memilih kondisi tertentu.",
+      animation: "condition-skip",
+      background: "bg-[#EEEAF8]",
+      iconBackground: "bg-[#E3DDF2]",
+      iconColor: "text-[#8272A8]",
+      border: "border-[#DDD5EF]",
+    }
+  );
+}
+
+function ConditionSelection({ question, value, onChange }) {
+  const mainOptions = CONDITION_OPTIONS.filter(
+    (option) => option.value !== "lewati"
+  );
+
+  const skipOption = CONDITION_OPTIONS.find(
+    (option) => option.value === "lewati"
+  );
+
+  return (
+    <section className="space-y-6">
+      {/* HEADER */}
+      <div>
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#F8E8EF] px-3 py-1.5 text-xs font-extrabold tracking-wide text-[#8E3E5E]">
+          <ClipboardCheck size={14} />
+          KONDISI
+        </div>
+
+        <h2 className="text-xl font-extrabold tracking-tight text-[#332A35] sm:text-2xl">
+          {getQuestionText(question)}
+        </h2>
+
+        {getQuestionDescription(question) && (
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-[#746875] sm:text-base">
+            {getQuestionDescription(question)}
+          </p>
+        )}
+      </div>
+
+      {/* KARTU KONDISI */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        {mainOptions.map((option) => {
+          const selected = value === option.value;
+          const visual = getConditionVisual(option.value);
+          const Icon = visual.icon;
+
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onChange(option.value)}
+              aria-pressed={selected}
+              className={`
+                group relative flex min-h-[150px] flex-col
+                items-center rounded-2xl border p-2.5
+                text-center transition-all duration-200
+                focus-visible:outline-none focus-visible:ring-2
+                focus-visible:ring-[#B84E73]
+                focus-visible:ring-offset-2
+                sm:min-h-[180px] sm:items-start
+                sm:rounded-[22px] sm:p-5 sm:text-left
+                ${
+                  selected
+                    ? `${visual.background} border-[#B84E73] ring-2 ring-[#B84E73]/15`
+                    : `bg-white ${visual.border} hover:shadow-[0_5px_24px_rgb(120_70_90_/_6%)]`
+                }
+              `}
+            >
+              {/* ICON */}
+              <div className="flex w-full items-start justify-between">
+                <div
+                  className={`mx-auto flex size-10 items-center justify-center rounded-xl sm:mx-0 sm:size-12 sm:rounded-2xl ${visual.iconBackground} ${visual.iconColor}`}
+                >
+                  <Icon
+                    size={23}
+                    strokeWidth={1.8}
+                    className={visual.animation}
+                  />
+                </div>
+
+                {selected && (
+                  <CheckCircle2
+                    size={18}
+                    className="absolute right-2 top-2 text-[#B84E73] sm:static sm:size-[21px]"
+                    aria-hidden="true"
+                  />
+                )}
+              </div>
+
+              {/* TEXT */}
+              <div className="mt-3 w-full sm:mt-5">
+                <h3
+                  className={`text-xs font-extrabold leading-5 sm:text-base ${
+                    selected ? "text-[#8E3E5E]" : "text-[#332A35]"
+                  }`}
+                >
+                  {option.label}
+                </h3>
+
+                <p className="mt-1.5 hidden text-xs leading-6 text-[#746875] sm:block">
+                  {visual.description}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* PILIHAN TIDAK INGIN MENJAWAB */}
+      {skipOption && (
+        <label
+          className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-all ${
+            value === skipOption.value
+              ? "border-[#B84E73] bg-[#FFF8FB]"
+              : "border-[#F0E3E9] bg-white hover:border-[#D9A5B8]"
+          }`}
+        >
+          <input
+            type="checkbox"
+            checked={value === skipOption.value}
+            onChange={(event) => {
+              onChange(
+                event.target.checked ? skipOption.value : null
+              );
+            }}
+            className="mt-0.5 size-5 shrink-0 cursor-pointer accent-[#B84E73]"
+          />
+
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-[#332A35]">
+              Saya ingin melewati pertanyaan kondisi
+            </p>
+
+            <p className="mt-1 text-xs leading-relaxed text-[#746875]">
+              Kamu tetap bisa melanjutkan assessment tanpa memilih
+              kondisi di atas.
+            </p>
+          </div>
+        </label>
+      )}
+
+      {/* ANIMASI */}
+      <style jsx>{`
+        .condition-calendar {
+          animation: calendar-float 3s ease-in-out infinite;
+        }
+
+        .condition-heart {
+          animation: heart-beat 1.8s ease-in-out infinite;
+        }
+
+        .condition-baby {
+          animation: baby-sway 2.5s ease-in-out infinite;
+        }
+
+        @keyframes calendar-float {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-4px);
+          }
+        }
+
+        @keyframes heart-beat {
+          0%, 100% {
+            transform: scale(1);
+          }
+          15% {
+            transform: scale(1.12);
+          }
+          30% {
+            transform: scale(1);
+          }
+          45% {
+            transform: scale(1.08);
+          }
+        }
+
+        @keyframes baby-sway {
+          0%, 100% {
+            transform: rotate(0);
+          }
+          50% {
+            transform: rotate(6deg);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .condition-calendar,
+          .condition-heart,
+          .condition-baby {
+            animation: none;
+          }
+        }
+      `}</style>
+    </section>
+  );
+}
 
 function QuestionField({
   code,
@@ -877,12 +1113,18 @@ export default function GeneralAssessmentContent() {
       );
     }
 
-    if (code === "P-00" || code === "P-01") {
-      const isActivity = code === "P-00";
-      const options = isActivity
-        ? ACTIVITY_OPTIONS
-        : CONDITION_OPTIONS;
+    if (code === "P-01") {
+      return (
+        <ConditionSelection
+          key={code}
+          question={question}
+          value={answers[code]}
+          onChange={(value) => handleAnswer(code, value)}
+        />
+      );
+    }
 
+    if (code === "P-00") {
       const selectedValue = answers[code];
 
       return (
@@ -900,7 +1142,7 @@ export default function GeneralAssessmentContent() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {options.map((option) => (
+            {ACTIVITY_OPTIONS.map((option) => (
               <SelectionCard
                 key={option.value}
                 option={option}
