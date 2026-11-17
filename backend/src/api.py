@@ -216,6 +216,36 @@ KATA_KUNCI_JAWABAN = {
 }
 
 
+# Jawaban yang nilainya umum ("ya", "banyak", "sulit") baru bermakna bila
+# dilihat bersama pertanyaannya. Tanpa ini, jawaban menstruasi dan menyusui
+# tidak memengaruhi pencarian sehingga sumber (dan saran) selalu sama.
+KATA_KUNCI_PER_PERTANYAAN = {
+    ("HM-03", "banyak"): "heavy menstrual bleeding",
+    ("HM-03", "sedikit"): "light menstrual bleeding",
+    ("HM-04", "ya"): "menstrual pain cramps dysmenorrhea",
+    ("HM-06", "sulit"): "menstrual hygiene toilet sanitation access",
+    ("HM-06", "cukup"): "menstrual hygiene access",
+    ("HS-02", "ya"): "breastfeeding discomfort",
+}
+
+
+def kata_kunci_per_pertanyaan(answers: dict) -> list[str]:
+    hasil = []
+    for kode, value in (answers or {}).items():
+        values = value if isinstance(value, list) else [value]
+        for v in values:
+            kata = KATA_KUNCI_PER_PERTANYAAN.get((str(kode), str(v)))
+            if kata:
+                hasil.append(kata)
+    # Nyeri haid yang cukup mengganggu (skala 2 ke atas).
+    try:
+        if int((answers or {}).get("HM-05", -1)) >= 2:
+            hasil.append("severe period pain relief")
+    except (TypeError, ValueError):
+        pass
+    return hasil
+
+
 def query_kesehatan_catatan(c: Catatan) -> str:
     """Menyusun query untuk pencarian evidence kesehatan."""
 
@@ -233,6 +263,10 @@ def query_kesehatan_catatan(c: Catatan) -> str:
     for kode in nilai:
         kata = KATA_KUNCI_JAWABAN.get(kode)
         if kata and kata not in bagian:
+            bagian.append(kata)
+
+    for kata in kata_kunci_per_pertanyaan(c.answers):
+        if kata not in bagian:
             bagian.append(kata)
 
     # Cerita pribadi tetap ikut sebagai konteks pengguna.
