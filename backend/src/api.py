@@ -1,4 +1,5 @@
 import logging
+import os
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from src.rag.hybrid_retriever import HybridRetriever
 from src.rag.generation import generate_answer
+from src.rag.gemini_client import translate_to_english
 from src.rag.refleksi_refactor import refleksi_tracker
 
 
@@ -151,9 +153,11 @@ def chat(payload: ChatRequest):
         )
 
     try:
+        english = translate_to_english(question, os.getenv("GEMINI_API_KEY"))
         contexts = retriever.hybrid_retrieve(
             question,
             top_k=4,
+            extra_queries=[english] if english else None,
         )
 
         answer = generate_answer(question, contexts)

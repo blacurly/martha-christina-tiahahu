@@ -16,6 +16,10 @@ pandas
 numpy
 
 # Machine Learning / Embedding
+# torch versi CPU saja (server tidak memakai GPU); tanpa ini pip di Linux
+# ikut mengunduh komponen CUDA/NVIDIA berukuran beberapa GB.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
 sentence-transformers
 
 # Vector Database
