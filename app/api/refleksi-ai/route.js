@@ -135,7 +135,7 @@ export async function POST(request) {
       return NextResponse.json({ error }, { status: 400 });
     }
 
-    const baseUrl = process.env.FASTAPI_BASE_URL;
+    const baseUrl = process.env.FASTAPI_BASE_URL || "http://127.0.0.1:8000";
 
     if (!baseUrl) {
       throw new Error("FASTAPI_BASE_URL belum di-set");
