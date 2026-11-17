@@ -1,7 +1,7 @@
-
 "use client";
 
 import "./ActivitySelector.css";
+import Image from "next/image";
 
 const activities = [
   {
@@ -70,11 +70,12 @@ export default function ActivitySelector({
               aria-pressed={isSelected}
             >
               <div className="activity-image-wrapper">
-                <img
+                <Image
                   src={item.image}
                   alt={item.imageAlt}
                   className="activity-option-image"
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 25vw"
                 />
               </div>
 

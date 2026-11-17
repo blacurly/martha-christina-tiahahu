@@ -146,7 +146,6 @@ export default function TrackerDashboard({
               />
             </div>
           </div>
-
         </div>
       </section>
 

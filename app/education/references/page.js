@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   BookOpen,
   CheckCircle2,
@@ -178,29 +179,17 @@ export default function EducationReferencesPage() {
               </div>
             </div>
 
-            {/* Hero visual */}
-            <div className="hidden justify-center lg:flex">
-              <div className="relative flex size-[210px] items-center justify-center rounded-[34px] border border-white bg-white/70 shadow-[0_12px_40px_rgb(120_70_90_/_8%)] backdrop-blur-sm">
-                <div className="absolute inset-4 rounded-[27px] border border-[#D7E6D9] bg-[#F2F7F0]" />
-
-                <div className="relative flex size-28 items-center justify-center rounded-full bg-[#E0EDDF] text-[#52775B]">
-                  <FileText
-                    className="size-14"
-                    strokeWidth={1.5}
-                  />
-                </div>
-
-                <div className="absolute right-3 top-5 flex size-11 items-center justify-center rounded-2xl bg-[#F8E8EF] text-[#B84E73] shadow-sm">
-                  <BookOpen className="size-5" />
-                </div>
-
-                <div className="absolute bottom-5 left-3 flex size-11 items-center justify-center rounded-2xl bg-[#EEEAF8] text-[#76629A] shadow-sm">
-                  <Sparkles className="size-5" />
-                </div>
-
-                <div className="absolute bottom-5 right-5 flex size-8 items-center justify-center rounded-full border-4 border-white bg-[#D7E6D9] text-[#52775B]">
-                  <CheckCircle2 className="size-4" />
-                </div>
+            {/* HERO ILLUSTRATION */}
+            <div className="hidden lg:flex lg:justify-center">
+              <div className="relative h-[360px] w-[360px] overflow-hidden">
+                <Image
+                  src="/images/education/reference.png"
+                  alt="Ilustrasi perempuan dan kepedulian terhadap kesehatan diri"
+                  fill
+                  priority
+                  sizes="360px"
+                  className="object-contain"
+                />
               </div>
             </div>
           </div>

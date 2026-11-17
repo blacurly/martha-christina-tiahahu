@@ -1,4 +1,3 @@
-
 .activity-panel {
   display: flex;
   flex-direction: column;
@@ -7,22 +6,12 @@
   min-width: 0;
 }
 
+/* Header */
+
 .activity-header {
   display: flex;
   align-items: flex-start;
   gap: 13px;
-}
-
-.activity-heading-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 46px;
-  height: 46px;
-  border-radius: 15px;
-  background: var(--blush);
-  color: var(--primary);
 }
 
 .activity-heading-text {
@@ -47,44 +36,37 @@
   line-height: 1.3;
 }
 
-.activity-heading-text p {
-  margin: 5px 0 0;
-  color: var(--muted-foreground);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-/* Pilihan aktivitas */
+/* Grid aktivitas */
 
 .activity-options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
   align-items: stretch;
-  gap: 12px;
 }
+
+/* Card */
 
 .activity-option {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   width: 100%;
   min-width: 0;
-  min-height: 280px;
-  padding: 15px;
+  height: 290px;
+  padding: 0;
   overflow: hidden;
   text-align: left;
   font: inherit;
   color: var(--foreground);
-  background: var(--white);
+  background: #ffffff;
   border: 1.5px solid var(--border);
-  border-radius: 18px;
+  border-radius: 20px;
   cursor: pointer;
   transition:
-    transform 180ms ease,
-    border-color 180ms ease,
-    background-color 180ms ease,
-    box-shadow 180ms ease;
+    transform 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
 }
 
 .activity-option:hover {
@@ -101,112 +83,74 @@
 
 .activity-option.is-selected {
   border-color: var(--primary);
-  background: #fff4f8;
-  box-shadow: 0 0 0 2px rgb(184 78 115 / 8%);
+  box-shadow:
+    0 0 0 2px rgb(184 78 115 / 9%),
+    0 7px 20px rgb(184 78 115 / 7%);
 }
 
-/* Bagian atas kartu dan ikon */
+/* Setengah atas: gambar */
 
-.activity-option-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.activity-image-wrapper {
+  position: relative;
   width: 100%;
-  min-height: 49px;
-  gap: 8px;
-  margin-bottom: 14px;
+  height: 50%;
+  flex: 0 0 50%;
+  overflow: hidden;
+  background: #fff8fb;
 }
 
-.activity-option-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 49px;
-  height: 49px;
-  flex-shrink: 0;
-  border-radius: 16px;
-  transition: transform 180ms ease;
+.activity-option-image {
+  object-fit: contain;
+  object-position: center;
+  transition: transform 300ms ease;
 }
 
-.activity-option:hover .activity-option-icon {
-  transform: scale(1.06);
+.activity-option:hover .activity-option-image {
+  transform: scale(1.04);
 }
 
-.activity-icon-indoor {
-  color: #8065a8;
-  background: var(--lavender);
-}
-
-.activity-icon-outdoor {
-  color: #b84e73;
-  background: var(--blush);
-}
-
-.activity-icon-moving {
-  color: #54816a;
-  background: var(--sage);
-}
-
-.activity-icon-travel {
-  color: #527d9b;
-  background: var(--powder-blue, #e8f1f7);
-}
-
-/* Tanda aktivitas terpilih */
-
-.activity-check {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: var(--primary);
-  opacity: 0;
-  transform: scale(0.7);
-  transition:
-    opacity 180ms ease,
-    transform 180ms ease;
-}
-
-.activity-check.is-visible {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* Judul dan deskripsi kartu */
+/* Setengah bawah: caption */
 
 .activity-option-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 0 0 50%;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  padding: 15px 17px;
+  background: #ffffff;
+  transition: background-color 200ms ease;
+}
+
+.activity-option.is-selected .activity-option-content {
+  background: #fff4f8;
 }
 
 .activity-option-content h3 {
   margin: 0 0 7px;
+  color: #332a35;
   font-family: "Nunito", sans-serif;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 900;
-  line-height: 1.35;
+  line-height: 1.3;
+  letter-spacing: -0.2px;
   overflow-wrap: break-word;
+  transition: color 200ms ease;
+}
+
+.activity-option.is-selected .activity-option-content h3 {
+  color: var(--primary);
 }
 
 .activity-option-content p {
   margin: 0;
-  color: var(--muted-foreground);
+  color: #786d79;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
-  line-height: 1.55;
-  overflow-wrap: break-word;
-}
-
-/* Detail di bagian bawah kartu */
-
-.activity-option-detail {
-  display: block;
-  width: 100%;
-  margin-top: auto;
-  padding-top: 12px;
-  color: var(--primary);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.5;
+  font-weight: 500;
+  line-height: 1.6;
   overflow-wrap: break-word;
 }
 
@@ -216,16 +160,11 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 13px;
+  padding: 13px 15px;
   border: 1px solid var(--sage-border);
-  border-radius: 14px;
+  border-radius: 15px;
   background: var(--sage);
   color: #526c56;
-}
-
-.activity-note > svg {
-  flex-shrink: 0;
-  margin-top: 1px;
 }
 
 .activity-note p {
@@ -240,14 +179,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
   width: 100%;
   min-height: 50px;
   padding: 13px 16px;
   border: 1px solid transparent;
   border-radius: 15px;
   background: var(--primary);
-  color: var(--white);
+  color: #ffffff;
   font-family: "Nunito", sans-serif;
   font-size: 13px;
   font-weight: 900;
@@ -287,8 +225,11 @@
 
 @media (max-width: 900px) {
   .activity-option {
-    min-height: 218px;
-    padding: 13px;
+    height: 260px;
+  }
+
+  .activity-option-content {
+    padding: 12px 14px;
   }
 
   .activity-option-content h3 {
@@ -297,14 +238,6 @@
 
   .activity-option-content p {
     font-size: 11px;
-  }
-
-  .activity-option-detail {
-    font-size: 10px;
-  }
-
-  .activity-start-button {
-    font-size: 12px;
   }
 }
 
@@ -320,39 +253,27 @@
   }
 
   .activity-option {
-    min-height: 205px;
-    padding: 12px;
+    height: 245px;
     border-radius: 16px;
   }
 
-  .activity-option-top {
-    min-height: 42px;
-    margin-bottom: 12px;
-  }
-
-  .activity-option-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 13px;
+  .activity-option-content {
+    padding: 11px 12px;
   }
 
   .activity-option-content h3 {
+    margin-bottom: 6px;
     font-size: 14px;
+    line-height: 1.3;
   }
 
   .activity-option-content p {
-    font-size: 11px;
+    font-size: 10.5px;
     line-height: 1.5;
-  }
-
-  .activity-option-detail {
-    padding-top: 10px;
-    font-size: 10px;
   }
 
   .activity-start-button {
     min-height: 48px;
-    gap: 7px;
     padding: 12px 10px;
     font-size: 12px;
   }
@@ -366,73 +287,36 @@
   }
 
   .activity-option {
-    min-height: 0;
+    height: 300px;
   }
 
-  .activity-option-top {
-    margin-bottom: 12px;
+  .activity-option-content {
+    padding: 15px;
   }
 
-  .activity-option-detail {
-    padding-top: 10px;
+  .activity-option-content h3 {
+    font-size: 16px;
+  }
+
+  .activity-option-content p {
+    font-size: 12px;
   }
 }
 
-/* Aksesibilitas: kurangi animasi */
+/* Aksesibilitas */
 
 @media (prefers-reduced-motion: reduce) {
   .activity-option,
-  .activity-option-icon,
-  .activity-check,
+  .activity-option-image,
+  .activity-option-content,
+  .activity-option-content h3,
   .activity-start-button {
     transition: none;
   }
 
   .activity-option:hover,
+  .activity-option:hover .activity-option-image,
   .activity-start-button:hover:not(:disabled) {
     transform: none;
-  }
-}
-
-
-/* =========================================
-   ACTIVITY CARD IMAGE
-========================================= */
-
-
-.activity-image-wrapper {
-  width: 100%;
-  height: 160px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.activity-option-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-  display: block;
-}
-
-/* Subtle image interaction */
-.activity-option:hover .activity-option-image {
-  transform: scale(1.04);
-}
-
-/* Mobile */
-@media (max-width: 640px) {
-  .activity-image-wrapper {
-    border-radius: 12px;
-    margin-bottom: 12px;
-    aspect-ratio: 16 / 9;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .activity-option-image {
-    transition: none;
   }
 }

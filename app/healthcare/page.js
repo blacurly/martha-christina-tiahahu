@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   BadgeCheck,
   Building2,
@@ -439,6 +440,7 @@ export default function HealthcarePage() {
       <div className="mx-auto max-w-6xl space-y-8">
         {/* HERO */}
         <section className="relative isolate overflow-hidden rounded-[28px] border border-[#F0DFE7] bg-white p-6 shadow-[0_5px_24px_rgb(120_70_90_/_6%)] sm:p-9 lg:p-12">
+          {/* BACKGROUND DECORATION */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute -right-16 -top-20 -z-10 size-64 rounded-full bg-[#F8E8EF] opacity-80 blur-3xl"
@@ -449,32 +451,50 @@ export default function HealthcarePage() {
             className="pointer-events-none absolute -bottom-24 right-36 -z-10 size-56 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
           />
 
-          <div className="relative max-w-[760px]">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-3.5 py-2 text-sm font-extrabold text-[#984568]">
-              <Stethoscope className="size-4" />
-              Healthcare SYCLE
+          {/* HERO CONTENT */}
+          <div className="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-[1fr_300px] lg:gap-10">
+            {/* TEXT */}
+            <div className="max-w-[760px]">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-3.5 py-2 text-sm font-extrabold text-[#984568]">
+                <Stethoscope className="size-4" />
+                Healthcare SYCLE
+              </div>
+
+              <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.17em] text-[#B84E73]">
+                INFORMASI LAYANAN KESEHATAN
+              </p>
+
+              <h1 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.035em] sm:text-4xl lg:text-[42px]">
+                Temukan fasilitas kesehatan
+                <span className="block text-[#B84E73]">
+                  terdekat dari lokasimu.
+                </span>
+              </h1>
+
+              <p className="mt-5 max-w-[620px] text-base leading-7 text-[#756774] sm:text-lg sm:leading-8">
+                Temukan rumah sakit, puskesmas, klinik, bidan,
+                dan praktik dokter di sekitarmu. Daftar fasilitas
+                diurutkan berdasarkan jarak dari lokasi pilihanmu.
+              </p>
+
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-4 py-2 text-sm font-bold text-[#765C6D]">
+                <ShieldCheck className="size-4 text-[#B84E73]" />
+                Informasi fasilitas kesehatan di sekitarmu
+              </div>
             </div>
 
-            <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.17em] text-[#B84E73]">
-              INFORMASI LAYANAN KESEHATAN
-            </p>
-
-            <h1 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.035em] sm:text-4xl lg:text-[42px]">
-              Temukan fasilitas kesehatan
-              <span className="block text-[#B84E73]">
-                terdekat dari lokasimu.
-              </span>
-            </h1>
-
-            <p className="mt-5 max-w-[620px] text-base leading-7 text-[#756774] sm:text-lg sm:leading-8">
-              Temukan rumah sakit, puskesmas, klinik, bidan,
-              dan praktik dokter di sekitarmu. Daftar fasilitas
-              diurutkan berdasarkan jarak dari lokasi pilihanmu.
-            </p>
-
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-4 py-2 text-sm font-bold text-[#765C6D]">
-              <ShieldCheck className="size-4 text-[#B84E73]" />
-              Informasi fasilitas kesehatan di sekitarmu
+            {/* HERO ILLUSTRATION */}
+            <div className="hidden lg:flex lg:justify-center">
+              <div className="relative size-[300px] overflow-hidden">
+                <Image
+                  src="/images/healthcare/hospital.png"
+                  alt="Ilustrasi fasilitas kesehatan dan rumah sakit"
+                  fill
+                  priority
+                  sizes="300px"
+                  className="object-contain"
+                />
+              </div>
             </div>
           </div>
         </section>
