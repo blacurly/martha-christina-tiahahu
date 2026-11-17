@@ -393,3 +393,46 @@
     transform: none;
   }
 }
+
+
+/* =========================================
+   ACTIVITY CARD IMAGE
+========================================= */
+
+
+.activity-image-wrapper {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activity-option-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+/* Subtle image interaction */
+.activity-option:hover .activity-option-image {
+  transform: scale(1.04);
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .activity-image-wrapper {
+    border-radius: 12px;
+    margin-bottom: 12px;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .activity-option-image {
+    transition: none;
+  }
+}
