@@ -339,12 +339,14 @@ select:focus-visible {
 
   width: 100%;
   min-width: 0;
-  padding: 18px;
+  padding: 22px;
 
-  border: 1px solid var(--border);
+  /* Sedikit transparan agar berbeda lapis dengan kartu Kondisi Lingkungan */
+  border: 1px solid rgb(184 78 115 / 8%);
   border-radius: 18px;
-  background: var(--white);
-  box-shadow: var(--shadow-soft);
+  background: rgb(255 255 255 / 70%);
+  box-shadow: none;
+  backdrop-filter: blur(6px);
 }
 
 .location-panel > label {
@@ -516,7 +518,7 @@ select:focus-visible {
 
 .weather-card {
   min-width: 0;
-  padding: 22px;
+  padding: 28px;
 
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
@@ -539,6 +541,9 @@ select:focus-visible {
 }
 
 .weather-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   margin-bottom: 5px;
 
   color: var(--primary);
@@ -613,7 +618,7 @@ select:focus-visible {
   justify-content: space-between;
   gap: 12px;
 
-  padding: 22px 0;
+  padding: 26px 0;
 }
 
 .weather-temperature {
@@ -702,7 +707,11 @@ select:focus-visible {
 .weather-metrics {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9px;
+  gap: 0;
+
+  overflow: hidden;
+  border-radius: 20px;
+  background: #fbf6f8;
 }
 
 .weather-metric {
@@ -713,8 +722,9 @@ select:focus-visible {
   min-width: 0;
   padding: 16px;
 
-  border: 1px solid transparent;
-  border-radius: 20px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 
   transition:
     transform 180ms ease,
@@ -724,29 +734,13 @@ select:focus-visible {
 
 /* Warna setiap indikator */
 
-.metric-temperature {
-  background: #fff0f4;
-  border-color: #f6dce5;
+/* Tanpa kotak per indikator: hanya garis tipis sebagai pemisah */
+.weather-metric:nth-child(odd) {
+  border-right: 1px solid rgb(184 78 115 / 9%);
 }
 
-.metric-humidity {
-  background: #edf6f0;
-  border-color: #dcebe0;
-}
-
-.metric-uv {
-  background: #f2edfb;
-  border-color: #e4daf6;
-}
-
-.metric-air-quality {
-  background: #edf5fa;
-  border-color: #dceaf3;
-}
-
-.metric-heat-index {
-  background: #FCEEF3;
-  border-color: #F2DCE5;
+.weather-metric:nth-child(n + 3) {
+  border-top: 1px solid rgb(184 78 115 / 9%);
 }
 
 /* Ikon indikator */
@@ -781,7 +775,7 @@ select:focus-visible {
 .metric-value {
   color: var(--foreground);
   font-family: "Nunito", sans-serif;
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 900;
   line-height: 1.35;
   overflow-wrap: anywhere;
@@ -1733,7 +1727,7 @@ select:focus-visible {
   }
 
   .weather-metrics {
-    gap: 8px;
+    gap: 0;
   }
 
   .weather-metric {
@@ -1742,7 +1736,7 @@ select:focus-visible {
   }
 
   .metric-value {
-    font-size: 15px;
+    font-size: 19px;
   }
 
   .metric-description {
@@ -1847,7 +1841,7 @@ select:focus-visible {
   }
 
   .metric-value {
-    font-size: 14px;
+    font-size: 18px;
   }
 
   .metric-pm25 .metric-value {
@@ -1873,3 +1867,96 @@ select:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+/* Titik hijau "data terkini" di samping judul Kondisi Lingkungan */
+.weather-live {
+  display: inline-flex;
+  align-items: center;
+}
+
+.weather-live-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #3a9a5b;
+}
+
+.weather-live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #3a9a5b;
+  animation: weather-live-pulse 1.8s ease-out infinite;
+}
+
+@keyframes weather-live-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-live-dot::after {
+    animation: none;
+  }
+}
+
+/* Hirarki indikator: label kecil, angka besar, titik warna sesuai status */
+.metric-label {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.metric-value-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.metric-dot {
+  flex-shrink: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+}
+
+.dot-good { background: #3a9a5b; }
+.dot-moderate { background: #e0a526; }
+.dot-high { background: #e0703a; }
+.dot-danger { background: #c43c5c; }
+
+/* Sumber data di bawah blok indikator */
+.metric-sources {
+  margin-top: 10px;
+  padding: 0 4px;
+  color: #827985;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.metric-sources-title {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.metric-sources ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.metric-sources li span {
+  font-weight: 700;
+}
+

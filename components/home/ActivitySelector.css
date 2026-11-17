@@ -70,9 +70,21 @@
 }
 
 .activity-option:hover {
-  transform: translateY(-3px);
-  border-color: #dfadc0;
-  box-shadow: 0 8px 22px rgb(120 70 90 / 9%);
+  transform: translateY(-5px);
+  border-color: rgb(184 78 115 / 55%);
+  box-shadow: 0 12px 26px rgb(184 78 115 / 14%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .activity-option,
+  .activity-option-image {
+    transition: none;
+  }
+
+  .activity-option:hover,
+  .activity-option:hover .activity-option-image {
+    transform: none;
+  }
 }
 
 .activity-option:focus-visible,
@@ -83,9 +95,33 @@
 
 .activity-option.is-selected {
   border-color: var(--primary);
+  background: #fff4f8;
   box-shadow:
-    0 0 0 2px rgb(184 78 115 / 9%),
-    0 7px 20px rgb(184 78 115 / 7%);
+    0 0 0 2px var(--primary),
+    0 10px 24px rgb(184 78 115 / 16%);
+}
+
+.activity-option.is-selected .activity-image-wrapper {
+  background: #fdeef4;
+}
+
+/* Tanda centang di pojok kartu yang dipilih */
+.activity-option.is-selected::after {
+  content: "✓";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: var(--primary);
+  font-size: 14px;
+  font-weight: 900;
+  box-shadow: 0 2px 8px rgb(184 78 115 / 30%);
 }
 
 /* Setengah atas: gambar */
@@ -114,7 +150,7 @@
 .activity-option-content {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 0 0 50%;
   width: 100%;
   min-width: 0;
@@ -319,4 +355,12 @@
   .activity-start-button:hover:not(:disabled) {
     transform: none;
   }
+}
+/* Petunjuk saat tombol belum bisa diklik */
+.activity-start-hint {
+  margin: -8px 0 0;
+  color: var(--accent-foreground);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-align: center;
 }

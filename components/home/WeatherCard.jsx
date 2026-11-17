@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import "./WeatherCard.css";
 import {
   Sun,
   Cloud,
@@ -12,6 +13,7 @@ import {
   Droplets,
   Wind,
   ThermometerSun,
+  MapPin,
 } from "lucide-react";
 
 function toFiniteNumber(...values) {
@@ -75,7 +77,7 @@ function formatTime(date, timezone) {
 
 function formatLocation(location) {
   if (!location) {
-    return { city: "Lokasi belum dipilih", region: "" };
+    return { city: "Mau cek cuaca di mana hari ini?", region: "" };
   }
 
   if (typeof location === "object") {
@@ -85,7 +87,7 @@ function formatLocation(location) {
         location.city ||
         location.shortLabel ||
         location.label ||
-        "Lokasi belum dipilih",
+        "Mau cek cuaca di mana hari ini?",
       region: [
         location.district,
         location.regency,
@@ -397,6 +399,7 @@ export default function WeatherCard({
   const [environmentStored, setEnvironmentStored] = useState(false);
 
   const formattedLocation = formatLocation(location);
+  const noLocation = !location && !adm4 && !coordinates;
   const forecast = weather?.forecasts?.[0] ?? null;
   const timezone = environment?.location?.timezone;
   const indicators = environment?.indicators;
@@ -604,7 +607,9 @@ export default function WeatherCard({
       value:
         humidityValue !== null
           ? `${formatNumber(humidityValue)}%`
-          : "Belum tersedia",
+          : noLocation
+            ? "— %"
+            : "Belum tersedia",
       status: humidityStatus,
       note: sourceNote(
         humidityIndicator,
@@ -616,14 +621,21 @@ export default function WeatherCard({
             : null
       ),
       type: "humidity",
+      hint: "Pilih lokasi dulu",
     },
     {
       icon: <Sun size={18} strokeWidth={1.8} />,
       label: "Indeks UV",
-      value: uvValue !== null ? formatNumber(uvValue) : "Belum tersedia",
+      value:
+        uvValue !== null
+          ? formatNumber(uvValue)
+          : noLocation
+            ? "—"
+            : "Belum tersedia",
       status: uvStatus,
       note: sourceNote(uvIndicator),
       type: "uv",
+      hint: "Menunggu lokasi",
     },
     {
       icon: <Wind size={18} strokeWidth={1.8} />,
@@ -631,7 +643,9 @@ export default function WeatherCard({
       value:
         airQualityValue !== null
           ? `${formatNumber(airQualityValue)} ${airQualityIndicator?.unit || ""}`.trim()
-          : "Belum tersedia",
+          : noLocation
+            ? "— AQI"
+            : "Belum tersedia",
       status: airQualityStatus,
       note: sourceNote(
         airQualityIndicator,
@@ -641,6 +655,7 @@ export default function WeatherCard({
           : null
       ),
       type: "air-quality",
+      hint: "Belum diatur",
     },
     {
       icon: <ThermometerSun size={18} strokeWidth={1.8} />,
@@ -648,7 +663,9 @@ export default function WeatherCard({
       value:
         heatIndexValue !== null
           ? `${formatNumber(heatIndexValue)} °C`
-          : "Belum tersedia",
+          : noLocation
+            ? "— °C"
+            : "Belum tersedia",
       status: heatIndexStatus,
       note:
         heatIndexValue !== null
@@ -656,6 +673,7 @@ export default function WeatherCard({
             sourceNote(heatIndexIndicator)
           : null,
       type: "heat-index",
+      hint: "Yuk, isi lokasinya",
     },
   ];
 
@@ -667,7 +685,19 @@ export default function WeatherCard({
     <section className="weather-card">
       <div className="weather-header">
         <div className="weather-heading">
-          <span className="weather-eyebrow">KONDISI LINGKUNGAN</span>
+          <span className="weather-eyebrow">
+            KONDISI LINGKUNGAN
+            {environmentStatus === "success" && !environmentStored && (
+              <span
+                className="weather-live"
+                role="status"
+                aria-label="Data lingkungan terkini berhasil dimuat"
+                title="Data terkini"
+              >
+                <span className="weather-live-dot" aria-hidden="true" />
+              </span>
+            )}
+          </span>
 
           <h2 className="weather-location">
             {formattedLocation.city}
@@ -678,7 +708,9 @@ export default function WeatherCard({
           )}
 
           <p className="weather-subtitle">
-            Gambaran cuaca dan paparan lingkungan
+            {noLocation
+              ? "Pilih lokasimu dulu, yuk, biar Sycle bisa carikan info udara dan suhu yang pas."
+              : "Gambaran cuaca dan paparan lingkungan"}
           </p>
         </div>
 
@@ -704,6 +736,20 @@ export default function WeatherCard({
         </p>
       )}
 
+      {noLocation ? (
+        <div className="weather-empty">
+          <span className="weather-empty-icon" aria-hidden="true">
+            <MapPin size={20} strokeWidth={1.9} />
+          </span>
+          <div>
+            <strong>Belum ada lokasi</strong>
+            <p>
+              Suhu dan kondisi cuaca akan tampil di sini setelah kamu
+              memilih lokasi.
+            </p>
+          </div>
+        </div>
+      ) : (
       <div className="weather-main">
         <div className="weather-temperature">
           <span className="weather-sun" aria-hidden="true">
@@ -725,7 +771,7 @@ export default function WeatherCard({
             {forecast?.condition || "Kondisi cuaca"}
           </span>
 
-          <StatusBadge status={temperatureStatus} />
+          {!noLocation && <StatusBadge status={temperatureStatus} />}
 
           {temperatureValue !== null && (
             <span className="temperature-source">
@@ -745,6 +791,7 @@ export default function WeatherCard({
           </strong>
         </div>
       </div>
+      )}
 
       <div className="weather-metrics">
         {metrics.map((metric) => (
@@ -760,29 +807,54 @@ export default function WeatherCard({
               <span className="metric-label">{metric.label}</span>
             </div>
 
-            <strong className="metric-value">{metric.value}</strong>
+            <div className="metric-value-row">
+              {!noLocation && metric.status.level !== "unknown" && (
+                <span
+                  className={`metric-dot dot-${metric.status.level}`}
+                  aria-hidden="true"
+                />
+              )}
+              <strong className="metric-value">{metric.value}</strong>
+            </div>
 
-            <StatusBadge status={metric.status} />
-
-            {metric.note && (
-              <span className="metric-source">{metric.note}</span>
+            {noLocation ? (
+              <span className="metric-source">{metric.hint}</span>
+            ) : (
+              <StatusBadge status={metric.status} />
             )}
           </div>
         ))}
       </div>
 
+      {/* Sumber data dikumpulkan di bawah blok, tidak di setiap kotak */}
+      {metrics.some((metric) => metric.note) && (
+        <div className="metric-sources">
+          <span className="metric-sources-title">Sumber data</span>
+          <ul>
+            {metrics
+              .filter((metric) => metric.note)
+              .map((metric) => (
+                <li key={metric.type}>
+                  <span>{metric.label}:</span>{" "}
+                  {String(metric.note).replace(/^Sumber:\s*/, "")}
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
+
       <div className="weather-notice">
         <span className="notice-icon" aria-hidden="true">!</span>
         <div>
-          <strong>Perhatikan paparan panas dan UV</strong>
+          <strong>Tips hari ini</strong>
           <p>
-            Lindungi diri dari paparan matahari langsung, cari tempat
-            teduh saat diperlukan, dan cukup minum. Indikator lingkungan
-            merupakan informasi pendukung, bukan diagnosis kesehatan.
+            Jangan lupa minum air yang cukup dan pakai perlindungan ekstra
+            kalau kamu beraktivitas di luar ruangan, ya!
           </p>
         </div>
       </div>
 
+      {!noLocation && (
       <div className="weather-source">
         <span className="source-indicator" />
         <span>
@@ -805,6 +877,7 @@ export default function WeatherCard({
               : ""}
         </span>
       </div>
+      )}
     </section>
   );
 }

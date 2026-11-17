@@ -90,8 +90,8 @@ export default function ActivitySelector({
 
       <div className="activity-note">
         <p>
-          Pilihanmu membantu Sycle menyesuaikan informasi
-          lingkungan yang relevan untukmu.
+          Pilih aktivitas utamamu hari ini supaya Sycle bisa kasih
+          rekomendasi perlindungan yang paling pas.
         </p>
       </div>
 
@@ -100,9 +100,16 @@ export default function ActivitySelector({
         className="activity-start-button"
         onClick={onStartCheckin}
         disabled={!canContinue}
+        aria-describedby={canContinue ? undefined : "activity-start-hint"}
       >
         <span>Yuk, Kenali Kondisimu Hari Ini</span>
       </button>
+
+      {!canContinue && (
+        <p id="activity-start-hint" className="activity-start-hint">
+          Pilih salah satu aktivitas di atas dulu, ya.
+        </p>
+      )}
 
       <p className="activity-disclaimer">
         Informasi bersifat edukatif dan bukan diagnosis medis.

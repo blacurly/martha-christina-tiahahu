@@ -312,7 +312,7 @@ export default function ChatWidget () {
         onClick={() => setIsOpen(previous => !previous)}
         aria-label={isOpen ? 'Tutup Tanya Sycle' : 'Buka Tanya Sycle'}
         aria-expanded={isOpen}
-        className='group flex items-center gap-2 rounded-full border border-white/80 bg-[#B84E73] py-3 pl-4 pr-5 text-white shadow-[0_6px_24px_rgba(184,78,115,0.32)] transition duration-200 hover:-translate-y-1 hover:bg-[#8E3E5E] hover:shadow-[0_10px_28px_rgba(184,78,115,0.35)] active:translate-y-0'
+        className='group flex items-center gap-2 rounded-full border border-white/80 bg-[#B84E73] p-3.5 text-white sm:py-3 sm:pl-4 sm:pr-5 shadow-[0_6px_24px_rgba(184,78,115,0.32)] transition duration-200 hover:-translate-y-1 hover:bg-[#8E3E5E] hover:shadow-[0_10px_28px_rgba(184,78,115,0.35)] active:translate-y-0'
       >
         {isOpen ? (
           <X size={21} />
@@ -327,7 +327,7 @@ export default function ChatWidget () {
           </span>
         )}
 
-        <span className='text-sm font-bold'>
+        <span className='hidden text-sm font-bold sm:inline'>
           {isOpen ? 'Tutup Chat' : <>Tanya <span translate="no">Sycle</span></>}
         </span>
       </button>
