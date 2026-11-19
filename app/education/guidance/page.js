@@ -261,7 +261,7 @@ export default function EducationGuidancePage() {
             className="pointer-events-none absolute -bottom-24 right-36 -z-10 size-56 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
           />
 
-          <div className="relative grid items-center gap-8 lg:grid-cols-[1fr_230px] lg:gap-12">
+          <div className="relative grid items-center gap-8 md:grid-cols-[1fr_170px] lg:grid-cols-[1fr_230px] lg:gap-12">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-3.5 py-2 text-sm font-extrabold text-[#984568]">
                 <BookOpen className="size-4" />
@@ -291,14 +291,14 @@ export default function EducationGuidancePage() {
               </div>
             </div>
 
-            <div className="hidden justify-center lg:flex">
+            <div className="order-first flex justify-center md:order-none">
               <Image
                 src="/brand/guidance-hero.webp"
                 alt=""
                 width={458}
                 height={640}
                 priority
-                className="h-auto w-[210px] mix-blend-multiply"
+                className="h-auto w-[110px] mix-blend-multiply sm:w-[160px] lg:w-[210px]"
               />
             </div>
           </div>

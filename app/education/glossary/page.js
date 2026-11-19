@@ -326,7 +326,7 @@ export default function GlossaryPage() {
             className="pointer-events-none absolute -bottom-24 right-36 -z-10 size-56 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
           />
 
-          <div className="relative grid items-center gap-5 lg:grid-cols-[1fr_320px] lg:gap-6">
+          <div className="relative grid items-center gap-5 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_320px] lg:gap-6">
             {/* Konten teks */}
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-3.5 py-2 text-sm font-extrabold text-[#984568]">
@@ -358,7 +358,7 @@ export default function GlossaryPage() {
             </div>
 
             {/* Ilustrasi */}
-            <div className="hidden items-center justify-center lg:flex">
+            <div className="order-first flex items-center justify-center md:order-none">
               <video
                 src="/brand/glossary-hero.mp4"
                 poster="/brand/glossary-hero-poster.webp"
@@ -368,7 +368,7 @@ export default function GlossaryPage() {
                 playsInline
                 preload="metadata"
                 aria-hidden="true"
-                className="h-[300px] w-[300px] rounded-[24px] object-cover"
+                className="size-[150px] rounded-[24px] object-cover sm:size-[220px] lg:size-[300px]"
               />
             </div>
           </div>
@@ -405,7 +405,7 @@ export default function GlossaryPage() {
 
                 <CategoryIcon
                   category={termOfTheDay.category}
-                  className="hidden size-24 rounded-[28px] sm:flex"
+                  className="flex size-16 rounded-[20px] sm:size-24 sm:rounded-[28px]"
                   iconClassName="size-12"
                 />
               </div>

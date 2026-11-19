@@ -452,7 +452,7 @@ export default function HealthcarePage() {
           />
 
           {/* HERO CONTENT */}
-          <div className="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-[1fr_300px] lg:gap-10">
+          <div className="relative grid grid-cols-1 items-center gap-8 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_300px] lg:gap-10">
             {/* TEXT */}
             <div className="max-w-[760px]">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-3.5 py-2 text-sm font-extrabold text-[#984568]">
@@ -484,14 +484,14 @@ export default function HealthcarePage() {
             </div>
 
             {/* HERO ILLUSTRATION */}
-            <div className="hidden lg:flex lg:justify-center">
-              <div className="relative size-[300px] overflow-hidden">
+            <div className="order-first flex justify-center md:order-none">
+              <div className="relative size-[150px] overflow-hidden sm:size-[220px] lg:size-[300px]">
                 <Image
                   src="/images/healthcare/hospital.png"
                   alt="Ilustrasi fasilitas kesehatan dan rumah sakit"
                   fill
                   priority
-                  sizes="300px"
+                  sizes="(min-width: 1024px) 300px, 220px"
                   className="object-contain"
                 />
               </div>

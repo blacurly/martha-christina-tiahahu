@@ -5,7 +5,16 @@ import Image from "next/image";
 import LogoutButton from "@/components/profile/LogoutButton";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { MapPin, UserRound } from "lucide-react";
+import {
+  BookOpen,
+  CalendarHeart,
+  Hospital,
+  House,
+  LogIn,
+  MapPin,
+  UserRound,
+} from "lucide-react";
+import "./BottomNav.css";
 
 import { createClient } from "@/lib/supabase/client";
 
@@ -14,6 +23,14 @@ const navItems = [
   { href: "/healthtracker", label: "Health Tracker" },
   { href: "/education", label: "Info & Edukasi" },
   { href: "/healthcare", label: "Healthcare" },
+];
+
+// Menu bawah di HP: label lebih pendek agar muat lima ikon.
+const bottomNavItems = [
+  { href: "/", label: "Beranda", icon: House },
+  { href: "/healthtracker", label: "Tracker", icon: CalendarHeart },
+  { href: "/education", label: "Edukasi", icon: BookOpen },
+  { href: "/healthcare", label: "Healthcare", icon: Hospital },
 ];
 
 export default function Navbar() {
@@ -71,7 +88,16 @@ export default function Navbar() {
     };
   }, []);
 
+  const accountItem = user
+    ? { href: "/profile", label: "Akun", icon: UserRound }
+    : { href: "/login", label: "Masuk", icon: LogIn };
+
+  const isAccountActive = user
+    ? isActive("/profile")
+    : pathname === "/login" || pathname === "/signup";
+
   return (
+    <>
     <header className="header">
       <Link className="brand" href="/" aria-label="SYCLE Beranda" translate="no">
         <Image
@@ -185,5 +211,28 @@ export default function Navbar() {
           ))}
       </div>
     </header>
+
+    <nav className="bottom-nav" aria-label="Navigasi utama (seluler)">
+      {[...bottomNavItems, accountItem].map((item) => {
+        const Icon = item.icon;
+        const active =
+          item === accountItem ? isAccountActive : isActive(item.href);
+
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`bottom-nav-item ${active ? "is-active" : ""}`}
+            aria-current={active ? "page" : undefined}
+          >
+            <span className="bottom-nav-icon" aria-hidden="true">
+              <Icon size={21} strokeWidth={active ? 2.3 : 1.9} />
+            </span>
+            <span>{item.label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+    </>
   );
 }

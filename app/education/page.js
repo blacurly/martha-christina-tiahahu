@@ -200,7 +200,7 @@ export default function EducationPage() {
             className="pointer-events-none absolute -bottom-28 right-24 -z-10 size-64 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
           />
 
-          <div className="relative grid items-center gap-9 lg:grid-cols-[1fr_300px] lg:gap-12">
+          <div className="relative grid items-center gap-9 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_300px] lg:gap-12">
             <div className="max-w-[680px]">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB]/90 px-3.5 py-2 text-sm font-bold text-[#984568]">
                 <Sparkles className="size-4" />
@@ -255,8 +255,8 @@ export default function EducationPage() {
             </div>
 
             {/* Hero visual */}
-            <div className="hidden lg:flex lg:justify-center">
-              <div className="overflow-hidden rounded-[32px] border border-white/80 shadow-[0_12px_40px_rgb(120_70_90_/_12%)]">
+            <div className="order-first flex justify-center md:order-none">
+              <div className="overflow-hidden rounded-[24px] lg:rounded-[32px] border border-white/80 shadow-[0_12px_40px_rgb(120_70_90_/_12%)]">
                 <video
                   src="/brand/education-hero.mp4"
                   poster="/brand/education-hero-poster.webp"
@@ -266,7 +266,7 @@ export default function EducationPage() {
                   playsInline
                   preload="metadata"
                   aria-hidden="true"
-                  className="block size-[300px] object-cover"
+                  className="block size-[150px] object-cover sm:size-[220px] lg:size-[300px]"
                 />
               </div>
             </div>

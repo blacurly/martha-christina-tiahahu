@@ -80,7 +80,7 @@ export default function TrackerDashboard({
           className="pointer-events-none absolute -bottom-28 right-24 -z-10 size-64 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
         />
 
-        <div className="relative grid items-center gap-8 lg:grid-cols-[1fr_300px] lg:gap-12">
+        <div className="relative grid items-center gap-8 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_300px] lg:gap-12">
 
           {/* TEXT CONTENT */}
           <div className="max-w-[680px]">
@@ -134,14 +134,14 @@ export default function TrackerDashboard({
           </div>
 
           {/* HERO ILLUSTRATION */}
-          <div className="hidden lg:flex lg:justify-center">
-            <div className="relative size-[300px] overflow-hidden rounded-[32px]">
+          <div className="order-first flex justify-center md:order-none">
+            <div className="relative size-[150px] overflow-hidden rounded-[24px] sm:size-[220px] lg:size-[300px] lg:rounded-[32px]">
               <Image
                 src="/images/healthtracker/daily-illustration.jpg"
                 alt="Ilustrasi perempuan dan kepedulian terhadap kesehatan diri"
                 fill
                 priority
-                sizes="300px"
+                sizes="(min-width: 1024px) 300px, 220px"
                 className="object-contain"
               />
             </div>

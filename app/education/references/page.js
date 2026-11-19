@@ -149,7 +149,7 @@ export default function EducationReferencesPage() {
             className="pointer-events-none absolute -bottom-24 right-36 -z-10 size-56 rounded-full bg-[#E9F2EA] opacity-90 blur-3xl"
           />
 
-          <div className="relative grid items-center gap-8 lg:grid-cols-[1fr_230px] lg:gap-12">
+          <div className="relative grid items-center gap-8 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_230px] lg:gap-12">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#EAD7E0] bg-[#FFF8FB] px-3.5 py-2 text-sm font-extrabold text-[#984568]">
                 <BookOpen className="size-4" />
@@ -180,14 +180,14 @@ export default function EducationReferencesPage() {
             </div>
 
             {/* HERO ILLUSTRATION */}
-            <div className="hidden lg:flex lg:justify-center">
-              <div className="relative h-[360px] w-[360px] overflow-hidden">
+            <div className="order-first flex justify-center md:order-none">
+              <div className="relative size-[150px] overflow-hidden sm:size-[220px] lg:size-[360px]">
                 <Image
                   src="/images/education/reference.png"
                   alt="Ilustrasi perempuan dan kepedulian terhadap kesehatan diri"
                   fill
                   priority
-                  sizes="360px"
+                  sizes="(min-width: 1024px) 360px, 220px"
                   className="object-contain"
                 />
               </div>

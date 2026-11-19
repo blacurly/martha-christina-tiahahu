@@ -133,7 +133,7 @@ export default function ChatWidget () {
 
   return (
     <div
-      className={`fixed bottom-5 right-5 z-[100] flex flex-col items-end gap-3 ${pageModalOpen && !isOpen ? 'hidden' : ''}`}
+      className={`fixed bottom-[calc(80px+env(safe-area-inset-bottom))] right-4 z-[100] md:bottom-5 md:right-5 flex flex-col items-end gap-3 ${pageModalOpen && !isOpen ? 'hidden' : ''}`}
     >
       {isOpen && (
         <section

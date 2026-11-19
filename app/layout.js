@@ -32,6 +32,8 @@ export const metadata = {
 export const viewport = {
   themeColor: "#FFF8FB",
   colorScheme: "only light",
+  // Agar bilah menu bawah di HP tidak tertutup garis/home indicator iPhone.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }) {

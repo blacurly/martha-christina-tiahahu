@@ -40,7 +40,7 @@
 /* Tombol Tanya Sycle tidak menutupi isi halaman di HP */
 @media (max-width: 640px) {
   .home-page {
-    padding-bottom: 84px;
+    padding-bottom: 24px;
   }
 
   .metric-sources {
