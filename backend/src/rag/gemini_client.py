@@ -24,7 +24,7 @@ def model_chain():
     return result
 
 
-def post_gemini(payload, api_key, timeout=25):
+def post_gemini(payload, api_key, timeout=12):
     last_error = None
 
     for index, model in enumerate(model_chain()):
@@ -58,7 +58,7 @@ def post_gemini(payload, api_key, timeout=25):
     raise last_error or RuntimeError("Tidak ada model Gemini yang diatur")
 
 
-def translate_to_english(text, api_key, timeout=8):
+def translate_to_english(text, api_key, timeout=5):
     """Terjemahkan pertanyaan ke bahasa Inggris untuk pencarian sumber.
     Evidence kebanyakan berbahasa Inggris, jadi pertanyaan berbahasa Indonesia
     sering tidak menemukan sumber yang topiknya sama. Bila gagal, kembalikan None."""
