@@ -177,7 +177,13 @@ export default function HealthTrackerAssessment() {
       const draft = params.get("resume") === "1" ? readPendingCheckIn() : null;
 
       if (!draft) {
-        prefillActivity(HOME_ACTIVITY_TO_HT04[params.get("activity")]);
+        const homeActivity = HOME_ACTIVITY_TO_HT04[params.get("activity")];
+        if (homeActivity) {
+          // Aktivitas sudah dipilih di Beranda: langsung ke Tahap 02 (Kondisi).
+          // Tahap 01 tetap bisa dibuka lewat tombol Kembali bila ingin mengubahnya.
+          prefillActivity(homeActivity);
+          setCurrentStep(1);
+        }
         return;
       }
 
