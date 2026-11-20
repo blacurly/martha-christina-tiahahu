@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { LogIn, UserPlus } from "lucide-react";
+import { ClipboardPen, LogIn, UserPlus } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { connection } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -46,9 +46,10 @@ async function HealthTrackerContent({ searchParams }) {
           </h1>
 
           <p className="mt-3 max-w-2xl leading-7 text-[#6F6570]">
-            Kamu bisa menggunakan check-in untuk memahami pengalaman
-            tubuh dan konteks lingkunganmu. Masuk atau daftar untuk
-            mengakses catatan dan riwayat melalui akunmu.
+            Kamu bisa langsung mencoba check-in tanpa akun untuk memahami
+            pengalaman tubuh dan konteks lingkunganmu. Masuk atau daftar
+            bila ingin menyimpan catatan, melihat riwayat, dan memakai
+            Refleksi AI.
           </p>
         </div>
 
@@ -64,9 +65,19 @@ async function HealthTrackerContent({ searchParams }) {
 
           <div className="mt-6 flex flex-wrap gap-3">
             <Button
-              render={<Link href="/login?next=/healthtracker" />}
+              render={<Link href="/healthtracker/assessment" />}
               nativeButton={false}
               variant="syclePrimary"
+              size="pill"
+            >
+              <ClipboardPen size={18} />
+              Coba Check-In tanpa akun
+            </Button>
+
+            <Button
+              render={<Link href="/login?next=/healthtracker" />}
+              nativeButton={false}
+              variant="sycleOutline"
               size="pill"
             >
               <LogIn size={18} />

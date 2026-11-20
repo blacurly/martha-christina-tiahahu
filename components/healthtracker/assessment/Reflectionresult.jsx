@@ -52,22 +52,18 @@ function parseBullets(body) {
 /* ---------- Small UI pieces ---------- */
 
 const headingTones = {
-  rose: "bg-rose-100 text-rose-600",
-  sky: "bg-sky-100 text-sky-600",
-  amber: "bg-amber-100 text-amber-600",
-  violet: "bg-violet-100 text-violet-600",
-  slate: "bg-slate-100 text-slate-600",
+  rose: "text-[#B84E73]",
+  sky: "text-[#4789B2]",
+  amber: "text-[#B0631F]",
+  violet: "text-[#77649B]",
+  slate: "text-[#8A7D89]",
 };
 
 function SectionHeading({ icon: Icon, children, tone = "rose" }) {
   return (
-    <div className="mb-3 flex items-center gap-2.5">
-      <span
-        className={`flex h-8 w-8 items-center justify-center rounded-lg ${headingTones[tone]}`}
-      >
-        <Icon className="h-4 w-4" />
-      </span>
-      <h3 className="text-base font-semibold text-slate-900">{children}</h3>
+    <div className="mb-3 flex items-center gap-2">
+      <Icon className={`h-[18px] w-[18px] shrink-0 ${headingTones[tone]}`} />
+      <h3 className="text-base font-bold text-[#332A35]">{children}</h3>
     </div>
   );
 }
@@ -99,14 +95,14 @@ export default function ReflectionResult({ data }) {
   const tips = saran ? parseBullets(saran.body) : [];
 
   return (
-    <div className="space-y-6">
+    <div className="divide-y divide-[#F0E3E9] [&>section]:py-5 [&>section:first-child]:pt-0 [&>section:last-child]:pb-0">
       {/* Gambaran kondisi hari ini */}
       {ringkasan && (
-        <section className="rounded-2xl bg-gradient-to-br from-rose-50 to-pink-50 p-4 ring-1 ring-rose-100">
+        <section>
           <SectionHeading icon={HeartPulse} tone="rose">
             {ringkasan.title}
           </SectionHeading>
-          <p className="text-sm leading-relaxed text-slate-700">
+          <p className="text-sm leading-relaxed text-[#5F5360]">
             {renderInline(ringkasan.body)}
           </p>
         </section>
@@ -114,11 +110,11 @@ export default function ReflectionResult({ data }) {
 
       {/* Konteks lingkungan */}
       {iklim && (
-        <section className="rounded-2xl bg-sky-50/60 p-4 ring-1 ring-sky-100">
+        <section>
           <SectionHeading icon={CloudSun} tone="sky">
             {iklim.title}
           </SectionHeading>
-          <p className="text-sm leading-relaxed text-slate-700">
+          <p className="text-sm leading-relaxed text-[#5F5360]">
             {renderInline(iklim.body)}
           </p>
         </section>
@@ -130,22 +126,22 @@ export default function ReflectionResult({ data }) {
           <SectionHeading icon={Lightbulb} tone="amber">
             {saran.title}
           </SectionHeading>
-          <ul className="space-y-2.5">
+          <ul className="space-y-3">
             {tips.map((tip, i) => {
               const m = tip.match(/\s*\(([^)]+)\)\s*$/);
               const text = m ? tip.replace(m[0], "") : tip;
               return (
                 <li
                   key={i}
-                  className="flex gap-3 rounded-xl border border-slate-100 bg-white p-3 shadow-sm"
+                  className="flex gap-3"
                 >
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
+                  <CheckCircle2 className="mt-0.5 h-[18px] w-[18px] shrink-0 text-[#527A59]" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm leading-relaxed text-slate-700">
+                    <p className="text-sm leading-relaxed text-[#5F5360]">
                       {renderInline(text)}
                     </p>
                     {m && (
-                      <span className="mt-1.5 inline-block rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                      <span className="mt-1 inline-block text-[11px] font-medium text-[#8A7D89]">
                         {m[1]}
                       </span>
                     )}
@@ -163,7 +159,7 @@ export default function ReflectionResult({ data }) {
           <SectionHeading icon={Info} tone="slate">
             {s.title}
           </SectionHeading>
-          <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700">
+          <p className="whitespace-pre-line text-sm leading-relaxed text-[#5F5360]">
             {renderInline(s.body)}
           </p>
         </section>
@@ -175,28 +171,28 @@ export default function ReflectionResult({ data }) {
           <SectionHeading icon={BookOpen} tone="violet">
             Sumber rujukan
           </SectionHeading>
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {data.sources.map((src) => (
               <li key={src.n}>
                 <a
                   href={src.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-3 shadow-sm transition hover:border-violet-200 hover:shadow-md"
+                  className="group flex items-start gap-3"
                 >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-violet-100 text-xs font-semibold text-violet-700">
-                    {src.n}
+                  <span className="w-5 shrink-0 pt-0.5 text-xs font-bold text-[#77649B]">
+                    {src.n}.
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium leading-snug text-slate-900 group-hover:text-violet-700">
+                    <p className="text-sm font-semibold leading-snug text-[#332A35] group-hover:text-[#B84E73] group-hover:underline">
                       {src.title}
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-0.5 text-xs text-[#8A7D89]">
                       {src.publisher}
                       {src.page ? ` · Hal. ${src.page}` : ""}
                     </p>
                   </div>
-                  <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 group-hover:text-violet-600" />
+                  <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-[#A08D9C] group-hover:text-[#B84E73]" />
                 </a>
               </li>
             ))}
@@ -207,25 +203,25 @@ export default function ReflectionResult({ data }) {
       {/* Artikel terkait */}
       {data?.relatedArticles?.length > 0 && (
         <section>
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+          <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-[#8A7D89]">
             Bacaan terkait
           </h3>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-3">
             {data.relatedArticles.map((a) => (
               <a
                 key={a.url}
                 href={a.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex flex-col justify-between rounded-xl border border-slate-100 bg-slate-50 p-3 transition hover:bg-white hover:shadow-md"
+                className="group flex items-start justify-between gap-3"
               >
-                <p className="line-clamp-3 text-sm font-medium leading-snug text-slate-800 group-hover:text-rose-600">
-                  {a.title}
-                </p>
-                <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
-                  <span className="truncate">{a.publisher}</span>
-                  <ExternalLink className="ml-2 h-3.5 w-3.5 shrink-0" />
-                </div>
+                <span>
+                  <span className="block text-sm font-semibold leading-snug text-[#332A35] group-hover:text-[#B84E73] group-hover:underline">
+                    {a.title}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-[#8A7D89]">{a.publisher}</span>
+                </span>
+                <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-[#A08D9C] group-hover:text-[#B84E73]" />
               </a>
             ))}
           </div>

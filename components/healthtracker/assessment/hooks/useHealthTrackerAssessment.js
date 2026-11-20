@@ -82,7 +82,28 @@ export default function useHealthTrackerAssessment() {
     setError("");
   }
 
+  // Isi ulang jawaban dari draf Guest setelah login/daftar.
+  function restoreDraft(draft) {
+    setCondition(draft?.condition ?? "");
+    setAnswers(draft?.answers ?? {});
+    setScores(draft?.scores ?? {});
+    setStory(draft?.story ?? "");
+    setError("");
+  }
+
+  // Aktivitas yang dipilih di Beranda langsung mengisi HT-04.
+  function prefillActivity(value) {
+    if (!value) return;
+    setAnswers((previous) =>
+      previous["HT-04"]
+        ? previous
+        : setHealthTrackerAnswer(previous, "HT-04", value)
+    );
+  }
+
   return {
+    restoreDraft,
+    prefillActivity,
     condition,
     answers,
     scores,

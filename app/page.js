@@ -20,6 +20,7 @@ export default function HomePage() {
     activity,
     setActivity,
     resetAssessment,
+    startNewHealthTrackerCheckIn,
   } = useAssessment();
 
   const [coordinates, setCoordinates] = useState(null);
@@ -122,9 +123,11 @@ export default function HomePage() {
       return;
     }
 
+    // Satu pintu: Guest dan Member langsung masuk ke check-in Health Tracker.
     resetAssessment("guest");
     setActivity(activity);
-    router.push(`/assessment?activity=${activity}`);
+    startNewHealthTrackerCheckIn();
+    router.push(`/healthtracker/assessment?activity=${activity}`);
   }
 
   async function handleUseMyLocation() {

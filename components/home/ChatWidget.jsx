@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { Heart, MessageCircle, Send, Sparkles, X } from 'lucide-react'
+import { Heart, MessageCircle, Send, UserRound, X } from 'lucide-react'
 import FormattedText from './FormattedText'
 
 const SUGGESTED_QUESTIONS = [
@@ -20,6 +20,23 @@ function isConnectionError(error) {
   return (
     (typeof navigator !== 'undefined' && navigator.onLine === false) ||
     error instanceof TypeError
+  )
+}
+
+// Ikon di samping pesan (tanpa gelembung): Tanya Sycle = hati pink, pengguna = ikon user.
+function SycleAvatar () {
+  return (
+    <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#B84E73] text-white'>
+      <Heart size={16} fill='currentColor' />
+    </div>
+  )
+}
+
+function UserAvatar () {
+  return (
+    <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#EEE7EB] text-[#765866]'>
+      <UserRound size={17} />
+    </div>
   )
 }
 
@@ -164,13 +181,11 @@ export default function ChatWidget () {
           </header>
 
           {/* Chat messages */}
-          <div className='flex flex-1 flex-col gap-3 overflow-y-auto p-4'>
-            <div className='flex items-start gap-2'>
-              <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#F8E8EF] text-[#B84E73]'>
-                <Sparkles size={17} />
-              </div>
+          <div className='flex flex-1 flex-col gap-5 overflow-y-auto p-4'>
+            <div className='flex items-start gap-3'>
+              <SycleAvatar />
 
-              <div className='max-w-[85%] rounded-2xl rounded-tl-sm bg-white p-3 text-sm leading-relaxed text-[#493D49] shadow-sm'>
+              <div className='min-w-0 flex-1 pt-1 text-sm leading-relaxed text-[#493D49]'>
                 Hai! 💗 Aku Tanya <span translate="no">Sycle</span>.
                 <p className='mt-2'>
                   Aku akan membantumu memahami hubungan lingkungan dengan
@@ -181,7 +196,7 @@ export default function ChatWidget () {
 
             {/* Rekomendasi pertanyaan: di bawah sapaan, hilang setelah pengguna bertanya */}
             {messages.length === 0 && (
-              <div className='pl-10'>
+              <div className='pl-11'>
                 <p className='mb-2 text-xs font-semibold text-[#765866]'>
                   Coba tanyakan:
                 </p>
@@ -201,16 +216,11 @@ export default function ChatWidget () {
             )}
 
             {messages.map((item, index) => (
-              <div
-                key={index}
-                className={`max-w-[88%] rounded-2xl p-3 text-sm leading-relaxed ${
-                  item.role === 'user'
-                    ? 'self-end rounded-tr-sm bg-[#B84E73] text-white'
-                    : 'self-start rounded-tl-sm bg-white text-[#493D49] shadow-sm'
-                }`}
-              >
+              <div key={index} className='flex items-start gap-3'>
+                {item.role === 'user' ? <UserAvatar /> : <SycleAvatar />}
+                <div className='min-w-0 flex-1 pt-1 text-sm leading-relaxed text-[#493D49]'>
                 {item.role === 'user' ? (
-                  <p className='whitespace-pre-wrap font-semibold text-white'>{item.content}</p>
+                  <p className='whitespace-pre-wrap font-semibold text-[#332A35]'>{item.content}</p>
                 ) : (
                   <>
                     <FormattedText text={item.content} />
@@ -251,13 +261,15 @@ export default function ChatWidget () {
                     )}
                   </>
                 )}
+                </div>
               </div>
             ))}
 
             {loading && (
-              <p style={{ color: '#D1D5DB', fontSize: 13 }}>
-                Sedang mencari informasi…
-              </p>
+              <div className='flex items-start gap-3'>
+                <SycleAvatar />
+                <p className='pt-1.5 text-sm text-[#A3949E]'>Sedang mencari informasi…</p>
+              </div>
             )}
           </div>
 

@@ -14,13 +14,11 @@ import SummaryText from "./shared/SummaryText";
 
 function SummaryCard({ icon: Icon, title, children }) {
   return (
-    <article className="rounded-2xl border border-[#EAD9F0] bg-[#FAF7FC] p-5 shadow-[0_5px_24px_rgb(120_70_90_/_4%)]">
-      <div className="mb-4 flex items-center gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#F0E8F5] text-[#76558A]">
-          <Icon size={21} />
-        </div>
+    <article className="border-t border-[#F0E3E9] pt-6">
+      <div className="mb-5 flex items-center gap-2">
+        <Icon size={18} className="shrink-0 text-[#76558A]" />
 
-        <h3 className="text-sm font-bold text-[#76558A]">
+        <h3 className="text-sm font-bold uppercase tracking-wide text-[#76558A]">
           {title}
         </h3>
       </div>
@@ -61,8 +59,8 @@ export default function AISummaryScreen({
         </h2>
 
         <p className="mt-2 text-sm leading-relaxed text-[#746875]">
-          Gambaran kondisi, konteks lingkungan, dan saran yang disusun AI dari
-          catatanmu hari ini.
+          Gambaran kondisi, konteks lingkungan, dan saran dari catatanmu hari
+          ini, dirangkum AI berdasarkan sumber kesehatan tepercaya.
         </p>
       </div>
 
@@ -91,7 +89,7 @@ export default function AISummaryScreen({
       )}
 
       {/* Jawaban asli check-in tetap bisa dibuka */}
-      <details className="group rounded-2xl border border-[#EAD8E0] bg-white p-4">
+      <details className="group border-t border-[#F0E3E9] pt-5">
         <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-bold text-[#8E3E5E]">
           Lihat jawaban check-in
           <ChevronDown
@@ -115,7 +113,7 @@ export default function AISummaryScreen({
       </details>
 
       {/* Catatan Penting */}
-      <div className="rounded-2xl border border-[#D7E6D9] bg-[#E9F2EA] p-4">
+      <div className="border-t border-[#F0E3E9] pt-5">
         <div className="flex items-start gap-3">
           <ShieldCheck
             size={20}

@@ -657,7 +657,7 @@ export default function EducationGuidancePage() {
           </div>
 
           <Link
-            href="/assessment"
+            href="/healthtracker/assessment"
             className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-transparent !bg-[#52775B] px-5 text-sm font-bold !text-white shadow-sm transition-colors duration-200 hover:!bg-[#41613F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#52775B] focus-visible:ring-offset-2"
           >
             <BookOpen className="size-4" />

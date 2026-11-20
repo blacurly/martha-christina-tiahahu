@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAssessment } from "@/context/AssessmentContext";
 import { generateHealthTrackerSummary } from "./assessment/utils/generateHealthTrackerSummary";
@@ -23,6 +23,14 @@ import useHealthTrackerSubmission from "./assessment/hooks/useHealthTrackerSubmi
 import useHealthTrackerNavigation from "./assessment/hooks/useHealthTrackerNavigation";
 import SummaryQuestionCard from "./assessment/shared/SummaryQuestionCard";
 import HealthTrackerLocationPicker from "./HealthTrackerLocationPicker";
+import RecommendationsCard from "./assessment/RecommendationsCard";
+import GuestActionsPanel from "./assessment/GuestActionsPanel";
+import { createClient } from "@/lib/supabase/client";
+import {
+  HOME_ACTIVITY_TO_HT04,
+  clearPendingCheckIn,
+  readPendingCheckIn,
+} from "@/lib/healthtracker/pendingCheckIn";
 
 import {
   buildSummaryQuestions,
@@ -75,13 +83,26 @@ export default function HealthTrackerAssessment() {
     updateAnswer,
     updateScore,
     changeCondition,
+    restoreDraft,
+    prefillActivity,
   } = useHealthTrackerAssessment();
 
   const {
-    snapshot,
+    snapshot: liveSnapshot,
     environmentLoading,
     environmentError,
   } = useHealthTrackerEnvironment(environmentLocation);
+
+  // null = sedang dicek; true = belum login (Guest); false = Member.
+  const [isGuest, setIsGuest] = useState(null);
+  // Data lingkungan dari draf Guest dipakai bila lokasi belum tersedia setelah login.
+  const [restoredSnapshot, setRestoredSnapshot] = useState(null);
+  // Aksi yang dipilih Guest sebelum login ("save" / "ai"), dijalankan sekali setelah draf terpasang.
+  const pendingActionRef = useRef(null);
+  const [resumeTick, setResumeTick] = useState(0);
+
+  const snapshot = liveSnapshot ?? restoredSnapshot;
+
 
   const generatedSummary = useMemo(
     () =>
@@ -143,6 +164,49 @@ export default function HealthTrackerAssessment() {
   const storyStep = reviewStep - 1;
   const aiSummaryStep = summaryStep + 1;
 
+  // Saat halaman dibuka: cek status login (dari perangkat, tetap jalan saat offline), lalu
+  // isi aktivitas dari Beranda atau lanjutkan draf Guest setelah login/daftar.
+  useEffect(() => {
+    let active = true;
+
+    function start(guest) {
+      if (!active) return;
+      setIsGuest(guest);
+
+      const params = new URLSearchParams(window.location.search);
+      const draft = params.get("resume") === "1" ? readPendingCheckIn() : null;
+
+      if (!draft) {
+        prefillActivity(HOME_ACTIVITY_TO_HT04[params.get("activity")]);
+        return;
+      }
+
+      restoreDraft(draft);
+      setRestoredSnapshot(draft.snapshot ?? null);
+
+      if (guest) {
+        // Belum jadi login: tampilkan lagi ringkasannya.
+        setCurrentStep(summaryStep);
+        return;
+      }
+
+      pendingActionRef.current = draft.intent === "ai" ? "ai" : "save";
+      setCurrentStep(draft.intent === "ai" ? reviewStep : summaryStep);
+      setResumeTick((value) => value + 1);
+    }
+
+    createClient()
+      .auth.getSession()
+      .then(({ data }) => start(!data.session))
+      .catch(() => start(true));
+
+    return () => {
+      active = false;
+    };
+    // Sekali saat halaman dibuka.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function validateCurrentStep() {
     if (currentStep === 0) {
       if (!isAnswered(activityQuestion, answers)) {
@@ -197,6 +261,26 @@ export default function HealthTrackerAssessment() {
     generatedSummary,
     snapshot,
   });
+
+  // Jalankan aksi yang dipilih Guest setelah jawaban draf terpasang.
+  useEffect(() => {
+    const action = pendingActionRef.current;
+    if (!resumeTick || !action) return;
+    pendingActionRef.current = null;
+
+    if (action === "ai") {
+      handleContinueWithAI();
+    } else {
+      handleSubmit();
+    }
+    // Hanya dipicu oleh resumeTick (draf baru dipasang).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeTick]);
+
+  function finishWithoutSaving() {
+    clearPendingCheckIn();
+    router.push("/");
+  }
 
   function renderSummaryItem(question) {
     return (
@@ -368,6 +452,19 @@ export default function HealthTrackerAssessment() {
             />
           )}
 
+          {/* Saran umum tanpa AI (Guest dan Member) */}
+          {currentStep === summaryStep && (
+            <RecommendationsCard condition={condition} answers={answers} />
+          )}
+
+          {/* Guest: simpan / Refleksi AI butuh akun */}
+          {currentStep === summaryStep && isGuest && (
+            <GuestActionsPanel
+              draft={{ condition, answers, scores, story, snapshot }}
+              onFinish={finishWithoutSaving}
+            />
+          )}
+
           {/* Hasil dengan AI */}
           {currentStep === aiSummaryStep && (
             <AISummaryScreen
@@ -407,7 +504,15 @@ export default function HealthTrackerAssessment() {
             Kembali
           </button>
 
-        {currentStep === reviewStep ? (
+        {currentStep === reviewStep && isGuest ? (
+          <button
+            type="button"
+            onClick={handleContinueWithoutAI}
+            className="rounded-xl bg-[#B84E73] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#8E3E5E]"
+          >
+            Lihat Ringkasan
+          </button>
+        ) : currentStep === summaryStep && isGuest ? null : currentStep === reviewStep ? (
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
@@ -430,7 +535,10 @@ export default function HealthTrackerAssessment() {
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
-              onClick={() => router.push("/healthtracker")}
+              onClick={() => {
+                clearPendingCheckIn();
+                router.push("/healthtracker");
+              }}
               disabled={saving}
               className="rounded-xl border border-[#B84E73] px-5 py-3 text-sm font-semibold text-[#8E3E5E] transition hover:bg-[#FFF8FB] disabled:opacity-50"
             >

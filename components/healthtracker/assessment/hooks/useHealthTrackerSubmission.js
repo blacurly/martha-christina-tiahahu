@@ -8,6 +8,7 @@ import {
   lastTrackerUser,
   queueTrackerRecord,
 } from "@/lib/healthtracker/offlineQueue";
+import { clearPendingCheckIn } from "@/lib/healthtracker/pendingCheckIn";
 
 // Saat offline, catatan disimpan dulu di perangkat dan dikirim otomatis saat online.
 async function saveOnDevice(input) {
@@ -73,6 +74,7 @@ export default function useHealthTrackerSubmission({
         return;
       }
 
+      clearPendingCheckIn();
       router.push("/healthtracker/history");
     } catch (error) {
       if (isOfflineError(error) || (await isServerUnreachable())) {
@@ -84,6 +86,7 @@ export default function useHealthTrackerSubmission({
             return;
           }
 
+          clearPendingCheckIn();
           // Beranda tersedia offline; pemberitahuan "belum tersinkron" tampil dari TrackerOfflineSync.
           router.push("/");
         } catch {

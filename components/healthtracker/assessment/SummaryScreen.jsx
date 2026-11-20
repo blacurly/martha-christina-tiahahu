@@ -39,15 +39,11 @@ function SummaryCard({
 }) {
   const styles = {
     pink: {
-      border: "border-[#F0E3E9]",
-      iconBg: "bg-[#F8E8EF]",
       icon: "text-[#B84E73]",
       title: "text-[#8E3E5E]",
       content: "text-[#5F5360]",
     },
     sage: {
-      border: "border-[#D7E6D9]",
-      iconBg: "bg-[#E9F2EA]",
       icon: "text-[#52745A]",
       title: "text-[#365541]",
       content: "text-[#526A59]",
@@ -56,16 +52,11 @@ function SummaryCard({
 
   const style = styles[color];
 
+  // Tanpa kotak: tiap bagian dipisah garis tipis agar ringkasan terlihat lega.
   return (
-    <article
-      className={`rounded-2xl border ${style.border} bg-white p-5 shadow-[0_5px_24px_rgb(120_70_90_/_4%)]`}
-    >
-      <div className="mb-4 flex items-center gap-3">
-        <div
-          className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${style.iconBg} ${style.icon}`}
-        >
-          <Icon size={21} />
-        </div>
+    <article className="border-t border-[#F0E3E9] pt-5">
+      <div className="mb-3 flex items-center gap-2">
+        <Icon size={18} className={`shrink-0 ${style.icon}`} />
 
         <h3 className={`text-sm font-bold ${style.title}`}>
           {title}
@@ -73,7 +64,7 @@ function SummaryCard({
       </div>
 
       <div
-        className={`space-y-3 text-sm leading-relaxed ${style.content}`}
+        className={`space-y-3 pl-[26px] text-sm leading-relaxed ${style.content}`}
       >
         {children}
       </div>
