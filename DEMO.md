@@ -19,9 +19,8 @@ cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env         # isi SUPABASE_URL, SUPABASE_SECRET_KEY, GEMINI_API_KEY, GEMINI_MODEL
-cd src
-uvicorn api:app --port 8000
+cp .env.example .env         # isi SUPABASE_URL, SUPABASE_SECRET_KEY, GEMINI_API_KEY, GEMINI_MODEL, EMBEDDING_MODEL_NAME
+uvicorn src.api:app --port 8000   # jalankan dari folder backend (bukan dari backend/src)
 ```
 Frontend memanggil backend lewat `/api/tanya-sycle` → `FASTAPI_BASE_URL` (default `http://127.0.0.1:8000`).
 Kalau backend belum jalan, chat menampilkan "Layanan chatbot belum dapat dihubungi."
