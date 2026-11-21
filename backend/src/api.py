@@ -1,7 +1,9 @@
 import logging
 import os
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -66,6 +68,46 @@ class Catatan(BaseModel):
 
 class RefleksiRequest(BaseModel):
     catatan: Catatan
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError
+):
+    errors = []
+
+    for error in exc.errors():
+        if (
+            error["type"] == "string_too_long"
+            and "cerita" in error["loc"]
+        ):error["msg"] = "Cerita terlalu panjang, lebih dari 200 karakter"
+
+        elif (
+            error["type"] == "too_long"
+            and "gejala" in error["loc"]
+        ):error["msg"] = "Gejala Terlalu banyak, lebih dari 30 item"
+
+        elif (
+            error["type"] == "missing"
+            and error["loc"] 
+        ):error["msg"] = "Request body wajib diisi"
+
+        elif (
+            error["type"] == "model_attributes_type"
+            and error["loc"] 
+        ):error["msg"] = "Format JSON tidak Valid"
+
+        errors.append({
+            "type": error["type"],
+            "loc": error["loc"],
+            "msg": error["msg"],
+            "input": error.get("input")
+        })
+
+    return JSONResponse(
+        status_code=422,
+        content={"detail": errors}
+    )
 
 
 # =========================================================
