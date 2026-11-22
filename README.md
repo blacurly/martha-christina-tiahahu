@@ -24,10 +24,10 @@ Kenali tim di balik pengembangan SYCLE!
 
 ## Mentor
 
-| Nama Mentor |
-|:---:|
-| Andiastika Intan Pratiwi Hasan |
-| Jesslyn Audrey |
+| Nama Mentor | Kontak |
+|:---:|:---:|
+| Andiastika Intan Pratiwi Hasan | [LinkedIn](https://www.linkedin.com/in/andiastika/) |
+| Jesslyn Audrey | [LinkedIn](https://www.linkedin.com/in/jesslynaudrey) |
 
 ---
 
