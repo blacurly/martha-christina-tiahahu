@@ -465,10 +465,19 @@ export default function WeatherCard({
       setWeatherStatus("loading");
 
       try {
-        const response = await fetch(
-          `/api/weather?adm4=${encodeURIComponent(adm4)}`,
-          { cache: "no-store" }
-        );
+        const params = new URLSearchParams({ adm4 });
+        const latitude = toFiniteNumber(coordinates?.latitude, coordinates?.lat);
+        const longitude = toFiniteNumber(coordinates?.longitude, coordinates?.lon);
+
+        // Koordinat dipakai server sebagai cadangan bila BMKG tidak membalas.
+        if (latitude !== null && longitude !== null) {
+          params.set("lat", String(latitude));
+          params.set("lon", String(longitude));
+        }
+
+        const response = await fetch(`/api/weather?${params}`, {
+          cache: "no-store",
+        });
 
         const result = await response.json();
 
@@ -484,7 +493,8 @@ export default function WeatherCard({
         }
       } catch (error) {
         if (!cancelled) {
-          console.error("Gagal memuat prakiraan cuaca:", error);
+          // Prakiraan kosong bukan kerusakan aplikasi; data lingkungan tetap tampil.
+          console.warn("Prakiraan cuaca belum tersedia:", error.message);
           setWeather(null);
           setWeatherStatus("error");
         }
@@ -496,7 +506,7 @@ export default function WeatherCard({
     return () => {
       cancelled = true;
     };
-  }, [adm4]);
+  }, [adm4, coordinates?.latitude, coordinates?.longitude, coordinates?.lat, coordinates?.lon]);
 
   // Data lingkungan: kode wilayah atau koordinat perangkat.
   useEffect(() => {
