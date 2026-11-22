@@ -100,8 +100,7 @@ async def validation_exception_handler(
         errors.append({
             "type": error["type"],
             "loc": error["loc"],
-            "msg": error["msg"],
-            "input": error.get("input")
+            "msg": error["msg"]
         })
 
     return JSONResponse(
