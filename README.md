@@ -61,7 +61,6 @@ SYCLE dapat diakses secara langsung melalui browser maupun dipasang sebagai *Pro
 | Metode Akses | Tautan |
 |:---:|:---:|
 | Aplikasi Web | [Buka SYCLE](https://sycle-eta.vercel.app) |
-| Tutorial Instalasi PWA | [Lihat Tutorial Instalasi](https://drive.google.com/file/d/1ewwTdAyKrL_JXyUeo8hecBPk0jPAyjz2/view?usp=sharing) |
 
 ---
 
