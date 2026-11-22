@@ -1,0 +1,49 @@
+/* Tampilan kosong (lokasi belum dipilih): kalem, tidak lebih menonjol dari data asli */
+.weather-empty {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 22px 0;
+  padding: 16px 18px;
+  border: 1px dashed rgb(184 78 115 / 22%);
+  border-radius: 18px;
+  background: #fffafc;
+}
+
+.weather-empty-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: var(--primary);
+  background: var(--blush);
+}
+
+.weather-empty strong {
+  display: block;
+  color: var(--foreground);
+  font-family: "Nunito", sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.weather-empty p {
+  margin: 3px 0 0;
+  color: var(--muted-foreground);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* Tombol Tanya Sycle tidak menutupi isi halaman di HP */
+@media (max-width: 640px) {
+  .home-page {
+    padding-bottom: 24px;
+  }
+
+  .metric-sources {
+    font-size: 11px;
+  }
+}
