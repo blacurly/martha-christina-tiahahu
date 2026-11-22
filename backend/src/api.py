@@ -80,7 +80,7 @@ async def validation_exception_handler(
         if (
             error["type"] == "string_too_long"
             and "cerita" in error["loc"]
-        ):error["msg"] = "Cerita terlalu panjang, lebih dari 200 karakter"
+        ):error["msg"] = "Cerita terlalu panjang, lebih dari 2000 karakter"
 
         elif (
             error["type"] == "too_long"
